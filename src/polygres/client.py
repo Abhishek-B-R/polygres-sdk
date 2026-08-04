@@ -1,23 +1,35 @@
 from __future__ import annotations
 
 import math
+import platform
 import random
 import re
+import sys
 import time
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import urlparse
 
 import httpx
 
+from polygres._api_version import API_VERSION_HEADER, CLIENT_INFO_HEADER, DEFAULT_API_VERSION
+from polygres._method_metadata import bind_sdk_method
+from polygres._vendor.polygres_lib.auth import ProjectApiKeyService
+from polygres._version import __version__
+from polygres.context import ContextNamespace
 from polygres.errors import (
     PolygresAPIError,
     PolygresAuthError,
+    PolygresError,
+    PolygresMaintenanceError,
     PolygresNotFoundError,
     PolygresPermissionError,
     PolygresRateLimitError,
     PolygresRuntimeError,
     PolygresValidationError,
+    canonical_error_details,
 )
 from polygres.models import (
     ConnectionInfo,
@@ -31,10 +43,23 @@ from polygres.models import (
     VectorResult,
 )
 
-API_KEY_RE = re.compile(r"^poly_live_[0-9a-f]{32}$")
 PROJECT_RE = re.compile(r"^p[a-z0-9]{23}$")
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
-VERSION = "0.1.0"
+PROTECTED_HEADERS = frozenset(
+    {
+        "authorization",
+        "user-agent",
+        API_VERSION_HEADER.casefold(),
+        CLIENT_INFO_HEADER.casefold(),
+    }
+)
+
+
+@dataclass(frozen=True, slots=True)
+class _TransportResponse:
+    payload: dict[str, Any]
+    headers: httpx.Headers
+    status_code: int
 
 
 class Polygres:
@@ -49,11 +74,13 @@ class Polygres:
         max_retries: int = 2,
         headers: dict[str, str] | None = None,
     ) -> None:
-        if not API_KEY_RE.match(api_key):
+        if not ProjectApiKeyService.validate_project_api_key_format(api_key):
             raise PolygresValidationError("API key must match poly_live_[32hex]")
         selected_url = _select_runtime_url(runtime_url=runtime_url, base_url=base_url)
         _validate_base_url(selected_url)
         _validate_positive_timeout(connect_timeout, "connect_timeout")
+        if isinstance(timeout, bool):
+            raise PolygresValidationError("timeout must be a positive number or httpx.Timeout")
         if isinstance(timeout, (int, float)):
             _validate_positive_timeout(float(timeout), "timeout")
             timeout_config: float | httpx.Timeout = httpx.Timeout(
@@ -66,8 +93,7 @@ class Polygres:
         if max_retries < 0 or max_retries > 5:
             raise PolygresValidationError("max_retries must be between 0 and 5")
         if headers is not None and not all(
-            isinstance(key, str) and isinstance(value, str)
-            for key, value in headers.items()
+            isinstance(key, str) and isinstance(value, str) for key, value in headers.items()
         ):
             raise PolygresValidationError("headers must contain string keys and values")
 
@@ -92,12 +118,30 @@ class Polygres:
     def __exit__(self, *exc_info: object) -> None:
         self.close()
 
-    def _headers_for(self) -> dict[str, str]:
-        headers = dict(self._headers)
+    def _headers_for(self, request_headers: dict[str, str] | None = None) -> dict[str, str]:
+        headers = {
+            key: value
+            for key, value in self._headers.items()
+            if key.casefold() not in PROTECTED_HEADERS
+        }
+        headers.update(
+            {
+                key: value
+                for key, value in (request_headers or {}).items()
+                if key.casefold() not in PROTECTED_HEADERS
+            }
+        )
+        implementation = platform.python_implementation().lower()
+        python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         headers.update(
             {
                 "Authorization": f"Bearer {self._api_key}",
-                "User-Agent": f"polygres-python/{VERSION}",
+                "User-Agent": f"polygres-python/{__version__}",
+                CLIENT_INFO_HEADER: (
+                    f"polygres-python/{__version__}; python/{python_version}; "
+                    f"runtime/{implementation}"
+                ),
+                API_VERSION_HEADER: DEFAULT_API_VERSION,
             }
         )
         return headers
@@ -106,11 +150,44 @@ class Polygres:
         self,
         path: str,
         *,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
         timeout: float | httpx.Timeout | None = None,
         max_retries: int | None = None,
+        retryable: bool = True,
+        deadline: float | None = None,
     ) -> dict[str, Any]:
         return self._request(
-            "GET", path, timeout=timeout, max_retries=max_retries
+            "GET",
+            path,
+            params=params,
+            headers=headers,
+            timeout=timeout,
+            max_retries=max_retries,
+            retryable=retryable,
+            deadline=deadline,
+        )
+
+    def _get_response(
+        self,
+        path: str,
+        *,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        timeout: float | httpx.Timeout | None = None,
+        max_retries: int | None = None,
+        retryable: bool = True,
+        deadline: float | None = None,
+    ) -> _TransportResponse:
+        return self._request_response(
+            "GET",
+            path,
+            params=params,
+            headers=headers,
+            timeout=timeout,
+            max_retries=max_retries,
+            retryable=retryable,
+            deadline=deadline,
         )
 
     def _post(
@@ -118,15 +195,65 @@ class Polygres:
         path: str,
         payload: dict[str, Any],
         *,
+        headers: dict[str, str] | None = None,
         timeout: float | httpx.Timeout | None = None,
         max_retries: int | None = None,
+        retryable: bool = True,
+        deadline: float | None = None,
     ) -> dict[str, Any]:
         return self._request(
             "POST",
             path,
             json=payload,
+            headers=headers,
             timeout=timeout,
             max_retries=max_retries,
+            retryable=retryable,
+            deadline=deadline,
+        )
+
+    def _patch(
+        self,
+        path: str,
+        payload: dict[str, Any],
+        *,
+        headers: dict[str, str] | None = None,
+        timeout: float | httpx.Timeout | None = None,
+        max_retries: int | None = None,
+        retryable: bool = True,
+        deadline: float | None = None,
+    ) -> dict[str, Any]:
+        return self._request(
+            "PATCH",
+            path,
+            json=payload,
+            headers=headers,
+            timeout=timeout,
+            max_retries=max_retries,
+            retryable=retryable,
+            deadline=deadline,
+        )
+
+    def _delete(
+        self,
+        path: str,
+        payload: dict[str, Any],
+        *,
+        headers: dict[str, str] | None = None,
+        timeout: float | httpx.Timeout | None = None,
+        max_retries: int | None = None,
+        retryable: bool = True,
+        deadline: float | None = None,
+    ) -> dict[str, Any]:
+        return self._request(
+            "DELETE",
+            path,
+            json=payload,
+            headers=headers,
+            timeout=timeout,
+            max_retries=max_retries,
+            retryable=retryable,
+            deadline=deadline,
         )
 
     def _request(
@@ -135,46 +262,100 @@ class Polygres:
         path: str,
         *,
         json: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
         timeout: float | httpx.Timeout | None = None,
         max_retries: int | None = None,
+        retryable: bool = True,
+        deadline: float | None = None,
     ) -> dict[str, Any]:
-        retry_budget = self._max_retries if max_retries is None else max_retries
+        return self._request_response(
+            method,
+            path,
+            json=json,
+            params=params,
+            headers=headers,
+            timeout=timeout,
+            max_retries=max_retries,
+            retryable=retryable,
+            deadline=deadline,
+        ).payload
+
+    def _request_response(
+        self,
+        method: str,
+        path: str,
+        *,
+        json: dict[str, Any] | None = None,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        timeout: float | httpx.Timeout | None = None,
+        max_retries: int | None = None,
+        retryable: bool = True,
+        deadline: float | None = None,
+    ) -> _TransportResponse:
+        configured_retry_budget = self._max_retries if max_retries is None else max_retries
+        retry_budget = configured_retry_budget if retryable else 0
         if retry_budget < 0 or retry_budget > 5:
             raise PolygresValidationError("max_retries must be between 0 and 5")
         timeout_config = self._timeout if timeout is None else timeout
+        if isinstance(timeout_config, bool):
+            raise PolygresValidationError("timeout must be a positive number or httpx.Timeout")
         if isinstance(timeout_config, (int, float)):
             _validate_positive_timeout(float(timeout_config), "timeout")
+        elif not isinstance(timeout_config, httpx.Timeout):
+            raise PolygresValidationError("timeout must be a positive number or httpx.Timeout")
         url = f"{self._base_url}{path}"
         for attempt in range(retry_budget + 1):
+            request_timeout = _timeout_before_deadline(timeout_config, deadline, method, path)
             try:
                 response = self._client.request(
                     method,
                     url,
-                    headers=self._headers_for(),
+                    headers=self._headers_for(headers),
                     json=json,
-                    timeout=timeout_config,
+                    params=_compact(params or {}),
+                    timeout=request_timeout,
                 )
             except httpx.TimeoutException as exc:
-                if attempt < retry_budget:
-                    _sleep_before_retry(attempt, None)
+                if attempt < retry_budget and _sleep_before_retry(attempt, None, deadline=deadline):
                     continue
                 raise PolygresRuntimeError(
-                    "Polygres request timed out", status_code=None
+                    f"Polygres {method} {path} timed out after "
+                    f"{retry_budget + 1} attempts. Please wait a while and retry.",
+                    status_code=None,
                 ) from exc
             except httpx.NetworkError as exc:
-                if attempt < retry_budget:
-                    _sleep_before_retry(attempt, None)
+                if attempt < retry_budget and _sleep_before_retry(attempt, None, deadline=deadline):
                     continue
                 raise PolygresRuntimeError(
-                    "Polygres network request failed", status_code=None
+                    f"Polygres {method} {path} could not reach {self._base_url} after "
+                    f"{retry_budget + 1} attempts; check the API URL, network, and proxy "
+                    "settings, then retry",
+                    status_code=None,
                 ) from exc
 
+            error = _api_error(response, secret=self._api_key) if response.is_error else None
+            if isinstance(error, PolygresMaintenanceError):
+                raise error
             if response.status_code in RETRY_STATUSES and attempt < retry_budget:
-                _sleep_before_retry(attempt, response.headers.get("Retry-After"))
-                continue
-            if response.is_error:
-                raise _api_error(response)
-            return response.json()
+                if _sleep_before_retry(
+                    attempt,
+                    response.headers.get("Retry-After"),
+                    deadline=deadline,
+                ):
+                    continue
+                if deadline is not None and time.monotonic() >= deadline:
+                    raise _deadline_error(method, path)
+            if error is not None:
+                raise error
+            payload = response.json()
+            if not isinstance(payload, dict):
+                raise PolygresRuntimeError(
+                    f"Polygres {method} {path} returned an invalid response",
+                    status_code=response.status_code,
+                )
+            return _TransportResponse(payload, response.headers, response.status_code)
         raise PolygresRuntimeError("Polygres request failed")
 
 
@@ -186,12 +367,14 @@ class Project:
     vector: VectorNamespace = field(init=False)
     text: TextNamespace = field(init=False)
     hybrid: HybridNamespace = field(init=False)
+    context: ContextNamespace = field(init=False)
 
     def __post_init__(self) -> None:
         self.graph = GraphNamespace(self)
         self.vector = VectorNamespace(self)
         self.text = TextNamespace(self)
         self.hybrid = HybridNamespace(self)
+        self.context = ContextNamespace(self)
 
     def readiness(self) -> RetrievalReadiness:
         payload = self._client._get("/retrieval/readiness")
@@ -611,6 +794,152 @@ class HybridNamespace:
         )
 
 
+def _attach_client_method_metadata() -> None:
+    bindings = (
+        (
+            Project.readiness,
+            "project.readiness",
+            "runtime_retrieval_readiness",
+            "Return retrieval readiness for the Runtime project.",
+            "readiness = project.readiness()",
+            "read_only_get",
+            "none",
+        ),
+        (
+            Project.connection_info,
+            "project.connection_info",
+            "runtime_connection_info_get",
+            "Return passwordless direct and pooled connection information.",
+            "connection = project.connection_info()",
+            "read_only_get",
+            "none",
+        ),
+        (
+            GraphNamespace.expand,
+            "project.graph.expand",
+            "runtime_graph_expand",
+            "Expand graph relationships from one or more starting rows.",
+            "page = project.graph.expand(start)",
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            GraphNamespace.neighborhood,
+            "project.graph.neighborhood",
+            "runtime_graph_neighborhood",
+            "Return a bounded graph neighborhood around a starting row.",
+            "page = project.graph.neighborhood(start)",
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            GraphNamespace.related,
+            "project.graph.related",
+            "runtime_graph_related",
+            "Return rows related by one graph hop.",
+            "page = project.graph.related(start)",
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            GraphNamespace.path,
+            "project.graph.path",
+            "runtime_graph_path",
+            "Find graph paths between a source and target row.",
+            "paths = project.graph.path(source, target)",
+            "read_only_post",
+            "none",
+        ),
+        (
+            GraphNamespace.connection,
+            "project.graph.connection",
+            "runtime_graph_connection",
+            "Find graph connections among a set of rows.",
+            "connections = project.graph.connection(entities)",
+            "read_only_post",
+            "none",
+        ),
+        (
+            VectorNamespace.search,
+            "project.vector.search",
+            "runtime_vector_search",
+            "Search a configured vector index with an embedding.",
+            "page = project.vector.search(embedding)",
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            VectorNamespace.similar_to,
+            "project.vector.similar_to",
+            "runtime_vector_similar_to",
+            "Find rows similar to an existing indexed row.",
+            'page = project.vector.similar_to("row-id")',
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            TextNamespace.tsvector,
+            "project.text.tsvector",
+            "runtime_text_tsvector",
+            "Run PostgreSQL full-text search with a named configuration.",
+            'page = project.text.tsvector("query", config="documents")',
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            TextNamespace.fuzzy,
+            "project.text.fuzzy",
+            "runtime_text_fuzzy",
+            "Run fuzzy text search with a named configuration.",
+            'page = project.text.fuzzy("query", config="documents")',
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            HybridNamespace.graph_first,
+            "project.hybrid.graph_first",
+            "runtime_hybrid_graph_first",
+            "Run graph-first hybrid retrieval.",
+            "page = project.hybrid.graph_first(start, embedding)",
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            HybridNamespace.vector_first,
+            "project.hybrid.vector_first",
+            "runtime_hybrid_vector_first",
+            "Run vector-first hybrid retrieval.",
+            "page = project.hybrid.vector_first(embedding)",
+            "read_only_post",
+            "auto_cursor",
+        ),
+        (
+            HybridNamespace.joint,
+            "project.hybrid.joint",
+            "runtime_hybrid_joint",
+            "Run joint vector and graph retrieval.",
+            "page = project.hybrid.joint(embedding, start)",
+            "read_only_post",
+            "auto_cursor",
+        ),
+    )
+    for function, public_name, operation_id, description, example, retry, pagination in bindings:
+        bind_sdk_method(
+            function,
+            description=description,
+            example=example,
+            public_name=public_name,
+            operation_ids=(operation_id,),
+            since="0.1.0",
+            retry_policy=retry,
+            pagination=pagination,
+        )
+
+
+_attach_client_method_metadata()
+del _attach_client_method_metadata
+
+
 def _select_runtime_url(*, runtime_url: str | None, base_url: str | None) -> str:
     normalized_runtime_url = runtime_url.rstrip("/") if runtime_url is not None else None
     normalized_base_url = base_url.rstrip("/") if base_url is not None else None
@@ -682,42 +1011,138 @@ def _compact(payload: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in payload.items() if value is not None}
 
 
-def _sleep_before_retry(attempt: int, retry_after: str | None) -> None:
+def _sleep_before_retry(
+    attempt: int,
+    retry_after: str | None,
+    *,
+    deadline: float | None = None,
+) -> bool:
     delay = 0.025 * (2**attempt) + random.uniform(0, 0.005)
-    if retry_after:
-        try:
-            parsed_delay = float(retry_after)
-            if parsed_delay >= 0:
-                delay = parsed_delay
-        except ValueError:
-            pass
+    parsed_delay = _retry_after_delay(retry_after)
+    if parsed_delay is not None:
+        delay = parsed_delay
+    if deadline is not None:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False
+        if delay >= remaining:
+            time.sleep(remaining)
+            return False
     time.sleep(delay)
+    return True
 
 
-def _api_error(response: httpx.Response) -> PolygresAPIError:
+def _retry_after_delay(value: str | None) -> float | None:
+    if not value:
+        return None
+    try:
+        seconds = float(value)
+    except ValueError:
+        try:
+            parsed = parsedate_to_datetime(value)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=UTC)
+        seconds = (parsed - datetime.now(UTC)).total_seconds()
+    if not math.isfinite(seconds) or seconds < 0:
+        return None
+    return seconds
+
+
+def _timeout_before_deadline(
+    timeout: float | httpx.Timeout,
+    deadline: float | None,
+    method: str,
+    path: str,
+) -> float | httpx.Timeout:
+    if deadline is None:
+        return timeout
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise _deadline_error(method, path)
+    if isinstance(timeout, (int, float)):
+        return min(float(timeout), remaining)
+    return httpx.Timeout(
+        connect=_bounded_timeout(timeout.connect, remaining),
+        read=_bounded_timeout(timeout.read, remaining),
+        write=_bounded_timeout(timeout.write, remaining),
+        pool=_bounded_timeout(timeout.pool, remaining),
+    )
+
+
+def _bounded_timeout(value: float | None, remaining: float) -> float:
+    return min(value, remaining) if value is not None else remaining
+
+
+def _deadline_error(method: str, path: str) -> PolygresRuntimeError:
+    return PolygresRuntimeError(
+        f"Polygres {method} {path} exceeded its deadline",
+        status_code=None,
+        code="TIMEOUT",
+    )
+
+
+def _api_error(response: httpx.Response, *, secret: str | None = None) -> PolygresError:
     try:
         body = response.json()
     except ValueError:
         body = {}
     error = body.get("error", {}) if isinstance(body, dict) else {}
-    message = str(error.get("message") or f"Polygres API error {response.status_code}")
-    request_id = body.get("request_id") if isinstance(body, dict) else None
+    request_id_value = body.get("request_id") if isinstance(body, dict) else None
+    request_id = (
+        _redact_text(str(request_id_value), secret) if request_id_value is not None else None
+    )
     code = error.get("code")
     details = error.get("details") if isinstance(error.get("details"), dict) else {}
+    canonical = canonical_error_details(code, details)
+    server_message = str(error.get("message") or f"Polygres API error {response.status_code}")
+    message = canonical.message if canonical is not None else server_message
+    if canonical is not None and isinstance(code, str) and code.startswith("CONTEXT_"):
+        message = server_message
+    if canonical is not None:
+        code = canonical.code
+        details = canonical.details
+        status_code = canonical.status_code or response.status_code
+    else:
+        status_code = response.status_code
+    details = _redact_value(details, secret)
+    message = _redact_text(message, secret)
     kwargs = {
-        "status_code": response.status_code,
+        "status_code": status_code,
         "request_id": request_id,
         "code": code,
         "details": details,
     }
-    if response.status_code == 401:
+    if status_code == 401:
         return PolygresAuthError(message, **kwargs)
-    if response.status_code == 403:
+    if status_code == 403:
         return PolygresPermissionError(message, **kwargs)
-    if response.status_code == 404:
+    if status_code == 404:
         return PolygresNotFoundError(message, **kwargs)
-    if response.status_code == 429:
+    if status_code == 429:
         return PolygresRateLimitError(message, **kwargs)
-    if response.status_code in {408, 500, 502, 503, 504}:
+    if code in {"MAINTENANCE_READ_ONLY", "MAINTENANCE_FULL"}:
+        return PolygresMaintenanceError(message, **kwargs)
+    if status_code in {408, 500, 502, 503, 504}:
         return PolygresRuntimeError(message, **kwargs)
+    if status_code == 400 and code == "UNSUPPORTED_API_VERSION":
+        return PolygresValidationError(message, **kwargs)
+    if status_code == 400 and isinstance(code, str) and code.startswith("CONTEXT_"):
+        return PolygresValidationError(message, **kwargs)
     return PolygresAPIError(message, **kwargs)
+
+
+def _redact_text(value: str, secret: str | None) -> str:
+    redacted = value.replace(secret, "[REDACTED]") if secret else value
+    return re.sub(r"poly_live_[0-9a-fA-F]{32}", "[REDACTED]", redacted)
+
+
+def _redact_value(value: Any, secret: str | None) -> Any:
+    if isinstance(value, str):
+        return _redact_text(value, secret)
+    if isinstance(value, list):
+        return [_redact_value(item, secret) for item in value]
+    if isinstance(value, dict):
+        return {key: _redact_value(item, secret) for key, item in value.items()}
+    return value

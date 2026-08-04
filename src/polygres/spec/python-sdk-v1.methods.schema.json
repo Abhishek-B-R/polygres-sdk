@@ -1,0 +1,286 @@
+{
+  "$id": "https://polygres.com/schemas/python-sdk-v1.methods.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "api_family": {
+      "const": "v1"
+    },
+    "default_api_version": {
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "type": "string"
+    },
+    "excluded_operations": {
+      "items": {
+        "$ref": "#/$defs/excluded_operation"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "methods": {
+      "items": {
+        "$ref": "#/$defs/method"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "openapi_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "sdk": {
+      "const": "polygres-sdk"
+    },
+    "sdk_version": {
+      "$ref": "#/$defs/semver"
+    }
+  },
+  "required": [
+    "schema_version",
+    "sdk",
+    "sdk_version",
+    "api_family",
+    "default_api_version",
+    "openapi_sha256",
+    "excluded_operations",
+    "methods"
+  ],
+  "type": "object",
+  "$defs": {
+    "excluded_operation": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+        },
+        "operation_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "owner": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "path": {
+          "pattern": "^/v1/",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "review_date": {
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "type": "string"
+        }
+      },
+      "required": ["operation_id", "method", "path", "reason", "owner", "review_date"],
+      "type": "object"
+    },
+    "method": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_kind": {
+          "enum": ["operation", "composite"]
+        },
+        "deprecated": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/semver"}
+          ]
+        },
+        "description": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "example": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "exception_categories": {
+          "items": {
+            "enum": [
+              "api",
+              "authentication",
+              "maintenance",
+              "not_found",
+              "permission",
+              "rate_limit",
+              "runtime",
+              "validation"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "operation_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "operations": {
+          "items": {
+            "$ref": "#/$defs/operation"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "pagination": {
+          "enum": ["none", "cursor", "auto_cursor"]
+        },
+        "public_name": {
+          "pattern": "^project(?:\\.[a-z_][a-z0-9_]*)+$",
+          "type": "string"
+        },
+        "python_qualname": {
+          "pattern": "^polygres\\.[A-Za-z0-9_.]+$",
+          "type": "string"
+        },
+        "retry_policy": {
+          "enum": [
+            "none",
+            "read_only_get",
+            "read_only_post",
+            "idempotent_mutation",
+            "polling"
+          ]
+        },
+        "since": {
+          "$ref": "#/$defs/semver"
+        },
+        "stability": {
+          "enum": ["stable", "experimental"]
+        }
+      },
+      "required": [
+        "public_name",
+        "python_qualname",
+        "binding_kind",
+        "operation_ids",
+        "operations",
+        "since",
+        "stability",
+        "deprecated",
+        "retry_policy",
+        "pagination",
+        "description",
+        "example",
+        "exception_categories"
+      ],
+      "type": "object"
+    },
+    "operation": {
+      "additionalProperties": false,
+      "properties": {
+        "deprecated": {
+          "type": "boolean"
+        },
+        "method": {
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+        },
+        "operation_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "path": {
+          "pattern": "^/v1/",
+          "type": "string"
+        },
+        "request_schema": {
+          "oneOf": [
+            {"type": "null"},
+            {"minLength": 1, "type": "string"},
+            {
+              "items": {"minLength": 1, "type": "string"},
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            }
+          ]
+        },
+        "request_contract": {
+          "items": {"$ref": "#/$defs/schema_contract"},
+          "type": "array",
+          "uniqueItems": true
+        },
+        "security": {
+          "type": "array"
+        },
+        "success_responses": {
+          "additionalProperties": {
+            "oneOf": [
+              {"type": "null"},
+              {"minLength": 1, "type": "string"},
+              {
+                "items": {"minLength": 1, "type": "string"},
+                "minItems": 1,
+                "type": "array",
+                "uniqueItems": true
+              }
+            ]
+          },
+          "minProperties": 1,
+          "propertyNames": {
+            "pattern": "^2[0-9]{2}$"
+          },
+          "type": "object"
+        },
+        "success_contracts": {
+          "additionalProperties": {
+            "items": {"$ref": "#/$defs/schema_contract"},
+            "type": "array",
+            "uniqueItems": true
+          },
+          "propertyNames": {"pattern": "^2[0-9]{2}$"},
+          "type": "object"
+        }
+      },
+      "required": [
+        "operation_id",
+        "method",
+        "path",
+        "request_schema",
+        "request_contract",
+        "success_responses",
+        "success_contracts",
+        "security",
+        "deprecated"
+      ],
+      "type": "object"
+    },
+    "schema_contract": {
+      "additionalProperties": false,
+      "properties": {
+        "allows_additional_fields": {"type": "boolean"},
+        "fields": {
+          "items": {"type": "string"},
+          "type": "array",
+          "uniqueItems": true
+        },
+        "required_fields": {
+          "items": {"type": "string"},
+          "type": "array",
+          "uniqueItems": true
+        },
+        "schema": {"minLength": 1, "type": "string"}
+      },
+      "required": ["schema", "fields", "required_fields", "allows_additional_fields"],
+      "type": "object"
+    },
+    "semver": {
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+      "type": "string"
+    }
+  }
+}

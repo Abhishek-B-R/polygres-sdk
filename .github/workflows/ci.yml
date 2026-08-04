@@ -40,5 +40,97 @@ jobs:
       - name: Run lint
         run: ruff check .
 
+      - name: Check Runtime OpenAPI snapshot
+        run: python tools/generate_runtime_openapi_snapshot.py --check
+
+      - name: Check SDK method specification and reference
+        run: python tools/generate_sdk_method_spec.py --check
+
+      - name: Validate SDK method JSON Schema and semantic rules
+        run: python tools/generate_sdk_method_spec.py --validate-only
+
+      - name: Verify source and generated package versions
+        run: python tools/verify_release_version.py
+
+      - name: Check compatibility against released 0.1.0 baseline
+        run: >-
+          python tools/check_sdk_compatibility.py
+          --baseline compatibility/0.1.0/python-sdk-v1.methods.json
+          --expect-current-version 0.2.0
+
       - name: Build package
         run: python -m build
+
+      - name: Inspect wheel and source distribution resources
+        run: python tools/verify_distribution.py dist/*.whl dist/*.tar.gz
+
+      - name: Smoke test clean wheel installation
+        run: |
+          smoke_dir="$RUNNER_TEMP/polygres-sdk-smoke"
+          python -m venv "$smoke_dir"
+          "$smoke_dir/bin/python" -m pip install dist/*.whl
+          "$smoke_dir/bin/python" - <<'PY'
+          import importlib.metadata
+          import json
+          from importlib.resources import files
+
+          import httpx
+          from polygres import Polygres, __version__
+
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.2.0"
+          for name in (
+              "runtime-v1.openapi.json",
+              "python-sdk-v1.methods.json",
+              "python-sdk-v1.methods.schema.json",
+          ):
+              json.loads(files("polygres.spec").joinpath(name).read_text())
+          assert files("polygres").joinpath("migrations", "README.md").is_file()
+
+          def respond(request):
+              assert request.headers["User-Agent"] == f"polygres-python/{__version__}"
+              assert request.headers["X-Polygres-Api-Version"] == "2026-08-04"
+              assert request.headers["X-Polygres-Client-Info"].startswith(
+                  f"polygres-python/{__version__}; python/"
+              )
+              return httpx.Response(
+                  200,
+                  json={
+                      "request_id": "req_clean_install",
+                      "project_id": "p0123456789abcdef0123456",
+                      "graph": {"ready": True},
+                      "vector": {"ready": True},
+                      "hybrid": {"ready": True},
+                  },
+              )
+
+          client = Polygres(
+              api_key="poly_live_0123456789abcdef0123456789abcdef",
+              runtime_url="https://runtime.example.test/v1",
+              max_retries=0,
+          )
+          client._client.close()
+          client._client = httpx.Client(transport=httpx.MockTransport(respond))
+          assert client.project().readiness().request_id == "req_clean_install"
+          PY
+
+      - name: Smoke test clean source distribution installation
+        run: |
+          smoke_dir="$RUNNER_TEMP/polygres-sdk-sdist-smoke"
+          python -m venv "$smoke_dir"
+          "$smoke_dir/bin/python" -m pip install dist/*.tar.gz
+          "$smoke_dir/bin/python" - <<'PY'
+          import importlib.metadata
+          import json
+          from importlib.resources import files
+
+          from polygres import __version__
+
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.2.0"
+          for name in (
+              "runtime-v1.openapi.json",
+              "python-sdk-v1.methods.json",
+              "python-sdk-v1.methods.schema.json",
+          ):
+              json.loads(files("polygres.spec").joinpath(name).read_text())
+          assert files("polygres").joinpath("migrations", "README.md").is_file()
+          PY

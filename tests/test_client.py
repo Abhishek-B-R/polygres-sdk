@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import platform
+import sys
+
 import httpx
 import pytest
 import respx
@@ -8,9 +11,13 @@ import polygres.client as client_module
 from polygres import (
     ConnectionInfo,
     Polygres,
+    PolygresAuthError,
+    PolygresMaintenanceError,
     PolygresPermissionError,
     PolygresValidationError,
+    __version__,
 )
+from polygres._api_version import API_VERSION_HEADER, CLIENT_INFO_HEADER, DEFAULT_API_VERSION
 
 API_KEY = "poly_live_0123456789abcdef0123456789abcdef"
 PROJECT_ID = "p0123456789abcdef0123456"
@@ -123,7 +130,7 @@ def test_headers_and_readiness_model() -> None:
                 "vector": {"ready": True, "default_config": "documents_default"},
                 "hybrid": {"ready": True},
             },
-        )
+        ),
     )
 
     readiness = _client().project().readiness()
@@ -132,9 +139,88 @@ def test_headers_and_readiness_model() -> None:
     request = route.calls[0].request
     assert request.headers["Authorization"] == f"Bearer {API_KEY}"
     assert "X-Polygres-Project" not in request.headers
-    assert request.headers["User-Agent"] == "polygres-python/0.1.0"
+    assert request.headers["User-Agent"] == f"polygres-python/{__version__}"
+    assert request.headers[CLIENT_INFO_HEADER] == (
+        f"polygres-python/{__version__}; "
+        f"python/{sys.version_info.major}.{sys.version_info.minor}; "
+        f"runtime/{platform.python_implementation().lower()}"
+    )
+    assert request.headers[API_VERSION_HEADER] == DEFAULT_API_VERSION
     assert readiness.vector["default_config"] == "documents_default"
     assert readiness.request_id == "req_ready"
+
+
+@ROUTE_CTX
+def test_protected_headers_cannot_be_spoofed_at_client_or_request_scope() -> None:
+    route = _stub(
+        respx.get(f"{RUNTIME_URL}/retrieval/readiness"),
+        return_value=httpx.Response(
+            200,
+            json={
+                "request_id": "req_protected",
+                "project_id": PROJECT_ID,
+                "graph": {"ready": True},
+                "vector": {"ready": True},
+                "hybrid": {"ready": True},
+            },
+        ),
+    )
+    client = Polygres(
+        api_key=API_KEY,
+        runtime_url=RUNTIME_URL,
+        max_retries=0,
+        headers={
+            "authorization": "Bearer attacker",
+            "user-agent": "spoofed/1.0.0",
+            "x-polygres-client-info": "spoofed",
+            "x-polygres-api-version": "1999-01-01",
+            "X-Custom": "preserved",
+        },
+    )
+
+    client._get(
+        "/retrieval/readiness",
+        headers={
+            "AUTHORIZATION": "Bearer request-attacker",
+            "USER-AGENT": "request-spoofed/1.0.0",
+            "X-POLYGRES-CLIENT-INFO": "request-spoofed",
+            "X-POLYGRES-API-VERSION": "2000-01-01",
+            "X-Request-Custom": "preserved",
+        },
+    )
+
+    request = route.calls[0].request
+    assert request.headers["Authorization"] == f"Bearer {API_KEY}"
+    assert request.headers["User-Agent"] == f"polygres-python/{__version__}"
+    assert request.headers[API_VERSION_HEADER] == DEFAULT_API_VERSION
+    assert request.headers[CLIENT_INFO_HEADER].startswith(f"polygres-python/{__version__};")
+    assert request.headers["X-Custom"] == "preserved"
+    assert request.headers["X-Request-Custom"] == "preserved"
+
+
+@ROUTE_CTX
+def test_unsupported_api_version_maps_to_stable_validation_error() -> None:
+    _stub(
+        respx.get(f"{RUNTIME_URL}/retrieval/readiness"),
+        return_value=httpx.Response(
+            400,
+            json={
+                "request_id": "req_api_version",
+                "error": {
+                    "code": "UNSUPPORTED_API_VERSION",
+                    "message": "The requested Runtime API version is not supported.",
+                    "details": {"supported_versions": [DEFAULT_API_VERSION]},
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PolygresValidationError) as exc_info:
+        _client().project().readiness()
+
+    assert exc_info.value.code == "UNSUPPORTED_API_VERSION"
+    assert exc_info.value.request_id == "req_api_version"
+    assert exc_info.value.details == {"supported_versions": [DEFAULT_API_VERSION]}
 
 
 @ROUTE_CTX
@@ -150,7 +236,7 @@ def test_project_readiness_uses_retrieval_endpoint_without_project_header() -> N
                 "vector": {"ready": True},
                 "hybrid": {"ready": True},
             },
-        )
+        ),
     )
 
     readiness = _client().project(PROJECT_ID).readiness()
@@ -183,7 +269,7 @@ def test_connection_info_from_api_omits_secret_fields() -> None:
                     "connection_string_without_password": "postgres://<password>@pool",
                 },
             },
-        )
+        ),
     )
 
     info = _client().project().connection_info()
@@ -216,26 +302,30 @@ def test_graph_methods_serialize_payloads_and_parse_pages() -> None:
                 "next_cursor": None,
                 "has_more": False,
             },
-        )
+        ),
     )
     neighborhood_route = _stub(
         respx.post(f"{RUNTIME_URL}/graph/neighborhood"),
-        return_value=httpx.Response(200, json={**_graph_page_payload(), "request_id": "req_near"})
+        return_value=httpx.Response(200, json={**_graph_page_payload(), "request_id": "req_near"}),
     )
     related_route = _stub(
         respx.post(f"{RUNTIME_URL}/graph/related"),
         return_value=httpx.Response(
             200, json={**_graph_page_payload(), "request_id": "req_related"}
-        )
+        ),
     )
 
-    page = _client().project().graph.expand(
-        {"schema": "public", "table": "customers", "id": "cus_1"},
-        max_depth=2,
-        relationship_types=["placed_by"],
-        direction="both",
-        filters={"status": "active"},
-        limit=25,
+    page = (
+        _client()
+        .project()
+        .graph.expand(
+            {"schema": "public", "table": "customers", "id": "cus_1"},
+            max_depth=2,
+            relationship_types=["placed_by"],
+            direction="both",
+            filters={"status": "active"},
+            limit=25,
+        )
     )
     project = _client().project()
     neighborhood = project.graph.neighborhood(
@@ -270,13 +360,11 @@ def test_graph_methods_serialize_payloads_and_parse_pages() -> None:
 def test_graph_path_connection_and_validation() -> None:
     _stub(
         respx.post(f"{RUNTIME_URL}/graph/path"),
-        return_value=httpx.Response(200, json={"request_id": "req_path", "paths": []})
+        return_value=httpx.Response(200, json={"request_id": "req_path", "paths": []}),
     )
     _stub(
         respx.post(f"{RUNTIME_URL}/graph/connection"),
-        return_value=httpx.Response(
-            200, json={"request_id": "req_conn_graph", "connections": []}
-        )
+        return_value=httpx.Response(200, json={"request_id": "req_conn_graph", "connections": []}),
     )
     project = _client().project()
 
@@ -305,11 +393,11 @@ def test_graph_path_connection_and_validation() -> None:
 def test_vector_search_and_similar_to_payload_validation() -> None:
     search = _stub(
         respx.post(f"{RUNTIME_URL}/vector/search"),
-        return_value=httpx.Response(200, json=_page_payload())
+        return_value=httpx.Response(200, json=_page_payload()),
     )
     similar = _stub(
         respx.post(f"{RUNTIME_URL}/vector/similar-to"),
-        return_value=httpx.Response(200, json=_page_payload())
+        return_value=httpx.Response(200, json=_page_payload()),
     )
     project = _client().project()
 
@@ -344,11 +432,11 @@ def test_vector_search_and_similar_to_payload_validation() -> None:
 def test_text_search_methods_serialize_payloads() -> None:
     tsvector = _stub(
         respx.post(f"{RUNTIME_URL}/text/tsvector"),
-        return_value=httpx.Response(200, json=_text_payload("tsvector"))
+        return_value=httpx.Response(200, json=_text_payload("tsvector")),
     )
     fuzzy = _stub(
         respx.post(f"{RUNTIME_URL}/text/fuzzy"),
-        return_value=httpx.Response(200, json=_text_payload("fuzzy"))
+        return_value=httpx.Response(200, json=_text_payload("fuzzy")),
     )
     project = _client().project()
 
@@ -374,15 +462,15 @@ def test_text_search_methods_serialize_payloads() -> None:
 def test_hybrid_methods_serialize_payloads() -> None:
     graph_first = _stub(
         respx.post(f"{RUNTIME_URL}/hybrid/graph-first"),
-        return_value=httpx.Response(200, json=_hybrid_payload())
+        return_value=httpx.Response(200, json=_hybrid_payload()),
     )
     vector_first = _stub(
         respx.post(f"{RUNTIME_URL}/hybrid/vector-first"),
-        return_value=httpx.Response(200, json=_hybrid_payload())
+        return_value=httpx.Response(200, json=_hybrid_payload()),
     )
     joint = _stub(
         respx.post(f"{RUNTIME_URL}/hybrid/joint"),
-        return_value=httpx.Response(200, json=_hybrid_payload())
+        return_value=httpx.Response(200, json=_hybrid_payload()),
     )
     project = _client().project()
 
@@ -449,9 +537,13 @@ def test_hybrid_result_score_alias_prefers_final_score() -> None:
         ),
     )
 
-    page = _client().project().hybrid.joint(
-        [0.1, 0.2],
-        {"schema": "public", "table": "customers", "id": "cus_1"},
+    page = (
+        _client()
+        .project()
+        .hybrid.joint(
+            [0.1, 0.2],
+            {"schema": "public", "table": "customers", "id": "cus_1"},
+        )
     )
 
     assert page.results[0].score == 0.024
@@ -465,7 +557,7 @@ def test_auto_paging_iter_follows_next_cursor() -> None:
         side_effect=[
             httpx.Response(200, json=_page_payload("cursor_2")),
             httpx.Response(200, json=_page_payload(None)),
-        ]
+        ],
     )
 
     results = list(_client().project().vector.search([0.1]).auto_paging_iter())
@@ -488,7 +580,7 @@ def test_error_mapping_retries_and_redacts_api_key() -> None:
                     "error": {"code": "APPROVAL_REQUIRED", "message": "Approval required"},
                 },
             ),
-        ]
+        ],
     )
 
     client = Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=1)
@@ -498,6 +590,33 @@ def test_error_mapping_retries_and_redacts_api_key() -> None:
     assert route.call_count == 2
     assert exc.value.status_code == 403
     assert exc.value.request_id == "req_forbidden"
+    assert API_KEY not in str(exc.value)
+
+
+@ROUTE_CTX
+def test_auth_error_uses_central_safe_catalog_semantics() -> None:
+    _stub(
+        respx.get(f"{RUNTIME_URL}/retrieval/readiness"),
+        return_value=httpx.Response(
+            401,
+            json={
+                "request_id": "req_bad_key",
+                "error": {
+                    "code": "API_KEY_INVALID",
+                    "message": "unsafe provider message",
+                    "details": {"api_key": API_KEY},
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PolygresAuthError) as exc:
+        _client().project().readiness()
+
+    assert str(exc.value) == "The API key is invalid."
+    assert exc.value.code == "API_KEY_INVALID"
+    assert exc.value.status_code == 401
+    assert exc.value.details == {}
     assert API_KEY not in str(exc.value)
 
 
@@ -519,12 +638,46 @@ def test_retry_after_controls_retry_delay(monkeypatch: pytest.MonkeyPatch) -> No
                     "hybrid": {"ready": True},
                 },
             ),
-        ]
+        ],
     )
 
     Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=1).project().readiness()
 
     assert delays == [1.5]
+
+
+@ROUTE_CTX
+def test_maintenance_error_preserves_message_without_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    delays: list[float] = []
+    monkeypatch.setattr(client_module.time, "sleep", delays.append)
+    route = _stub(
+        respx.get(f"{RUNTIME_URL}/retrieval/readiness"),
+        return_value=httpx.Response(
+            503,
+            json={
+                "request_id": "req_maintenance",
+                "error": {
+                    "code": "MAINTENANCE_FULL",
+                    "message": "Database upgrades are in progress.",
+                    "details": {"mode": "full"},
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PolygresMaintenanceError) as exc:
+        Polygres(
+            api_key=API_KEY,
+            runtime_url=RUNTIME_URL,
+            max_retries=2,
+        ).project().readiness()
+
+    assert route.call_count == 1
+    assert delays == []
+    assert exc.value.code == "MAINTENANCE_FULL"
+    assert str(exc.value) == "Database upgrades are in progress."
 
 
 def test_setup_mutation_methods_are_not_exposed() -> None:

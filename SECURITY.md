@@ -3,7 +3,7 @@
 ## Reporting A Vulnerability
 
 Please report suspected vulnerabilities privately by emailing
-support@evokoa.com.
+support@polygres.com.
 
 Include:
 

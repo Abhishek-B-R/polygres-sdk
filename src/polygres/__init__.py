@@ -1,8 +1,12 @@
+from polygres._version import __version__
 from polygres.client import Polygres
+from polygres.context_models import *  # noqa: F403
+from polygres.context_models import __all__ as _context_model_exports
 from polygres.errors import (
     PolygresAPIError,
     PolygresAuthError,
     PolygresError,
+    PolygresMaintenanceError,
     PolygresNotFoundError,
     PolygresPermissionError,
     PolygresRateLimitError,
@@ -36,6 +40,7 @@ __all__ = [
     "PolygresAPIError",
     "PolygresAuthError",
     "PolygresError",
+    "PolygresMaintenanceError",
     "PolygresNotFoundError",
     "PolygresPermissionError",
     "PolygresRateLimitError",
@@ -44,4 +49,8 @@ __all__ = [
     "RetrievalReadiness",
     "TextResult",
     "VectorResult",
+    "__version__",
+    *_context_model_exports,
 ]
+
+del _context_model_exports

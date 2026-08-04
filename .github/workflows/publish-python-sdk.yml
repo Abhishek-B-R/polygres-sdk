@@ -43,11 +43,70 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
+      - name: Check generated contracts and reference
+        run: |
+          python tools/generate_runtime_openapi_snapshot.py --check
+          python tools/generate_sdk_method_spec.py --check
+          python tools/generate_sdk_method_spec.py --validate-only
+
+      - name: Verify release version and explicit compatibility baseline
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            python tools/verify_release_version.py --tag "$GITHUB_REF_NAME"
+          else
+            python tools/verify_release_version.py
+          fi
+          python tools/check_sdk_compatibility.py \
+            --baseline compatibility/0.1.0/python-sdk-v1.methods.json
+
       - name: Build SDK distribution
         run: |
           rm -rf dist
           python -m build
           python -m twine check dist/*
+          python tools/verify_distribution.py dist/*.whl dist/*.tar.gz
+
+      - name: Verify clean wheel installation
+        run: |
+          smoke_dir="$RUNNER_TEMP/polygres-sdk-release-smoke"
+          python -m venv "$smoke_dir"
+          "$smoke_dir/bin/python" -m pip install dist/*.whl
+          "$smoke_dir/bin/python" - <<'PY'
+          import importlib.metadata
+          import json
+          from importlib.resources import files
+          from polygres import __version__
+
+          assert __version__ == importlib.metadata.version("polygres-sdk")
+          for name in (
+              "runtime-v1.openapi.json",
+              "python-sdk-v1.methods.json",
+              "python-sdk-v1.methods.schema.json",
+          ):
+              json.loads(files("polygres.spec").joinpath(name).read_text())
+          assert files("polygres").joinpath("migrations", "README.md").is_file()
+          PY
+
+      - name: Verify clean source distribution installation
+        run: |
+          smoke_dir="$RUNNER_TEMP/polygres-sdk-release-sdist-smoke"
+          python -m venv "$smoke_dir"
+          "$smoke_dir/bin/python" -m pip install dist/*.tar.gz
+          "$smoke_dir/bin/python" - <<'PY'
+          import importlib.metadata
+          import json
+          from importlib.resources import files
+          from polygres import __version__
+
+          assert __version__ == importlib.metadata.version("polygres-sdk")
+          for name in (
+              "runtime-v1.openapi.json",
+              "python-sdk-v1.methods.json",
+              "python-sdk-v1.methods.schema.json",
+          ):
+              json.loads(files("polygres.spec").joinpath(name).read_text())
+          assert files("polygres").joinpath("migrations", "README.md").is_file()
+          PY
 
       - name: Upload SDK distributions
         uses: actions/upload-artifact@v4

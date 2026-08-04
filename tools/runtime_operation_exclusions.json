@@ -1,0 +1,140 @@
+[
+  {
+    "operation_id": "build_graph_v1_graph_build_post",
+    "reason": "Graph setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "create_text_configuration_v1_text_configurations_post",
+    "reason": "Text setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "create_vector_configuration_v1_vector_configurations_post",
+    "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "delete_text_configuration_v1_text_configurations__config_id__delete",
+    "reason": "Text setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "delete_vector_configuration_v1_vector_configurations__config_id__delete",
+    "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "discover_graph_v1_graph_discover_post",
+    "reason": "Graph discovery is a setup operation managed outside the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "discover_vectors_v1_vector_discover_post",
+    "reason": "Vector discovery is a setup operation managed outside the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "get_graph_configuration_v1_graph_configuration_get",
+    "reason": "Graph configuration is managed through the dashboard and control-plane workflow.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "get_graph_system_v1_graph_system_get",
+    "reason": "Graph system configuration is an administrative Runtime concern.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "get_text_configuration_v1_text_configurations__config_id__get",
+    "reason": "Text configuration is managed through the dashboard and control-plane workflow.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "get_vector_configuration_v1_vector_configurations__config_id__get",
+    "reason": "Vector configuration is managed through the dashboard and control-plane workflow.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "graph_maintenance_v1_graph_maintenance_post",
+    "reason": "Graph maintenance is an administrative Runtime operation.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "graph_status_v1_graph_status_get",
+    "reason": "Graph build status is part of setup management; retrieval readiness is the SDK-facing status.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "healthz_v1_healthz_get",
+    "reason": "Health checks are operational endpoints and are not application retrieval methods.",
+    "owner": "Runtime Operations",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "list_text_configurations_v1_text_configurations_get",
+    "reason": "Text configuration is managed through the dashboard and control-plane workflow.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "list_vector_configurations_v1_vector_configurations_get",
+    "reason": "Vector configuration is managed through the dashboard and control-plane workflow.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "metrics_v1_metrics_get",
+    "reason": "Metrics are operational endpoints and are not application retrieval methods.",
+    "owner": "Runtime Operations",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "patch_graph_system_v1_graph_system_patch",
+    "reason": "Graph system configuration is an administrative Runtime concern.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "patch_text_configuration_v1_text_configurations__config_id__patch",
+    "reason": "Text setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "patch_vector_configuration_v1_vector_configurations__config_id__patch",
+    "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "put_graph_configuration_v1_graph_configuration_put",
+    "reason": "Graph setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "readyz_v1_readyz_get",
+    "reason": "Readiness checks are operational endpoints; the SDK uses retrieval readiness instead.",
+    "owner": "Runtime Operations",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "reindex_vector_configuration_v1_vector_configurations__config_id__reindex_post",
+    "reason": "Vector reindexing is a setup operation managed outside the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  }
+]

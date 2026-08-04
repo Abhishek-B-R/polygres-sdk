@@ -17,7 +17,7 @@ Links:
 ## Install
 
 ```bash
-pip install polygres-sdk==0.1.0
+pip install polygres-sdk==0.2.0
 ```
 
 The SDK is a library and does not install a terminal command. Install
@@ -25,7 +25,7 @@ The SDK is a library and does not install a terminal command. Install
 management. Users upgrading from the combined 0.2.x package should install
 `polygres-cli` before upgrading the SDK.
 
-Version `0.1.0` becomes installable from the default package index only after
+Version `0.2.0` becomes installable from the default package index only after
 the release is published to PyPI. Maintainers validate the same wheel through
 TestPyPI first, following `docs/44-python-sdk-release-runbook.md`.
 
@@ -105,8 +105,75 @@ print(connection.direct_url_without_password)
 print(connection.pooled_url_without_password)
 ```
 
+## Version and Runtime API contract
+
+Report the installed package version with `polygres.__version__`. It is read
+from the installed `polygres-sdk` distribution metadata, so support output and
+request identity always match the wheel that is running:
+
+```python
+from polygres import __version__
+
+print(__version__)
+```
+
+Every Runtime request sends the installed SDK version in `User-Agent` and
+`X-Polygres-Client-Info`, plus the API behavior version
+`X-Polygres-Api-Version: 2026-08-04`. These identity, API-version, and
+Authorization headers are controlled by the SDK and cannot be replaced with
+custom headers.
+
+Machine-readable v1 contracts are packaged in `polygres.spec` and can be read
+without network access:
+
+```python
+from polygres.spec import load_python_method_spec, load_runtime_openapi
+
+methods = load_python_method_spec()
+openapi = load_runtime_openapi()
+```
+
+The JSON files describe hand-written methods and HTTP operations. They are not
+loaded for request routing. The generated human-readable mapping is maintained
+in `docs/reference-v1.md`, and topic-based upgrade guidance ships under
+`polygres/migrations`.
+
+When contacting support, include `polygres.__version__` and the safe
+`request_id` from the response or exception. Never send the project API key.
+
 `connection_info()` returns passwordless direct and pooled connection strings.
 The SDK never returns the database password.
+
+## pgContext
+
+Version 0.2.0 adds the synchronous, flat `project.context` namespace for
+pgContext discovery, collection and point management, durable operations,
+aggregates, and ranked retrieval. Administrative collection methods require a
+collection UUID. Aggregate and retrieval methods accept a UUID or exact
+collection name.
+
+Mutations return immediately. Wait only when the application explicitly needs
+the terminal result:
+
+```python
+operation = project.context.create_collection(
+    "support_docs",
+    source={
+        "mode": "existing",
+        "schema_name": "public",
+        "table_name": "documents",
+        "source_key_column": "id",
+    },
+    vector={"column_name": "embedding", "dimensions": 768, "metric": "cosine"},
+    text_column="content",
+)
+completed = project.context.wait_for_operation(operation)
+collection = project.context.get_collection(completed.collection_id)
+```
+
+`project.context.joint()` calls only the coupled pgContext and pgGraph Joint
+route. It is distinct from `project.context.rank_fusion()` and the existing
+pgvector-backed `project.hybrid.joint()` method.
 
 ## Query Chaining
 
