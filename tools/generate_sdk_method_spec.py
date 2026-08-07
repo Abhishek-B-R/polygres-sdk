@@ -171,7 +171,9 @@ def validate_method_spec(
     if overlap:
         raise ValueError(f"Operations are both bound and excluded: {sorted(overlap)}")
     all_ids = set(operation_index)
-    if bound_ids | excluded_ids != all_ids:
+    if (require_current_operation_details and bound_ids | excluded_ids != all_ids) or not (
+        bound_ids | excluded_ids
+    ).issubset(all_ids):
         missing = sorted(all_ids - bound_ids - excluded_ids)
         extra = sorted((bound_ids | excluded_ids) - all_ids)
         raise ValueError(f"Operation inventory mismatch; missing={missing}, extra={extra}")

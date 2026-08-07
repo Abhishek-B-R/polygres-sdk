@@ -42,6 +42,7 @@ from polygres.models import (
     TextResult,
     VectorResult,
 )
+from polygres.version_notices import emit_version_notice
 
 PROJECT_RE = re.compile(r"^p[a-z0-9]{23}$")
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
@@ -337,6 +338,7 @@ class Polygres:
 
             error = _api_error(response, secret=self._api_key) if response.is_error else None
             if isinstance(error, PolygresMaintenanceError):
+                emit_version_notice(response.headers, current_version=__version__)
                 raise error
             if response.status_code in RETRY_STATUSES and attempt < retry_budget:
                 if _sleep_before_retry(
@@ -347,6 +349,7 @@ class Polygres:
                     continue
                 if deadline is not None and time.monotonic() >= deadline:
                     raise _deadline_error(method, path)
+            emit_version_notice(response.headers, current_version=__version__)
             if error is not None:
                 raise error
             payload = response.json()
@@ -1127,6 +1130,11 @@ def _api_error(response: httpx.Response, *, secret: str | None = None) -> Polygr
     if status_code in {408, 500, 502, 503, 504}:
         return PolygresRuntimeError(message, **kwargs)
     if status_code == 400 and code == "UNSUPPORTED_API_VERSION":
+        return PolygresValidationError(message, **kwargs)
+    if status_code == 400 and code in {
+        "VECTOR_ROW_ID_INVALID",
+        "VECTOR_ROW_ID_TYPE_UNSUPPORTED",
+    }:
         return PolygresValidationError(message, **kwargs)
     if status_code == 400 and isinstance(code, str) and code.startswith("CONTEXT_"):
         return PolygresValidationError(message, **kwargs)

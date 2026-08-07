@@ -52,6 +52,8 @@ def _response_payload(request: httpx.Request) -> dict[str, Any]:
     responses = FIXTURES["responses"]
     if path == "/context/capabilities":
         return deepcopy(responses["CapabilitiesResponse"])
+    if path.startswith("/context/onboarding"):
+        return deepcopy(responses["ContextOnboardingResponse"])
     if path == "/context/discover":
         return deepcopy(responses["DiscoveryResponse"])
     if path == "/context/preflight":
@@ -140,6 +142,11 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
     }
 
     context.get_capabilities()
+    context.get_onboarding()
+    context.evaluate_onboarding()
+    context.refresh_onboarding()
+    context.acknowledge_onboarding()
+    context.dismiss_onboarding()
     context.discover_sources(schema_names=["public"])
     context.preflight("support_docs", **create_options)
     collections = context.list_collections(status="ready", limit=25, cursor="collections-cursor")
@@ -258,6 +265,11 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
     ]
     assert [(method, path) for method, path, _query, _body in actual] == [
         ("GET", "/context/capabilities"),
+        ("GET", "/context/onboarding"),
+        ("POST", "/context/onboarding/evaluate"),
+        ("POST", "/context/onboarding/refresh"),
+        ("POST", "/context/onboarding/acknowledge"),
+        ("POST", "/context/onboarding/dismiss"),
         ("POST", "/context/discover"),
         ("POST", "/context/preflight"),
         ("GET", "/context/collections"),
@@ -293,20 +305,20 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
         ("POST", "/context/hybrid/rank-fusion"),
         ("POST", "/context/hybrid/joint"),
     ]
-    assert actual[3][2] == {
+    assert actual[8][2] == {
         "status": "ready",
         "limit": "25",
         "cursor": "collections-cursor",
     }
-    assert actual[17][2] == {"limit": "25", "cursor": "points-cursor"}
-    assert actual[21][2] == {
+    assert actual[22][2] == {"limit": "25", "cursor": "points-cursor"}
+    assert actual[26][2] == {
         "collection_id": COLLECTION_ID,
         "kind": "points_reconcile",
         "status": "running",
         "limit": "25",
         "cursor": "operations-cursor",
     }
-    assert actual[1][3] == {"schema_names": ["public"]}
+    assert actual[6][3] == {"schema_names": ["public"]}
     expected_collection_body = {
         "name": "support_docs",
         "source": {
@@ -327,69 +339,69 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
         "index_kind": "hnsw",
         "max_search_limit": 500,
     }
-    assert actual[2][3] == expected_collection_body
-    assert actual[8][3] == expected_collection_body
-    assert actual[6][3] == {}
-    assert actual[9][3] == {
+    assert actual[7][3] == expected_collection_body
+    assert actual[13][3] == expected_collection_body
+    assert actual[11][3] == {}
+    assert actual[14][3] == {
         "text_column": None,
         "result_columns": ["title", "url"],
         "max_search_limit": 400,
     }
-    assert actual[10][3] == {"is_default": True}
-    assert actual[11][3] == {}
-    assert actual[12][3] == {"confirm_collection_id": COLLECTION_ID}
-    assert actual[14][3] == {"key": "tenant_id", "column": "tenant_id"}
-    assert actual[15][3] == {"key": "topic", "column": "metadata", "path": ["topic"]}
-    assert actual[18][3] == {"source_keys": ["doc-1", "doc-2"]}
-    assert actual[19][3] == {"source_keys": ["doc-1"]}
-    assert actual[20][3] == {}
-    assert actual[23][3] == {}
-    assert actual[24][3] == {}
-    assert actual[25][3] == {
+    assert actual[15][3] == {"is_default": True}
+    assert actual[16][3] == {}
+    assert actual[17][3] == {"confirm_collection_id": COLLECTION_ID}
+    assert actual[19][3] == {"key": "tenant_id", "column": "tenant_id"}
+    assert actual[20][3] == {"key": "topic", "column": "metadata", "path": ["topic"]}
+    assert actual[23][3] == {"source_keys": ["doc-1", "doc-2"]}
+    assert actual[24][3] == {"source_keys": ["doc-1"]}
+    assert actual[25][3] == {}
+    assert actual[28][3] == {}
+    assert actual[29][3] == {}
+    assert actual[30][3] == {
         "collection": "support_docs",
         "filter": {"must": [{"key": "tenant_id", "match": "acme"}]},
     }
-    assert actual[26][3] == {
+    assert actual[31][3] == {
         "collection": "support_docs",
         "filter": None,
         "field": "tenant_id",
         "limit": 5,
     }
-    assert actual[27][3] == {
+    assert actual[32][3] == {
         "collection": "support_docs",
         "filter": None,
         "embedding": [0.1, 0.2],
         "limit": 5,
     }
-    assert actual[28][3] == {
+    assert actual[33][3] == {
         "collection": "support_docs",
         "embedding": [0.1, 0.2],
         "group_by": "tenant_id",
         "group_limit": 2,
         "limit": 5,
     }
-    assert actual[29][3] == {
+    assert actual[34][3] == {
         "collection": "support_docs",
         "filter": None,
         "embedding": [0.1, 0.2],
         "limit": 5,
         "minimum_recall": 0.9,
     }
-    assert actual[30][3] == {
+    assert actual[35][3] == {
         "collection": "support_docs",
         "embedding": [0.1, 0.2],
         "query": "deployment",
         "limit": 5,
     }
-    assert actual[31][3]["relationship_types"] == ["owns"]
-    assert actual[31][3]["direction"] == "both"
-    assert actual[33][3]["weights"] == {"context": 0.6, "graph": 0.4}
-    assert actual[34][3]["starts"] == [
+    assert actual[36][3]["relationship_types"] == ["owns"]
+    assert actual[36][3]["direction"] == "both"
+    assert actual[38][3]["weights"] == {"context": 0.6, "graph": 0.4}
+    assert actual[39][3]["starts"] == [
         {"schema": "public", "table": "accounts", "id": "acct-1"}
     ]
-    assert actual[34][3]["weights"] == {"semantic": 0.4, "lexical": 0.2, "graph": 0.4}
+    assert actual[39][3]["weights"] == {"semantic": 0.4, "lexical": 0.2, "graph": 0.4}
 
-    mutation_indexes = {8, 9, 10, 11, 12, 14, 15, 18, 19, 20, 23, 24}
+    mutation_indexes = {13, 14, 15, 16, 17, 19, 20, 23, 24, 25, 28, 29}
     for index, request in enumerate(requests):
         if index in mutation_indexes:
             assert request.headers["Idempotency-Key"] == IDEMPOTENCY_KEY
@@ -597,6 +609,40 @@ def test_context_error_mapping_redacts_secrets_and_preserves_safe_fields() -> No
     assert exc.value.details == {"graph_status": "not_configured"}
     assert API_KEY not in str(exc.value)
     assert API_KEY not in repr(exc.value.details)
+
+
+@pytest.mark.parametrize("action", ["cancel", "retry"])
+def test_lifecycle_conflicts_are_not_retried_and_preserve_idempotency(action: str) -> None:
+    requests: list[httpx.Request] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(
+            409,
+            json={
+                "request_id": "req_lifecycle_conflict",
+                "error": {
+                    "code": "CONTEXT_OPERATION_STATE_CONFLICT",
+                    "message": "The operation state does not allow this action.",
+                    "details": {"status": "succeeded"},
+                },
+            },
+        )
+
+    context = _client(respond, retries=2).project().context
+    invoke = (
+        context.cancel_operation if action == "cancel" else context.retry_operation
+    )
+
+    with pytest.raises(PolygresAPIError) as exc:
+        invoke(OPERATION_ID, idempotency_key=IDEMPOTENCY_KEY)
+
+    assert len(requests) == 1
+    assert requests[0].url.path == f"/v1/context/operations/{OPERATION_ID}/{action}"
+    assert requests[0].headers["Idempotency-Key"] == IDEMPOTENCY_KEY
+    assert exc.value.code == "CONTEXT_OPERATION_STATE_CONFLICT"
+    assert exc.value.request_id == "req_lifecycle_conflict"
+    assert exc.value.details == {"status": "succeeded"}
 
 
 def test_additive_fields_and_ranked_response_shape_are_preserved() -> None:

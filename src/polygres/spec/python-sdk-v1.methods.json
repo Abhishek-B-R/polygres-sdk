@@ -244,6 +244,86 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Record that the pgContext bridge offer was shown.",
+      "example": "onboarding = project.context.acknowledge_onboarding()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_acknowledge_onboarding"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_acknowledge_onboarding",
+          "path": "/v1/context/onboarding/acknowledge",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [],
+              "required_fields": [],
+              "schema": "EmptyRequest"
+            }
+          ],
+          "request_schema": "EmptyRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "required_fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "schema": "ContextOnboardingResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "ContextOnboardingResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.acknowledge_onboarding",
+      "python_qualname": "polygres.context.ContextNamespace.acknowledge_onboarding",
+      "retry_policy": "idempotent_mutation",
+      "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Register a scalar filter column on a collection.",
       "example": "operation = project.context.add_filter_column(collection_id, \"tenant\", \"tenant_id\")",
       "exception_categories": [
@@ -846,6 +926,166 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Dismiss the pgContext bridge offer for this project.",
+      "example": "onboarding = project.context.dismiss_onboarding()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_dismiss_onboarding"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_dismiss_onboarding",
+          "path": "/v1/context/onboarding/dismiss",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [],
+              "required_fields": [],
+              "schema": "EmptyRequest"
+            }
+          ],
+          "request_schema": "EmptyRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "required_fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "schema": "ContextOnboardingResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "ContextOnboardingResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.dismiss_onboarding",
+      "python_qualname": "polygres.context.ContextNamespace.dismiss_onboarding",
+      "retry_policy": "idempotent_mutation",
+      "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Evaluate and cache pgvector bridge eligibility.",
+      "example": "onboarding = project.context.evaluate_onboarding()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_evaluate_onboarding"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_evaluate_onboarding",
+          "path": "/v1/context/onboarding/evaluate",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [],
+              "required_fields": [],
+              "schema": "EmptyRequest"
+            }
+          ],
+          "request_schema": "EmptyRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "required_fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "schema": "ContextOnboardingResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "ContextOnboardingResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.evaluate_onboarding",
+      "python_qualname": "polygres.context.ContextNamespace.evaluate_onboarding",
+      "retry_policy": "read_only_post",
+      "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Return facet counts for a registered Context field.",
       "example": "facets = project.context.facets(\"support\", \"tenant_id\")",
       "exception_categories": [
@@ -1287,6 +1527,79 @@
       "pagination": "none",
       "public_name": "project.context.get_collection_status",
       "python_qualname": "polygres.context.ContextNamespace.get_collection_status",
+      "retry_policy": "read_only_get",
+      "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return cached pgContext onboarding state without running discovery.",
+      "example": "onboarding = project.context.get_onboarding()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_get_onboarding"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_get_onboarding",
+          "path": "/v1/context/onboarding",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "required_fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "schema": "ContextOnboardingResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "ContextOnboardingResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.get_onboarding",
+      "python_qualname": "polygres.context.ContextNamespace.get_onboarding",
       "retry_policy": "read_only_get",
       "since": "0.2.0",
       "stability": "stable"
@@ -2206,6 +2519,86 @@
       "public_name": "project.context.reconcile_points",
       "python_qualname": "polygres.context.ContextNamespace.reconcile_points",
       "retry_policy": "idempotent_mutation",
+      "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Explicitly refresh pgvector bridge eligibility.",
+      "example": "onboarding = project.context.refresh_onboarding()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_refresh_onboarding"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_refresh_onboarding",
+          "path": "/v1/context/onboarding/refresh",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [],
+              "required_fields": [],
+              "schema": "EmptyRequest"
+            }
+          ],
+          "request_schema": "EmptyRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "required_fields": [
+                  "candidates",
+                  "compatibility_generation",
+                  "completed_collection_id",
+                  "evaluated_at",
+                  "offer_acknowledged",
+                  "request_id",
+                  "selected_vector_configuration_id",
+                  "status",
+                  "updated_at"
+                ],
+                "schema": "ContextOnboardingResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "ContextOnboardingResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.refresh_onboarding",
+      "python_qualname": "polygres.context.ContextNamespace.refresh_onboarding",
+      "retry_policy": "read_only_post",
       "since": "0.2.0",
       "stability": "stable"
     },
@@ -3943,7 +4336,7 @@
       "stability": "stable"
     }
   ],
-  "openapi_sha256": "6ddceabe54c81cc48833985fce75eb99dfaaf356d467e20fbef88347b5382a67",
+  "openapi_sha256": "bc5fc1fe2520d081679e4376841d9e277999549371911a0b4094af89af0da61b",
   "schema_version": 1,
   "sdk": "polygres-sdk",
   "sdk_version": "0.2.0"

@@ -1,250 +1,66 @@
 # Polygres Python SDK
 
-The Polygres SDK is a retrieval client for a per-project Runtime API. It uses a
-Polygres API key and Runtime API URL; it does not open direct Postgres
-connections or expose database passwords.
+Build Python applications with Polygres graph, vector, text, and hybrid retrieval.
 
-Links:
+The SDK connects to one project's Runtime API using a Polygres API key. It does not open PostgreSQL connections or expose database passwords.
 
-- Documentation: https://docs.evokoa.com/polygres
-- Changelog: https://docs.evokoa.com/polygres/changelog
-- Polygres: https://polygres.com
-- Evokoa: https://evokoa.com
-- X: https://x.com/evokoa_ai
-- Discord: https://discord.gg/GnHR8ezuwG
-- Product Hunt: https://www.producthunt.com/@evokoa
+- [Documentation](https://docs.polygres.com)
+- [Polygres](https://polygres.com)
+- [Discord](https://discord.gg/GnHR8ezuwG)
 
 ## Install
 
-```bash
-pip install polygres-sdk==0.2.0
-```
-
-The SDK is a library and does not install a terminal command. Install
-`polygres-cli` separately when you need the `polygres` command for project
-management. Users upgrading from the combined 0.2.x package should install
-`polygres-cli` before upgrading the SDK.
-
-Version `0.2.0` becomes installable from the default package index only after
-the release is published to PyPI. Maintainers validate the same wheel through
-TestPyPI first, following `docs/44-python-sdk-release-runbook.md`.
-
-## Install the Agent Skill
-
-The optional `polygres-sdk` Agent Skill helps Codex, Claude Code, and other
-compatible coding agents write, test, and troubleshoot retrieval application
-code. The companion `polygres-cli` skill configures the project that an SDK
-application uses. Neither skill embeds its Python package.
-
-Install the skill from the public
-[`Evokoa/polygres-skills`](https://github.com/Evokoa/polygres-skills)
-repository:
+The SDK requires Python 3.10 or newer.
 
 ```bash
-npx skills add Evokoa/polygres-skills --skill polygres-sdk
+pip install polygres-sdk
 ```
 
-Codex users can instead add the native plugin marketplace:
+The SDK is a Python library and does not install the `polygres` terminal command. Install `polygres-cli` separately for project setup, imports, migrations, and retrieval configuration.
 
-```bash
-codex plugin marketplace add Evokoa/polygres-skills
-```
+## Quick start
 
-Then start Codex, open `/plugins`, and install Polygres. Claude Code users can
-install it inside Claude Code:
-
-```text
-/plugin marketplace add Evokoa/polygres-skills
-/plugin install polygres@polygres
-/reload-plugins
-```
-
-After installation, users can ask the agent to build SDK retrieval:
-
-```text
-Use the Polygres SDK to find semantically similar documents, expand their
-citations, and build deduplicated context with source provenance.
-```
-
-Install `polygres-cli` and the `polygres-cli` skill separately before asking an
-agent to perform project-management or retrieval-configuration tasks.
-
-Update or remove a generic installation with:
-
-```bash
-npx skills update polygres-cli
-npx skills update polygres-sdk
-npx skills remove --global polygres-sdk
-```
-
-See the [Agent Skills guide](https://docs.evokoa.com/polygres/agent-skills)
-to install `polygres-sdk` for application retrieval guidance or
-`polygres-cli` for project operations. The guide also covers project versus
-global scope, native Codex and Claude Code updates, and security behavior.
-
-## Quick Start
-
-Create a Polygres API key from your project Settings page. Find the Runtime API
-URL on your project Connect page. Use the Runtime API URL with the SDK, not the
-direct or pooled Postgres connection string.
+Create a Project API Key in **Settings** and copy the Runtime API URL from the project's **Connect** page. Store both values in your application's secret configuration.
 
 ```python
+import os
+
 from polygres import Polygres
 
 client = Polygres(
-    api_key="POLYGRES_API_KEY",
-    runtime_url="POLYGRES_RUNTIME_URL",
+    api_key=os.environ["POLYGRES_API_KEY"],
+    runtime_url=os.environ["POLYGRES_RUNTIME_URL"],
 )
 project = client.project()
 
 readiness = project.readiness()
 print(readiness.graph, readiness.vector, readiness.hybrid)
-
-connection = project.connection_info()
-print(connection.direct_url_without_password)
-print(connection.pooled_url_without_password)
 ```
 
-## Version and Runtime API contract
+Use the Runtime API URL with the SDK. Do not use a direct or pooled PostgreSQL connection string.
 
-Report the installed package version with `polygres.__version__`. It is read
-from the installed `polygres-sdk` distribution metadata, so support output and
-request identity always match the wheel that is running:
+## Choose a retrieval method
 
-```python
-from polygres import __version__
+| Need | Method |
+| --- | --- |
+| Search by semantic similarity | `project.vector.search()` |
+| Find rows similar to an existing row | `project.vector.similar_to()` |
+| Search text with PostgreSQL full-text search | `project.text.tsvector()` |
+| Tolerate misspellings in short text | `project.text.fuzzy()` |
+| Traverse relationships | `project.graph.expand()` or `project.graph.related()` |
+| Combine graph and vector relevance | `project.hybrid.*` |
 
-print(__version__)
-```
+The corresponding graph, vector, or text configuration must be ready before the application sends retrieval requests.
 
-Every Runtime request sends the installed SDK version in `User-Agent` and
-`X-Polygres-Client-Info`, plus the API behavior version
-`X-Polygres-Api-Version: 2026-08-04`. These identity, API-version, and
-Authorization headers are controlled by the SDK and cannot be replaced with
-custom headers.
+## Vector retrieval
 
-Machine-readable v1 contracts are packaged in `polygres.spec` and can be read
-without network access:
+Generate the query embedding with the same model and dimensions used by the saved vector configuration.
 
 ```python
-from polygres.spec import load_python_method_spec, load_runtime_openapi
+query_embedding = [0.1] * 768
 
-methods = load_python_method_spec()
-openapi = load_runtime_openapi()
-```
-
-The JSON files describe hand-written methods and HTTP operations. They are not
-loaded for request routing. The generated human-readable mapping is maintained
-in `docs/reference-v1.md`, and topic-based upgrade guidance ships under
-`polygres/migrations`.
-
-When contacting support, include `polygres.__version__` and the safe
-`request_id` from the response or exception. Never send the project API key.
-
-`connection_info()` returns passwordless direct and pooled connection strings.
-The SDK never returns the database password.
-
-## pgContext
-
-Version 0.2.0 adds the synchronous, flat `project.context` namespace for
-pgContext discovery, collection and point management, durable operations,
-aggregates, and ranked retrieval. Administrative collection methods require a
-collection UUID. Aggregate and retrieval methods accept a UUID or exact
-collection name.
-
-Mutations return immediately. Wait only when the application explicitly needs
-the terminal result:
-
-```python
-operation = project.context.create_collection(
-    "support_docs",
-    source={
-        "mode": "existing",
-        "schema_name": "public",
-        "table_name": "documents",
-        "source_key_column": "id",
-    },
-    vector={"column_name": "embedding", "dimensions": 768, "metric": "cosine"},
-    text_column="content",
-)
-completed = project.context.wait_for_operation(operation)
-collection = project.context.get_collection(completed.collection_id)
-```
-
-`project.context.joint()` calls only the coupled pgContext and pgGraph Joint
-route. It is distinct from `project.context.rank_fusion()` and the existing
-pgvector-backed `project.hybrid.joint()` method.
-
-## Query Chaining
-
-Graph and hybrid calls need real row IDs from graph-registered tables. Do not
-guess IDs such as `doc_1` or `cus_123` unless those rows actually exist in your
-database. A safe pattern is to start with vector or text search, then use the
-returned result as the graph start node.
-
-```python
-embedding = [0.1] * 8  # Must match the configured vector dimensions.
-
-vector_page = project.vector.search(
-    embedding,
-    config="documents_embedding",
-    limit=5,
-)
-
-top_doc = vector_page.results[0]
-start = {
-    "schema": top_doc.schema,
-    "table": top_doc.table,
-    "id": top_doc.id,
-}
-
-graph_page = project.graph.expand(
-    start,
-    max_depth=2,
-    limit=10,
-)
-
-similar_page = project.vector.similar_to(
-    top_doc.id,
-    config="documents_embedding",
-    limit=5,
-)
-
-hybrid_page = project.hybrid.graph_first(
-    start,
-    embedding=embedding,
-    config="documents_embedding",
-    limit=10,
-)
-
-for result in hybrid_page.results:
-    print(result.id, result.score, result.vector_score, result.graph_score)
-```
-
-If a graph call returns `Node not found`, check that:
-
-- `schema`, `table`, and `id` refer to a real row.
-- The table is registered in graph configuration.
-- The graph has been rebuilt after adding or changing that row.
-
-## Readiness And Connection Info
-
-```python
-readiness = project.readiness()
-
-if readiness.vector["ready"]:
-    print("default vector config:", readiness.vector["default_config"])
-
-connection = project.connection_info()
-print(connection.direct_host)
-print(connection.pooled_host)
-```
-
-## Vector Retrieval
-
-```python
 page = project.vector.search(
-    [0.1] * 8,
+    query_embedding,
     config="documents_embedding",
     filters={"status": "published"},
     min_similarity=0.75,
@@ -252,32 +68,22 @@ page = project.vector.search(
 )
 
 for result in page.results:
-    print(result.id, result.schema, result.table, result.score)
+    print(result.id, result.score, result.properties)
 ```
 
-Find rows similar to an existing row:
+Find rows similar to an existing row without generating another embedding:
 
 ```python
 page = project.vector.similar_to(
-    row_id="doc_security_01178",
+    row_id="doc_123",
     config="documents_embedding",
     limit=10,
 )
 ```
 
-Set `include_values=True` when you need returned embedding values:
+## Text retrieval
 
-```python
-page = project.vector.search(
-    [0.1] * 8,
-    config="documents_embedding",
-    include_values=True,
-)
-```
-
-## Text Retrieval
-
-TSVector full-text search:
+Full-text search:
 
 ```python
 page = project.text.tsvector(
@@ -288,111 +94,70 @@ page = project.text.tsvector(
 )
 ```
 
-Fuzzy search:
+Fuzzy text search:
 
 ```python
 page = project.text.fuzzy(
-    "acme corporation",
+    "acme corpration",
     config="customer_name_fuzzy",
     limit=10,
 )
 ```
 
-Text results expose `id`, `schema`, `table`, `properties`, `score`, and
-`similarity`.
+## Graph retrieval
 
-## Graph Retrieval
-
-Graph start nodes must identify real rows:
+Graph methods start from real rows in graph-registered tables. Use an ID from trusted application data or a previous retrieval result.
 
 ```python
-start = {"schema": "public", "table": "documents", "id": "doc_security_01178"}
-```
+start = {
+    "schema": "public",
+    "table": "documents",
+    "id": "doc_123",
+}
 
-Expand from a node:
-
-```python
 page = project.graph.expand(
     start,
     max_depth=2,
     direction="any",
-    filters={"status": "published"},
     limit=20,
 )
 
 for result in page.results:
-    print(result.node.id, result.depth, result.graph_score)
+    print(result.node.id, result.depth, result.readable_path)
 ```
 
-Neighborhood is an alias-shaped traversal with `radius`:
+Other graph methods include:
 
 ```python
-page = project.graph.neighborhood(
-    start,
-    radius=2,
-    direction="any",
-    limit=20,
-)
+neighbors = project.graph.neighborhood(start, radius=2, limit=20)
+related = project.graph.related(start, limit=20)
+
+target = {"schema": "public", "table": "documents", "id": "doc_456"}
+paths = project.graph.path(start, target, max_depth=3)
+connections = project.graph.connection([start, target], max_depth=3)
 ```
 
-Related returns one-hop related nodes:
+If a graph method returns `Node not found`, confirm that the row exists, its table is registered, and the graph was rebuilt after the latest relevant changes.
 
-```python
-page = project.graph.related(
-    start,
-    direction="any",
-    limit=20,
-)
-```
+## Hybrid retrieval
 
-Find paths between two nodes:
-
-```python
-target = {"schema": "public", "table": "documents", "id": "doc_security_01744"}
-
-path_response = project.graph.path(
-    start,
-    target,
-    max_depth=3,
-)
-
-print(path_response.paths)
-```
-
-Find connections across a chain of entities:
-
-```python
-connection_response = project.graph.connection(
-    [start, target],
-    max_depth=3,
-)
-
-print(connection_response.connections)
-```
-
-`GraphResult` uses `result.node.id`. `HybridResult` exposes `result.id`
-directly.
-
-## Hybrid Retrieval
-
-Graph-first starts from a graph node, then blends graph context with vector
-similarity:
+Graph-first retrieval starts from a known row and adds vector relevance:
 
 ```python
 page = project.hybrid.graph_first(
     start,
-    embedding=[0.1] * 8,
+    embedding=query_embedding,
     config="documents_embedding",
     max_depth=2,
     limit=10,
 )
 ```
 
-Vector-first starts with vector candidates, then expands graph context:
+Vector-first retrieval finds semantic candidates before expanding graph context:
 
 ```python
 page = project.hybrid.vector_first(
-    [0.1] * 8,
+    query_embedding,
     config="documents_embedding",
     vector_limit=20,
     max_depth=1,
@@ -400,11 +165,11 @@ page = project.hybrid.vector_first(
 )
 ```
 
-Joint combines a vector query with a graph start node:
+Joint retrieval lets vector and graph rankings contribute independently:
 
 ```python
 page = project.hybrid.joint(
-    [0.1] * 8,
+    query_embedding,
     start,
     config="documents_embedding",
     vector_weight=0.7,
@@ -414,42 +179,39 @@ page = project.hybrid.joint(
 )
 ```
 
-Hybrid results expose `id`, `schema`, `table`, `score`, `vector_score`,
-`graph_score`, `distance`, `similarity`, `properties`, and `relationships`.
+## Pagination
 
-## Paging
-
-Every list-style retrieval method returns a `Page`.
+Retrieval methods return a `Page` with `results`, `has_more`, and `next_cursor`.
 
 ```python
-page = project.vector.search([0.1] * 8, config="documents_embedding", limit=25)
+page = project.vector.search(
+    query_embedding,
+    config="documents_embedding",
+    limit=25,
+)
 
 for result in page.results:
     print(result.id)
 
 if page.has_more:
     next_page = project.vector.search(
-        [0.1] * 8,
+        query_embedding,
         config="documents_embedding",
         limit=25,
         cursor=page.next_cursor,
     )
 ```
 
-Use `auto_paging_iter()` to iterate through all pages:
+Use `auto_paging_iter()` when you want the SDK to follow every page:
 
 ```python
-page = project.text.tsvector(
-    "security incident",
-    config="documents_body_tsv",
-    limit=25,
-)
-
 for result in page.auto_paging_iter():
     print(result.id, result.score)
 ```
 
-## Error Handling
+## Error handling
+
+SDK exceptions include the HTTP status, stable error code, safe details, and request ID when available.
 
 ```python
 from polygres import PolygresAPIError
@@ -463,20 +225,35 @@ except PolygresAPIError as exc:
     print(exc.details)
 ```
 
-Common graph failures include `Node not found` when the requested start or
-target row is not present in the graph projection.
+Keep the request ID when reporting a problem. Never log or send the Project API Key.
 
-## Client Behavior
+## Connection information
 
-The SDK sends `Authorization` and `User-Agent` on every request. It does not
-send `X-Polygres-Project`; the project identity is bound to the Runtime API URL.
+`connection_info()` returns project hosts and passwordless connection strings. It never returns the database password.
 
-The SDK supports retrieval against saved graph, vector, TSVector full-text,
-fuzzy text-search, and hybrid configurations. It does not expose dashboard-only
-setup mutations for graph/vector/text configuration, graph builds, or index
-reindexing.
+```python
+connection = project.connection_info()
+print(connection.direct_host)
+print(connection.pooled_host)
+print(connection.direct_url_without_password)
+```
 
-The SDK is an HTTP client. It does not bundle direct Postgres drivers such as
-`asyncpg` or `psycopg`, and it does not implement SQL editor script execution
-locally. Future SQL editor SDK methods must call Polygres API routes instead of
-opening database connections.
+Use a PostgreSQL driver such as psycopg or SQLAlchemy when your application needs a database connection. The Polygres SDK is an HTTP retrieval client and does not bundle a PostgreSQL driver.
+
+## Version and support
+
+The current published SDK release is [`0.1.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.1.0).
+
+When contacting support, include the installed SDK version and the request ID.
+
+See the [SDK 0.1.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.1.0) for published changes.
+
+## Optional Agent Skill
+
+The `polygres-sdk` Agent Skill helps compatible coding agents write and review Polygres application code.
+
+```bash
+npx skills add Evokoa/polygres-skills --skill polygres-sdk
+```
+
+See the [Agent Skills repository](https://github.com/Evokoa/polygres-skills) for Codex and Claude Code installation options.

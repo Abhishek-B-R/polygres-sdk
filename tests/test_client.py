@@ -15,6 +15,7 @@ from polygres import (
     PolygresMaintenanceError,
     PolygresPermissionError,
     PolygresValidationError,
+    VectorResult,
     __version__,
 )
 from polygres._api_version import API_VERSION_HEADER, CLIENT_INFO_HEADER, DEFAULT_API_VERSION
@@ -51,6 +52,55 @@ def _page_payload(cursor: str | None = None) -> dict[str, object]:
         "next_cursor": cursor,
         "has_more": bool(cursor),
     }
+
+
+@pytest.mark.parametrize(
+    ("metrics", "expected"),
+    [
+        (
+            {"distance": None, "similarity": None, "score": None},
+            (None, None, None),
+        ),
+        (
+            {"distance": "0.1", "similarity": "0.9", "score": "0.9"},
+            (0.1, 0.9, 0.9),
+        ),
+    ],
+)
+def test_vector_result_parses_nullable_and_numeric_metrics(
+    metrics: dict[str, object], expected: tuple[float | None, float | None, float | None]
+) -> None:
+    result = VectorResult.from_api(
+        {
+            "schema": "public",
+            "table": "documents",
+            "id": "doc_1",
+            "properties": {},
+            **metrics,
+        }
+    )
+
+    assert (result.distance, result.similarity, result.score) == expected
+    assert result.to_dict()["distance"] == expected[0]
+    assert result.to_dict()["similarity"] == expected[1]
+    assert result.to_dict()["score"] == expected[2]
+
+
+@pytest.mark.parametrize("missing_field", ["distance", "score"])
+def test_vector_result_requires_distance_and_score(missing_field: str) -> None:
+    payload = {
+        "schema": "public",
+        "table": "documents",
+        "id": "doc_1",
+        "properties": {},
+        "distance": 0.1,
+        "similarity": 0.9,
+        "score": 0.9,
+    }
+    del payload[missing_field]
+
+    with pytest.raises(KeyError, match=missing_field):
+        VectorResult.from_api(payload)
 
 
 def _graph_page_payload(cursor: str | None = None) -> dict[str, object]:
@@ -221,6 +271,31 @@ def test_unsupported_api_version_maps_to_stable_validation_error() -> None:
     assert exc_info.value.code == "UNSUPPORTED_API_VERSION"
     assert exc_info.value.request_id == "req_api_version"
     assert exc_info.value.details == {"supported_versions": [DEFAULT_API_VERSION]}
+
+
+@ROUTE_CTX
+def test_vector_row_id_error_maps_to_validation_error() -> None:
+    _stub(
+        respx.post(f"{RUNTIME_URL}/vector/similar-to"),
+        return_value=httpx.Response(
+            400,
+            json={
+                "request_id": "req_vector_row_id",
+                "error": {
+                    "code": "VECTOR_ROW_ID_INVALID",
+                    "message": "row_id is invalid for the configured row ID column.",
+                    "details": {"row_id_column": "id", "expected_type": "integer"},
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PolygresValidationError) as exc_info:
+        _client().project().vector.similar_to("invalid", config="accounts_embedding")
+
+    assert exc_info.value.code == "VECTOR_ROW_ID_INVALID"
+    assert exc_info.value.request_id == "req_vector_row_id"
+    assert exc_info.value.details == {"row_id_column": "id", "expected_type": "integer"}
 
 
 @ROUTE_CTX
@@ -416,7 +491,9 @@ def test_vector_search_and_similar_to_payload_validation() -> None:
     assert '"embedding":[0.1,0.2,0.3]' in search_payload
     assert '"min_similarity":0.8' in search_payload
     assert '"row_id":"doc_1"' in similar_payload
+    assert result.results[0].distance == 0.1
     assert result.results[0].similarity == 0.9
+    assert result.results[0].score == 0.9
     assert similar_result.results[0].id == "doc_1"
     with pytest.raises(PolygresValidationError):
         project.vector.search([])
@@ -426,6 +503,25 @@ def test_vector_search_and_similar_to_payload_validation() -> None:
         project.vector.search([0.1], max_distance=0.2, min_similarity=0.8)
     with pytest.raises(PolygresValidationError):
         project.vector.search([0.1], limit=1001)
+
+
+@ROUTE_CTX
+def test_vector_search_preserves_null_metrics() -> None:
+    payload = _page_payload()
+    result_payload = payload["results"][0]  # type: ignore[index]
+    assert isinstance(result_payload, dict)
+    result_payload.update({"distance": None, "similarity": None, "score": None})
+    _stub(
+        respx.post(f"{RUNTIME_URL}/vector/search"),
+        return_value=httpx.Response(200, json=payload),
+    )
+
+    page = _client().project().vector.search([0.0] * 8, config="documents_default")
+
+    assert page.results[0].distance is None
+    assert page.results[0].similarity is None
+    assert page.results[0].score is None
+    assert page.results[0].to_dict()["distance"] is None
 
 
 @ROUTE_CTX

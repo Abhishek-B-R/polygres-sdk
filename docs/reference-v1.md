@@ -35,6 +35,7 @@ readiness = project.readiness()
 
 | SDK method | HTTP operation | Since | Retry | Pagination | Deprecated |
 | --- | --- | --- | --- | --- | --- |
+| `project.context.acknowledge_onboarding()` | `POST /v1/context/onboarding/acknowledge` (`runtime_context_acknowledge_onboarding`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.add_filter_column()` | `POST /v1/context/collections/{collection_id}/filters/columns` (`runtime_context_add_filter_column`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.add_jsonb_filter_path()` | `POST /v1/context/collections/{collection_id}/filters/jsonb-paths` (`runtime_context_add_filter_jsonb_path`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.cancel_operation()` | `POST /v1/context/operations/{operation_id}/cancel` (`runtime_context_cancel_operation`) | `0.2.0` | `idempotent_mutation` | `none` | No |
@@ -43,11 +44,14 @@ readiness = project.readiness()
 | `project.context.delete_collection()` | `DELETE /v1/context/collections/{collection_id}` (`runtime_context_delete_collection`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.delete_points()` | `POST /v1/context/collections/{collection_id}/points/delete` (`runtime_context_delete_points`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.discover_sources()` | `POST /v1/context/discover` (`runtime_context_discover`) | `0.2.0` | `read_only_post` | `none` | No |
+| `project.context.dismiss_onboarding()` | `POST /v1/context/onboarding/dismiss` (`runtime_context_dismiss_onboarding`) | `0.2.0` | `idempotent_mutation` | `none` | No |
+| `project.context.evaluate_onboarding()` | `POST /v1/context/onboarding/evaluate` (`runtime_context_evaluate_onboarding`) | `0.2.0` | `read_only_post` | `none` | No |
 | `project.context.facets()` | `POST /v1/context/facets` (`runtime_context_facets`) | `0.2.0` | `read_only_post` | `none` | No |
 | `project.context.get_capabilities()` | `GET /v1/context/capabilities` (`runtime_context_capabilities`) | `0.2.0` | `read_only_get` | `none` | No |
 | `project.context.get_collection()` | `GET /v1/context/collections/{collection_id}` (`runtime_context_get_collection`) | `0.2.0` | `read_only_get` | `none` | No |
 | `project.context.get_collection_diagnostics()` | `GET /v1/context/collections/{collection_id}/diagnostics` (`runtime_context_get_diagnostics`) | `0.2.0` | `read_only_get` | `none` | No |
 | `project.context.get_collection_status()` | `GET /v1/context/collections/{collection_id}/status` (`runtime_context_get_status`) | `0.2.0` | `read_only_get` | `none` | No |
+| `project.context.get_onboarding()` | `GET /v1/context/onboarding` (`runtime_context_get_onboarding`) | `0.2.0` | `read_only_get` | `none` | No |
 | `project.context.get_operation()` | `GET /v1/context/operations/{operation_id}` (`runtime_context_get_operation`) | `0.2.0` | `read_only_get` | `none` | No |
 | `project.context.get_point_status()` | `GET /v1/context/collections/{collection_id}/points/status` (`runtime_context_get_point_status`) | `0.2.0` | `read_only_get` | `none` | No |
 | `project.context.graph_first()` | `POST /v1/context/hybrid/graph-first` (`runtime_context_graph_first`) | `0.2.0` | `none` | `none` | No |
@@ -60,6 +64,7 @@ readiness = project.readiness()
 | `project.context.rank_fusion()` | `POST /v1/context/hybrid/rank-fusion` (`runtime_context_rank_fusion`) | `0.2.0` | `none` | `none` | No |
 | `project.context.recall_check()` | `POST /v1/context/recall-check` (`runtime_context_recall_check`) | `0.2.0` | `none` | `none` | No |
 | `project.context.reconcile_points()` | `POST /v1/context/collections/{collection_id}/points/reconcile` (`runtime_context_reconcile_points`) | `0.2.0` | `idempotent_mutation` | `none` | No |
+| `project.context.refresh_onboarding()` | `POST /v1/context/onboarding/refresh` (`runtime_context_refresh_onboarding`) | `0.2.0` | `read_only_post` | `none` | No |
 | `project.context.reindex_collection()` | `POST /v1/context/collections/{collection_id}/reindex` (`runtime_context_reindex_collection`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.retry_operation()` | `POST /v1/context/operations/{operation_id}/retry` (`runtime_context_retry_operation`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.scroll_points()` | `GET /v1/context/collections/{collection_id}/points` (`runtime_context_scroll_points`) | `0.2.0` | `read_only_get` | `auto_cursor` | No |
@@ -71,6 +76,14 @@ readiness = project.readiness()
 | `project.context.vector_first()` | `POST /v1/context/hybrid/vector-first` (`runtime_context_vector_first`) | `0.2.0` | `none` | `none` | No |
 | `project.context.verify_collection()` | `POST /v1/context/collections/{collection_id}/verify` (`runtime_context_verify_collection`) | `0.2.0` | `read_only_post` | `none` | No |
 | `project.context.wait_for_operation()` | `GET /v1/context/operations/{operation_id}` (`runtime_context_get_operation`) | `0.2.0` | `polling` | `none` | No |
+
+### `project.context.acknowledge_onboarding()`
+
+Record that the pgContext bridge offer was shown.
+
+```python
+onboarding = project.context.acknowledge_onboarding()
+```
 
 ### `project.context.add_filter_column()`
 
@@ -136,6 +149,22 @@ Discover tables and columns eligible for Context collections.
 sources = project.context.discover_sources()
 ```
 
+### `project.context.dismiss_onboarding()`
+
+Dismiss the pgContext bridge offer for this project.
+
+```python
+onboarding = project.context.dismiss_onboarding()
+```
+
+### `project.context.evaluate_onboarding()`
+
+Evaluate and cache pgvector bridge eligibility.
+
+```python
+onboarding = project.context.evaluate_onboarding()
+```
+
 ### `project.context.facets()`
 
 Return facet counts for a registered Context field.
@@ -174,6 +203,14 @@ Return the current status of a Context collection.
 
 ```python
 status = project.context.get_collection_status(collection_id)
+```
+
+### `project.context.get_onboarding()`
+
+Return cached pgContext onboarding state without running discovery.
+
+```python
+onboarding = project.context.get_onboarding()
 ```
 
 ### `project.context.get_operation()`
@@ -270,6 +307,14 @@ Reconcile all source rows with Context points.
 
 ```python
 operation = project.context.reconcile_points(collection_id)
+```
+
+### `project.context.refresh_onboarding()`
+
+Explicitly refresh pgvector bridge eligibility.
+
+```python
+onboarding = project.context.refresh_onboarding()
 ```
 
 ### `project.context.reindex_collection()`

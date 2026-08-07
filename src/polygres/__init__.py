@@ -26,6 +26,7 @@ from polygres.models import (
     TextResult,
     VectorResult,
 )
+from polygres.version_notices import PolygresVersionNotice, PolygresVersionWarning
 
 __all__ = [
     "ConnectionInfo",
@@ -46,6 +47,8 @@ __all__ = [
     "PolygresRateLimitError",
     "PolygresRuntimeError",
     "PolygresValidationError",
+    "PolygresVersionNotice",
+    "PolygresVersionWarning",
     "RetrievalReadiness",
     "TextResult",
     "VectorResult",

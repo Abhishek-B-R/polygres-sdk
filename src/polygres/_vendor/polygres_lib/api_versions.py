@@ -7,6 +7,10 @@ from dataclasses import dataclass
 
 API_VERSION_HEADER = "X-Polygres-Api-Version"
 CLIENT_INFO_HEADER = "X-Polygres-Client-Info"
+SDK_NOTICE_ID_HEADER = "Polygres-SDK-Notice-ID"
+SDK_NOTICE_RECOMMENDED_VERSION_HEADER = "Polygres-SDK-Recommended-Version"
+SDK_NOTICE_SEVERITY_HEADER = "Polygres-SDK-Notice-Severity"
+SDK_NOTICE_URL_HEADER = "Polygres-SDK-Notice-URL"
 DEFAULT_API_VERSION = "2026-08-04"
 API_FAMILY = "v1"
 
@@ -44,6 +48,10 @@ __all__ = [
     "API_VERSIONS",
     "CLIENT_INFO_HEADER",
     "DEFAULT_API_VERSION",
+    "SDK_NOTICE_ID_HEADER",
+    "SDK_NOTICE_RECOMMENDED_VERSION_HEADER",
+    "SDK_NOTICE_SEVERITY_HEADER",
+    "SDK_NOTICE_URL_HEADER",
     "SUPPORTED_API_VERSIONS",
     "ApiBehaviorVersion",
     "is_api_version_syntax",

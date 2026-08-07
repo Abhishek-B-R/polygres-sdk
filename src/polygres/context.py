@@ -21,6 +21,7 @@ from polygres._vendor.polygres_lib.context import (
     ContextCollection,
     ContextCollectionStatus,
     ContextJointResponse,
+    ContextOnboardingResponse,
     ContextOperation,
     ContextOperationKind,
     ContextOperationStatus,
@@ -80,6 +81,46 @@ class ContextNamespace:
 
     def get_capabilities(self, *, timeout: RequestTimeout = None) -> CapabilitiesResponse:
         return self._get_model("/context/capabilities", CapabilitiesResponse, timeout=timeout)
+
+    def get_onboarding(self, *, timeout: RequestTimeout = None) -> ContextOnboardingResponse:
+        """Return cached pgContext onboarding state without running discovery."""
+        return self._get_model(
+            "/context/onboarding", ContextOnboardingResponse, timeout=timeout
+        )
+
+    def evaluate_onboarding(
+        self, *, timeout: RequestTimeout = None
+    ) -> ContextOnboardingResponse:
+        """Evaluate pgvector bridge eligibility once and cache the result."""
+        return self._onboarding_mutation("evaluate", timeout=timeout)
+
+    def refresh_onboarding(
+        self, *, timeout: RequestTimeout = None
+    ) -> ContextOnboardingResponse:
+        """Explicitly re-evaluate a non-completed onboarding decision."""
+        return self._onboarding_mutation("refresh", timeout=timeout)
+
+    def acknowledge_onboarding(
+        self, *, timeout: RequestTimeout = None
+    ) -> ContextOnboardingResponse:
+        return self._onboarding_mutation("acknowledge", timeout=timeout)
+
+    def dismiss_onboarding(
+        self, *, timeout: RequestTimeout = None
+    ) -> ContextOnboardingResponse:
+        return self._onboarding_mutation("dismiss", timeout=timeout)
+
+    def _onboarding_mutation(
+        self, action: str, *, timeout: RequestTimeout
+    ) -> ContextOnboardingResponse:
+        _, payload = context_model(EmptyRequest, {})
+        return self._post_model(
+            f"/context/onboarding/{action}",
+            payload,
+            ContextOnboardingResponse,
+            timeout=timeout,
+            retryable=True,
+        )
 
     def discover_sources(
         self,
@@ -982,6 +1023,56 @@ def _attach_context_method_metadata() -> None:
             "Return pgContext capabilities for this Runtime.",
             "capabilities = project.context.get_capabilities()",
             "read_only_get",
+            "none",
+            "operation",
+        ),
+        (
+            ContextNamespace.get_onboarding,
+            "get_onboarding",
+            "runtime_context_get_onboarding",
+            "Return cached pgContext onboarding state without running discovery.",
+            "onboarding = project.context.get_onboarding()",
+            "read_only_get",
+            "none",
+            "operation",
+        ),
+        (
+            ContextNamespace.evaluate_onboarding,
+            "evaluate_onboarding",
+            "runtime_context_evaluate_onboarding",
+            "Evaluate and cache pgvector bridge eligibility.",
+            "onboarding = project.context.evaluate_onboarding()",
+            "read_only_post",
+            "none",
+            "operation",
+        ),
+        (
+            ContextNamespace.refresh_onboarding,
+            "refresh_onboarding",
+            "runtime_context_refresh_onboarding",
+            "Explicitly refresh pgvector bridge eligibility.",
+            "onboarding = project.context.refresh_onboarding()",
+            "read_only_post",
+            "none",
+            "operation",
+        ),
+        (
+            ContextNamespace.acknowledge_onboarding,
+            "acknowledge_onboarding",
+            "runtime_context_acknowledge_onboarding",
+            "Record that the pgContext bridge offer was shown.",
+            "onboarding = project.context.acknowledge_onboarding()",
+            "idempotent_mutation",
+            "none",
+            "operation",
+        ),
+        (
+            ContextNamespace.dismiss_onboarding,
+            "dismiss_onboarding",
+            "runtime_context_dismiss_onboarding",
+            "Dismiss the pgContext bridge offer for this project.",
+            "onboarding = project.context.dismiss_onboarding()",
+            "idempotent_mutation",
             "none",
             "operation",
         ),

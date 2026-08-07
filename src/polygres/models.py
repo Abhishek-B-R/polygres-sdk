@@ -7,6 +7,10 @@ from typing import Any, Generic, TypeVar
 T = TypeVar("T")
 
 
+def _float_or_none(value: Any) -> float | None:
+    return None if value is None else float(value)
+
+
 def _to_dict(value: Any) -> Any:
     if hasattr(value, "to_dict"):
         return value.to_dict()
@@ -216,9 +220,9 @@ class VectorResult:
     table: str
     id: str
     properties: dict[str, Any]
-    distance: float
+    distance: float | None
     similarity: float | None
-    score: float
+    score: float | None
 
     @classmethod
     def from_api(cls, payload: dict[str, Any]) -> VectorResult:
@@ -227,9 +231,9 @@ class VectorResult:
             table=payload["table"],
             id=str(payload["id"]),
             properties=dict(payload.get("properties", {})),
-            distance=float(payload["distance"]),
-            similarity=payload.get("similarity"),
-            score=float(payload["score"]),
+            distance=_float_or_none(payload["distance"]),
+            similarity=_float_or_none(payload.get("similarity")),
+            score=_float_or_none(payload["score"]),
         )
 
     def to_dict(self) -> dict[str, Any]:

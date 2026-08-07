@@ -40,8 +40,9 @@ dependencies = ["httpx>=0.28.1", "pydantic>=2.7,<3"]
 
 [project.urls]
 Homepage = "https://polygres.com"
-Documentation = "https://docs.evokoa.com/polygres"
+Documentation = "https://docs.polygres.com/sdk"
 Repository = "https://github.com/Evokoa/polygres-sdk"
+Changelog = "https://github.com/Evokoa/polygres-sdk/blob/main/CHANGELOG.md"
 Issues = "https://github.com/Evokoa/polygres-sdk/issues"
 Support = "https://polygres.com"
 
