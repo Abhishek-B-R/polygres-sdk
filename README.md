@@ -51,6 +51,9 @@ Use the Runtime API URL with the SDK. Do not use a direct or pooled PostgreSQL c
 | Combine graph and vector relevance | `project.hybrid.*` |
 
 The corresponding graph, vector, or text configuration must be ready before the application sends retrieval requests.
+New vector setup uses `project.context.create_collection()` with a native
+`pgcontext.vector` column. Existing `project.vector` retrieval methods remain available
+for applications using previously registered vector configurations.
 
 ## Vector retrieval
 
@@ -242,11 +245,11 @@ Use a PostgreSQL driver such as psycopg or SQLAlchemy when your application need
 
 ## Version and support
 
-The current published SDK release is [`0.1.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.1.0).
+Package version: [`0.2.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.0).
 
 When contacting support, include the installed SDK version and the request ID.
 
-See the [SDK 0.1.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.1.0) for published changes.
+See the [SDK 0.2.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.0) for release changes.
 
 ## Optional Agent Skill
 

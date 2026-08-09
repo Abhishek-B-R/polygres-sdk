@@ -54,6 +54,36 @@ def _page_payload(cursor: str | None = None) -> dict[str, object]:
     }
 
 
+def test_retired_vector_configuration_creation_maps_to_validation_error() -> None:
+    response = httpx.Response(
+        410,
+        request=httpx.Request("POST", f"{RUNTIME_URL}/vector/configurations"),
+        json={
+            "error": {
+                "code": "VECTOR_CREATION_RETIRED",
+                "message": (
+                    "New pgvector column registrations are no longer supported. Create a "
+                    "pgContext collection with a pgcontext.vector column instead."
+                ),
+                "details": {
+                    "replacement": "pgcontext_collection",
+                    "endpoint": "/v1/context/collections",
+                    "sdk_method": "project.context.create_collection",
+                },
+            },
+            "request_id": "req_retired_vector_creation",
+        },
+    )
+
+    error = client_module._api_error(response)
+
+    assert isinstance(error, PolygresValidationError)
+    assert error.code == "VECTOR_CREATION_RETIRED"
+    assert error.status_code == 410
+    assert error.request_id == "req_retired_vector_creation"
+    assert error.details["sdk_method"] == "project.context.create_collection"
+
+
 @pytest.mark.parametrize(
     ("metrics", "expected"),
     [

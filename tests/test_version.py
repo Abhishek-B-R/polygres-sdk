@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.metadata
+import json
 import runpy
 from importlib.metadata import version
 from pathlib import Path
@@ -13,6 +14,24 @@ from polygres import __version__
 def test_import_version_matches_installed_distribution_metadata() -> None:
     assert __version__ == version("polygres-sdk")
     assert __version__ != "0+unknown"
+
+
+def test_release_metadata_and_documentation_name_current_sdk_version() -> None:
+    root = Path(__file__).resolve().parents[1]
+    readme = (root / "README.md").read_text(encoding="utf-8")
+    changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
+    methods = json.loads(
+        (root / "src" / "polygres" / "spec" / "python-sdk-v1.methods.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert __version__ == "0.2.0"
+    assert methods["sdk_version"] == "0.2.0"
+    assert "Package version: [`0.2.0`]" in readme
+    assert "polygres-sdk-v0.2.0" in readme
+    assert "SDK 0.2.0 release notes" in readme
+    assert "## 0.2.0 - 2026-08-08" in changelog
 
 
 def test_uninstalled_source_uses_non_release_fallback(monkeypatch: pytest.MonkeyPatch) -> None:

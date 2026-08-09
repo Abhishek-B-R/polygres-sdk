@@ -2,7 +2,14 @@
 
 All notable changes to `polygres-sdk` are documented in this file.
 
-## 0.2.0 - 2026-08-06
+## Unreleased
+
+### Changed
+
+- The retired vector-configuration creation error is exposed as
+  `PolygresValidationError` with pgContext replacement details.
+
+## 0.2.0 - 2026-08-08
 
 ### Added
 

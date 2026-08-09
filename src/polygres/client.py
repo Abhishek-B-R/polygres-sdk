@@ -1131,6 +1131,8 @@ def _api_error(response: httpx.Response, *, secret: str | None = None) -> Polygr
         return PolygresRuntimeError(message, **kwargs)
     if status_code == 400 and code == "UNSUPPORTED_API_VERSION":
         return PolygresValidationError(message, **kwargs)
+    if code == "VECTOR_CREATION_RETIRED":
+        return PolygresValidationError(message, **kwargs)
     if status_code == 400 and code in {
         "VECTOR_ROW_ID_INVALID",
         "VECTOR_ROW_ID_TYPE_UNSUPPORTED",

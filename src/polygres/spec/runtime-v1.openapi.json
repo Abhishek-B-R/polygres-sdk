@@ -683,17 +683,6 @@
             "title": "Collection Name",
             "type": "string"
           },
-          "index_status": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ContextIndexStatus"
-              },
-              {
-                "type": "string"
-              }
-            ],
-            "title": "Index Status"
-          },
           "last_error_code": {
             "anyOf": [
               {
@@ -780,6 +769,13 @@
             "format": "date-time",
             "title": "Updated At",
             "type": "string"
+          },
+          "vectors": {
+            "items": {
+              "$ref": "#/components/schemas/ContextCollectionVector"
+            },
+            "title": "Vectors",
+            "type": "array"
           }
         },
         "required": [
@@ -788,7 +784,7 @@
           "collection_name",
           "status",
           "serving_status",
-          "index_status",
+          "vectors",
           "point_reconciliation_status",
           "mapped_point_count",
           "last_reconciled_at",
@@ -803,6 +799,17 @@
       "CollectionUpdateRequest": {
         "additionalProperties": false,
         "properties": {
+          "default_vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Vector Name"
+          },
           "max_search_limit": {
             "anyOf": [
               {
@@ -854,9 +861,9 @@
             "title": "Created At",
             "type": "string"
           },
-          "dimensions": {
-            "title": "Dimensions",
-            "type": "integer"
+          "default_vector_name": {
+            "title": "Default Vector Name",
+            "type": "string"
           },
           "filter_columns": {
             "items": {
@@ -869,31 +876,6 @@
             "format": "uuid",
             "title": "Id",
             "type": "string"
-          },
-          "index_kind": {
-            "$ref": "#/components/schemas/ContextIndexKind"
-          },
-          "index_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Index Name"
-          },
-          "index_status": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ContextIndexStatus"
-              },
-              {
-                "type": "string"
-              }
-            ],
-            "title": "Index Status"
           },
           "is_default": {
             "title": "Is Default",
@@ -956,23 +938,12 @@
             "title": "Max Search Limit",
             "type": "integer"
           },
-          "metric": {
-            "$ref": "#/components/schemas/ContextMetric"
-          },
           "name": {
             "title": "Name",
             "type": "string"
           },
-          "owns_index": {
-            "title": "Owns Index",
-            "type": "boolean"
-          },
           "owns_source_table": {
             "title": "Owns Source Table",
-            "type": "boolean"
-          },
-          "owns_vector_column": {
-            "title": "Owns Vector Column",
             "type": "boolean"
           },
           "point_reconciliation_status": {
@@ -1043,22 +1014,12 @@
             "title": "Updated At",
             "type": "string"
           },
-          "vector_column": {
-            "title": "Vector Column",
-            "type": "string"
-          },
-          "vector_name": {
-            "title": "Vector Name",
-            "type": "string"
-          },
-          "vector_type_owner": {
-            "default": "pgcontext",
-            "enum": [
-              "pgcontext",
-              "pgvector"
-            ],
-            "title": "Vector Type Owner",
-            "type": "string"
+          "vectors": {
+            "items": {
+              "$ref": "#/components/schemas/ContextCollectionVector"
+            },
+            "title": "Vectors",
+            "type": "array"
           }
         },
         "required": [
@@ -1073,20 +1034,13 @@
           "source_key_type",
           "source_mode",
           "owns_source_table",
-          "owns_vector_column",
-          "vector_name",
-          "vector_column",
-          "dimensions",
-          "metric",
+          "default_vector_name",
+          "vectors",
           "max_search_limit",
           "text_column",
           "result_columns",
           "filter_columns",
           "jsonb_filter_paths",
-          "index_kind",
-          "index_name",
-          "owns_index",
-          "index_status",
           "point_reconciliation_status",
           "mapped_point_count",
           "last_reconciled_at",
@@ -1107,6 +1061,128 @@
         ],
         "title": "ContextCollectionStatus",
         "type": "string"
+      },
+      "ContextCollectionVector": {
+        "additionalProperties": true,
+        "properties": {
+          "column_name": {
+            "title": "Column Name",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "dimensions": {
+            "title": "Dimensions",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "index_kind": {
+            "$ref": "#/components/schemas/ContextIndexKind"
+          },
+          "index_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index Name"
+          },
+          "index_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextIndexStatus"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Index Status"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "last_error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error Code"
+          },
+          "last_error_stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error Stage"
+          },
+          "metric": {
+            "$ref": "#/components/schemas/ContextMetric"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owns_index": {
+            "title": "Owns Index",
+            "type": "boolean"
+          },
+          "owns_vector_column": {
+            "title": "Owns Vector Column",
+            "type": "boolean"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "vector_type_owner": {
+            "default": "pgcontext",
+            "enum": [
+              "pgcontext",
+              "pgvector"
+            ],
+            "title": "Vector Type Owner",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "column_name",
+          "is_default",
+          "owns_vector_column",
+          "dimensions",
+          "metric",
+          "index_kind",
+          "index_name",
+          "owns_index",
+          "index_status",
+          "last_error_code",
+          "last_error_stage",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ContextCollectionVector",
+        "type": "object"
       },
       "ContextDiagnosticCheckStatus": {
         "enum": [
@@ -1851,6 +1927,7 @@
           "collection_update",
           "collection_delete",
           "collection_reindex",
+          "vector_add",
           "filter_add_column",
           "filter_add_jsonb_path",
           "points_upsert",
@@ -2184,6 +2261,60 @@
         "title": "ContextTextHybridResult",
         "type": "object"
       },
+      "ContextVectorCreateRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "column_name": {
+            "default": "embedding",
+            "title": "Column Name",
+            "type": "string"
+          },
+          "dimensions": {
+            "maximum": 16000.0,
+            "minimum": 1.0,
+            "title": "Dimensions",
+            "type": "integer"
+          },
+          "index_kind": {
+            "$ref": "#/components/schemas/ContextIndexKind",
+            "default": "hnsw"
+          },
+          "metric": {
+            "$ref": "#/components/schemas/ContextMetric",
+            "default": "cosine"
+          },
+          "mode": {
+            "default": "existing",
+            "enum": [
+              "existing",
+              "add_column"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "set_default": {
+            "default": false,
+            "title": "Set Default",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "dimensions"
+        ],
+        "title": "ContextVectorCreateRequest",
+        "type": "object"
+      },
       "ContextVectorRequest": {
         "additionalProperties": false,
         "properties": {
@@ -2201,6 +2332,17 @@
           "metric": {
             "$ref": "#/components/schemas/ContextMetric",
             "default": "cosine"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           }
         },
         "required": [
@@ -2314,16 +2456,12 @@
       "DeletionPlan": {
         "additionalProperties": true,
         "properties": {
-          "drop_owned_index": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Drop Owned Index"
+          "drop_owned_indexes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Drop Owned Indexes",
+            "type": "array"
           },
           "pgcontext_collection": {
             "title": "Pgcontext Collection",
@@ -2336,9 +2474,12 @@
             "title": "Preserve Indexes",
             "type": "array"
           },
-          "preserve_source_column": {
-            "title": "Preserve Source Column",
-            "type": "string"
+          "preserve_source_columns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Preserve Source Columns",
+            "type": "array"
           },
           "preserve_source_table": {
             "title": "Preserve Source Table",
@@ -2347,9 +2488,9 @@
         },
         "required": [
           "pgcontext_collection",
-          "drop_owned_index",
+          "drop_owned_indexes",
           "preserve_source_table",
-          "preserve_source_column",
+          "preserve_source_columns",
           "preserve_indexes"
         ],
         "title": "DeletionPlan",
@@ -2387,6 +2528,17 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
           }
         },
         "required": [
@@ -3231,6 +3383,17 @@
           },
           "start": {
             "$ref": "#/components/schemas/GraphStart"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
           }
         },
         "required": [
@@ -3581,6 +3744,17 @@
             "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
           }
         },
         "required": [
@@ -3923,6 +4097,17 @@
             "minimum": 1.0,
             "title": "Traversal Limit",
             "type": "integer"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
           },
           "weights": {
             "$ref": "#/components/schemas/JointWeights"
@@ -4583,6 +4768,17 @@
           "start": {
             "$ref": "#/components/schemas/GraphStart"
           },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
+          },
           "weights": {
             "$ref": "#/components/schemas/RankFusionWeights"
           }
@@ -4725,6 +4921,17 @@
             "default": 0.95,
             "title": "Minimum Recall",
             "type": "number"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
           }
         },
         "required": [
@@ -5214,6 +5421,17 @@
             "minLength": 1,
             "title": "Query",
             "type": "string"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
           }
         },
         "required": [
@@ -5563,6 +5781,17 @@
             "maxItems": 32,
             "title": "Relationship Types",
             "type": "array"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
           }
         },
         "required": [
@@ -7872,6 +8101,129 @@
           }
         ],
         "summary": "Collection Status",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/{collection_id}/vectors": {
+      "post": {
+        "operationId": "runtime_context_add_vector",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Collection Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextVectorCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Add Collection Vector",
         "tags": [
           "context"
         ]
@@ -12242,6 +12594,59 @@
         "summary": "Text Tsvector"
       }
     },
+    "/v1/vector/compatibility": {
+      "get": {
+        "operationId": "runtime_vector_compatibility",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Runtime Vector Compatibility",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Vector Compatibility"
+      }
+    },
     "/v1/vector/configurations": {
       "get": {
         "operationId": "list_vector_configurations_v1_vector_configurations_get",
@@ -12295,6 +12700,7 @@
         "summary": "List Vector Configurations"
       },
       "post": {
+        "deprecated": true,
         "operationId": "create_vector_configuration_v1_vector_configurations_post",
         "parameters": [
           {
@@ -12312,7 +12718,7 @@
           "required": true
         },
         "responses": {
-          "200": {
+          "410": {
             "content": {
               "application/json": {
                 "schema": {
@@ -12322,7 +12728,7 @@
                 }
               }
             },
-            "description": "Successful Response",
+            "description": "Create a pgContext collection instead.",
             "headers": {
               "Polygres-SDK-Notice-ID": {
                 "$ref": "#/components/headers/PolygresSdkNoticeId"
@@ -12386,7 +12792,7 @@
             "RuntimeBearerAuth": []
           }
         ],
-        "summary": "Create Vector Configuration"
+        "summary": "Vector configuration creation retired"
       }
     },
     "/v1/vector/configurations/{config_id}": {
@@ -12678,6 +13084,110 @@
           }
         ],
         "summary": "Patch Vector Configuration"
+      }
+    },
+    "/v1/vector/configurations/{config_id}/compatibility-engine/{target_engine}": {
+      "post": {
+        "operationId": "runtime_vector_compatibility_engine",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "config_id",
+            "required": true,
+            "schema": {
+              "title": "Config Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "target_engine",
+            "required": true,
+            "schema": {
+              "title": "Target Engine",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Runtime Vector Compatibility Engine",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Set Vector Compatibility Engine"
       }
     },
     "/v1/vector/configurations/{config_id}/reindex": {

@@ -13,7 +13,7 @@
   },
   {
     "operation_id": "create_vector_configuration_v1_vector_configurations_post",
-    "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+    "reason": "New pgvector configuration creation is retired; use project.context.create_collection with a native pgcontext.vector column.",
     "owner": "Runtime Platform",
     "review_date": "2027-02-04"
   },
@@ -134,6 +134,18 @@
   {
     "operation_id": "reindex_vector_configuration_v1_vector_configurations__config_id__reindex_post",
     "reason": "Vector reindexing is a setup operation managed outside the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_vector_compatibility",
+    "reason": "Vector compatibility bindings are an operator migration surface, not an application retrieval method.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_vector_compatibility_engine",
+    "reason": "Per-configuration compatibility engine selection is an operator rollback control, not an application retrieval method.",
     "owner": "Runtime Platform",
     "review_date": "2027-02-04"
   }

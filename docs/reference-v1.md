@@ -38,6 +38,7 @@ readiness = project.readiness()
 | `project.context.acknowledge_onboarding()` | `POST /v1/context/onboarding/acknowledge` (`runtime_context_acknowledge_onboarding`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.add_filter_column()` | `POST /v1/context/collections/{collection_id}/filters/columns` (`runtime_context_add_filter_column`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.add_jsonb_filter_path()` | `POST /v1/context/collections/{collection_id}/filters/jsonb-paths` (`runtime_context_add_filter_jsonb_path`) | `0.2.0` | `idempotent_mutation` | `none` | No |
+| `project.context.add_vector()` | `POST /v1/context/collections/{collection_id}/vectors` (`runtime_context_add_vector`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.cancel_operation()` | `POST /v1/context/operations/{operation_id}/cancel` (`runtime_context_cancel_operation`) | `0.2.0` | `idempotent_mutation` | `none` | No |
 | `project.context.count()` | `POST /v1/context/count` (`runtime_context_count`) | `0.2.0` | `read_only_post` | `none` | No |
 | `project.context.create_collection()` | `POST /v1/context/collections` (`runtime_context_create_collection`) | `0.2.0` | `idempotent_mutation` | `none` | No |
@@ -99,6 +100,14 @@ Register a JSONB filter path on a collection.
 
 ```python
 operation = project.context.add_jsonb_filter_path(collection_id, "topic", "metadata", ["topic"])
+```
+
+### `project.context.add_vector()`
+
+Add a vector to a Context collection.
+
+```python
+operation = project.context.add_vector(collection_id, "embedding_v2", 768)
 ```
 
 ### `project.context.cancel_operation()`

@@ -25,6 +25,7 @@ from polygres._vendor.polygres_lib.context import (
     ContextOperation,
     ContextOperationKind,
     ContextOperationStatus,
+    ContextVectorCreateRequest,
     CountRequest,
     CountResponse,
     DenseSearchRequest,
@@ -84,19 +85,13 @@ class ContextNamespace:
 
     def get_onboarding(self, *, timeout: RequestTimeout = None) -> ContextOnboardingResponse:
         """Return cached pgContext onboarding state without running discovery."""
-        return self._get_model(
-            "/context/onboarding", ContextOnboardingResponse, timeout=timeout
-        )
+        return self._get_model("/context/onboarding", ContextOnboardingResponse, timeout=timeout)
 
-    def evaluate_onboarding(
-        self, *, timeout: RequestTimeout = None
-    ) -> ContextOnboardingResponse:
+    def evaluate_onboarding(self, *, timeout: RequestTimeout = None) -> ContextOnboardingResponse:
         """Evaluate pgvector bridge eligibility once and cache the result."""
         return self._onboarding_mutation("evaluate", timeout=timeout)
 
-    def refresh_onboarding(
-        self, *, timeout: RequestTimeout = None
-    ) -> ContextOnboardingResponse:
+    def refresh_onboarding(self, *, timeout: RequestTimeout = None) -> ContextOnboardingResponse:
         """Explicitly re-evaluate a non-completed onboarding decision."""
         return self._onboarding_mutation("refresh", timeout=timeout)
 
@@ -105,9 +100,7 @@ class ContextNamespace:
     ) -> ContextOnboardingResponse:
         return self._onboarding_mutation("acknowledge", timeout=timeout)
 
-    def dismiss_onboarding(
-        self, *, timeout: RequestTimeout = None
-    ) -> ContextOnboardingResponse:
+    def dismiss_onboarding(self, *, timeout: RequestTimeout = None) -> ContextOnboardingResponse:
         return self._onboarding_mutation("dismiss", timeout=timeout)
 
     def _onboarding_mutation(
@@ -271,6 +264,41 @@ class ContextNamespace:
             timeout=timeout,
         )
 
+    def add_vector(
+        self,
+        collection_id: str | UUID,
+        column_name: str,
+        dimensions: int,
+        *,
+        name: str | None = None,
+        mode: str = "existing",
+        metric: str = "cosine",
+        index_kind: str = "hnsw",
+        set_default: bool = False,
+        idempotency_key: str | None = None,
+        timeout: RequestTimeout = None,
+    ) -> ContextOperation:
+        collection_uuid = context_uuid(collection_id, field="collection_id")
+        _, payload = context_model(
+            ContextVectorCreateRequest,
+            {
+                "name": name,
+                "column_name": column_name,
+                "dimensions": dimensions,
+                "mode": mode,
+                "metric": metric,
+                "index_kind": index_kind,
+                "set_default": set_default,
+            },
+        )
+        return self._operation_mutation(
+            "POST",
+            f"/context/collections/{collection_uuid}/vectors",
+            payload,
+            idempotency_key=idempotency_key,
+            timeout=timeout,
+        )
+
     def update_collection(
         self,
         collection_id: str | UUID,
@@ -278,6 +306,7 @@ class ContextNamespace:
         text_column: str | None | object = _UNSET,
         result_columns: list[str] | object = _UNSET,
         max_search_limit: int | object = _UNSET,
+        default_vector_name: str | object = _UNSET,
         idempotency_key: str | None = None,
         timeout: RequestTimeout = None,
     ) -> ContextOperation:
@@ -289,6 +318,8 @@ class ContextNamespace:
             request["result_columns"] = result_columns
         if max_search_limit is not _UNSET:
             request["max_search_limit"] = max_search_limit
+        if default_vector_name is not _UNSET:
+            request["default_vector_name"] = default_vector_name
         _, payload = context_model(CollectionUpdateRequest, request, exclude_unset=True)
         return self._operation_mutation(
             "PATCH",
@@ -670,6 +701,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         filter: dict[str, Any] | None = None,
         limit: int = 10,
         timeout: RequestTimeout = None,
@@ -679,6 +711,7 @@ class ContextNamespace:
             DenseSearchRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "filter": filter,
                 "limit": limit,
@@ -691,6 +724,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         group_by: str,
         group_limit: int = 1,
         limit: int = 10,
@@ -701,6 +735,7 @@ class ContextNamespace:
             GroupedSearchRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "group_by": group_by,
                 "group_limit": group_limit,
@@ -714,6 +749,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         filter: dict[str, Any] | None = None,
         limit: int = 10,
         minimum_recall: float = 0.95,
@@ -723,6 +759,7 @@ class ContextNamespace:
             RecallCheckRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "filter": filter,
                 "limit": limit,
@@ -742,6 +779,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         query: str,
         limit: int = 10,
         timeout: RequestTimeout = None,
@@ -751,6 +789,7 @@ class ContextNamespace:
             TextHybridSearchRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "query": context_query(query),
                 "limit": limit,
@@ -763,6 +802,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         start: dict[str, str] | BaseModel,
         max_depth: int = 2,
         graph_limit: int = 200,
@@ -777,6 +817,7 @@ class ContextNamespace:
             GraphFirstSearchRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "start": start,
                 "max_depth": max_depth,
@@ -794,6 +835,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         context_limit: int = 50,
         max_depth: int = 2,
         graph_limit: int = 200,
@@ -808,6 +850,7 @@ class ContextNamespace:
             VectorFirstSearchRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "context_limit": context_limit,
                 "max_depth": max_depth,
@@ -825,6 +868,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         start: dict[str, str] | BaseModel,
         context_limit: int = 50,
         max_depth: int = 2,
@@ -842,6 +886,7 @@ class ContextNamespace:
             RankFusionSearchRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "start": start,
                 "context_limit": context_limit,
@@ -861,6 +906,7 @@ class ContextNamespace:
         collection: str | UUID,
         embedding: list[float],
         *,
+        vector_name: str | None = None,
         query: str | None = None,
         starts: list[dict[str, str] | BaseModel] | None = None,
         filter: dict[str, Any] | None = None,
@@ -881,6 +927,7 @@ class ContextNamespace:
             JointSearchRequest,
             {
                 "collection": context_collection(collection),
+                "vector_name": vector_name,
                 "embedding": embedding,
                 "query": query,
                 "starts": [] if starts is None else starts,
@@ -1155,6 +1202,16 @@ def _attach_context_method_metadata() -> None:
                 'operation = project.context.create_collection("support", '
                 "source=source, vector=vector)"
             ),
+            "idempotent_mutation",
+            "none",
+            "operation",
+        ),
+        (
+            ContextNamespace.add_vector,
+            "add_vector",
+            "runtime_context_add_vector",
+            "Add a vector to a Context collection.",
+            ('operation = project.context.add_vector(collection_id, "embedding_v2", 768)'),
             "idempotent_mutation",
             "none",
             "operation",

@@ -31,12 +31,7 @@ COLLECTION_ID = "00000000-0000-0000-0000-000000000001"
 OPERATION_ID = "00000000-0000-0000-0000-000000000002"
 IDEMPOTENCY_KEY = "sdk-context-idempotency"
 FIXTURES = json.loads(
-    (
-        Path(__file__).parent
-        / "fixtures"
-        / "context"
-        / "contract-fixtures.json"
-    ).read_text()
+    (Path(__file__).parent / "fixtures" / "context" / "contract-fixtures.json").read_text()
 )
 
 
@@ -162,6 +157,7 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
         text_column=None,
         result_columns=["title", "url"],
         max_search_limit=400,
+        default_vector_name="embedding_v2",
         idempotency_key=IDEMPOTENCY_KEY,
     )
     context.set_default_collection(COLLECTION_ID, idempotency_key=IDEMPOTENCY_KEY)
@@ -201,26 +197,50 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
     context.retry_operation(OPERATION_ID, idempotency_key=IDEMPOTENCY_KEY)
     context.count("support_docs", filter={"must": [{"key": "tenant_id", "match": "acme"}]})
     context.facets("support_docs", "tenant_id", limit=5)
-    context.search("support_docs", [0.1, 0.2], limit=5)
+    context.search("support_docs", [0.1, 0.2], vector_name="embedding_v2", limit=5)
     context.grouped_search(
-        "support_docs", [0.1, 0.2], group_by="tenant_id", group_limit=2, limit=5
+        "support_docs",
+        [0.1, 0.2],
+        vector_name="embedding_v2",
+        group_by="tenant_id",
+        group_limit=2,
+        limit=5,
     )
-    context.recall_check("support_docs", [0.1, 0.2], limit=5, minimum_recall=0.9)
-    context.text_hybrid("support_docs", [0.1, 0.2], query="deployment", limit=5)
+    context.recall_check(
+        "support_docs",
+        [0.1, 0.2],
+        vector_name="embedding_v2",
+        limit=5,
+        minimum_recall=0.9,
+    )
+    context.text_hybrid(
+        "support_docs",
+        [0.1, 0.2],
+        vector_name="embedding_v2",
+        query="deployment",
+        limit=5,
+    )
     context.graph_first(
         "support_docs",
         [0.1, 0.2],
+        vector_name="embedding_v2",
         start={"schema": "public", "table": "accounts", "id": "acct-1"},
         relationship_types=["owns", "owns"],
         direction="both",
         limit=5,
     )
     context.vector_first(
-        "support_docs", [0.1, 0.2], context_limit=20, direction="in", limit=5
+        "support_docs",
+        [0.1, 0.2],
+        vector_name="embedding_v2",
+        context_limit=20,
+        direction="in",
+        limit=5,
     )
     context.rank_fusion(
         "support_docs",
         [0.1, 0.2],
+        vector_name="embedding_v2",
         start={"schema": "public", "table": "accounts", "id": "acct-1"},
         context_weight=0.6,
         graph_weight=0.4,
@@ -229,6 +249,7 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
     joint = context.joint(
         "support_docs",
         [0.1, 0.2],
+        vector_name="embedding_v2",
         query="deployment",
         starts=[
             {"schema": "public", "table": "accounts", "id": "acct-1"},
@@ -239,6 +260,14 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
         lexical_weight=0.2,
         graph_weight=0.4,
         limit=5,
+    )
+    context.add_vector(
+        COLLECTION_ID,
+        "embedding_v2",
+        2,
+        name="semantic_v2",
+        set_default=True,
+        idempotency_key=IDEMPOTENCY_KEY,
     )
 
     assert isinstance(collections, Page)
@@ -304,6 +333,7 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
         ("POST", "/context/hybrid/vector-first"),
         ("POST", "/context/hybrid/rank-fusion"),
         ("POST", "/context/hybrid/joint"),
+        ("POST", f"/context/collections/{COLLECTION_ID}/vectors"),
     ]
     assert actual[8][2] == {
         "status": "ready",
@@ -329,13 +359,16 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
             "content_column": None,
             "metadata_column": None,
         },
-        "vector": {"column_name": "embedding", "dimensions": 2, "metric": "cosine"},
+        "vector": {
+            "name": None,
+            "column_name": "embedding",
+            "dimensions": 2,
+            "metric": "cosine",
+        },
         "text_column": "content",
         "result_columns": ["title"],
         "filter_columns": ["tenant_id"],
-        "jsonb_filter_paths": [
-            {"key": "topic", "column": "metadata", "path": ["topic"]}
-        ],
+        "jsonb_filter_paths": [{"key": "topic", "column": "metadata", "path": ["topic"]}],
         "index_kind": "hnsw",
         "max_search_limit": 500,
     }
@@ -346,6 +379,7 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
         "text_column": None,
         "result_columns": ["title", "url"],
         "max_search_limit": 400,
+        "default_vector_name": "embedding_v2",
     }
     assert actual[15][3] == {"is_default": True}
     assert actual[16][3] == {}
@@ -369,12 +403,14 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
     }
     assert actual[32][3] == {
         "collection": "support_docs",
+        "vector_name": "embedding_v2",
         "filter": None,
         "embedding": [0.1, 0.2],
         "limit": 5,
     }
     assert actual[33][3] == {
         "collection": "support_docs",
+        "vector_name": "embedding_v2",
         "embedding": [0.1, 0.2],
         "group_by": "tenant_id",
         "group_limit": 2,
@@ -382,6 +418,7 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
     }
     assert actual[34][3] == {
         "collection": "support_docs",
+        "vector_name": "embedding_v2",
         "filter": None,
         "embedding": [0.1, 0.2],
         "limit": 5,
@@ -389,19 +426,31 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
     }
     assert actual[35][3] == {
         "collection": "support_docs",
+        "vector_name": "embedding_v2",
         "embedding": [0.1, 0.2],
         "query": "deployment",
         "limit": 5,
     }
     assert actual[36][3]["relationship_types"] == ["owns"]
     assert actual[36][3]["direction"] == "both"
+    assert actual[36][3]["vector_name"] == "embedding_v2"
+    assert actual[37][3]["vector_name"] == "embedding_v2"
     assert actual[38][3]["weights"] == {"context": 0.6, "graph": 0.4}
-    assert actual[39][3]["starts"] == [
-        {"schema": "public", "table": "accounts", "id": "acct-1"}
-    ]
+    assert actual[38][3]["vector_name"] == "embedding_v2"
+    assert actual[39][3]["starts"] == [{"schema": "public", "table": "accounts", "id": "acct-1"}]
     assert actual[39][3]["weights"] == {"semantic": 0.4, "lexical": 0.2, "graph": 0.4}
+    assert actual[39][3]["vector_name"] == "embedding_v2"
+    assert actual[40][3] == {
+        "name": "semantic_v2",
+        "column_name": "embedding_v2",
+        "dimensions": 2,
+        "metric": "cosine",
+        "mode": "existing",
+        "index_kind": "hnsw",
+        "set_default": True,
+    }
 
-    mutation_indexes = {13, 14, 15, 16, 17, 19, 20, 23, 24, 25, 28, 29}
+    mutation_indexes = {13, 14, 15, 16, 17, 19, 20, 23, 24, 25, 28, 29, 40}
     for index, request in enumerate(requests):
         if index in mutation_indexes:
             assert request.headers["Idempotency-Key"] == IDEMPOTENCY_KEY
@@ -423,6 +472,7 @@ def test_flat_context_namespace_and_every_method_route_contract() -> None:
         lambda context: context.verify_collection("support_docs"),
         lambda context: context.get_collection_diagnostics("support_docs"),
         lambda context: context.update_collection("support_docs", max_search_limit=10),
+        lambda context: context.add_vector("support_docs", "embedding_v2", 2),
         lambda context: context.set_default_collection("support_docs"),
         lambda context: context.reindex_collection("support_docs"),
         lambda context: context.list_filters("support_docs"),
@@ -455,6 +505,8 @@ def test_retrieval_accepts_uuid_or_exact_name_and_rejects_invalid_local_input() 
     before = len(requests)
     with pytest.raises(PolygresValidationError):
         context.search("not-a-name", [0.1])
+    with pytest.raises(PolygresValidationError):
+        context.search("support_docs", [0.1], vector_name="not a vector")
     with pytest.raises(PolygresValidationError):
         context.search("support_docs", [True])
     with pytest.raises(PolygresValidationError):
@@ -497,12 +549,14 @@ def test_private_operation_result_payload_is_never_exposed() -> None:
     payload = deepcopy(FIXTURES["responses"]["OperationEnvelope"])
     payload["operation"]["result_payload"] = {"private": True}
 
-    operation = _client(
-        lambda _request: httpx.Response(200, json=payload)
-    ).project().context.create_collection(
-        "support_docs",
-        source={"mode": "existing", "schema_name": "public", "table_name": "documents"},
-        vector={"dimensions": 2},
+    operation = (
+        _client(lambda _request: httpx.Response(200, json=payload))
+        .project()
+        .context.create_collection(
+            "support_docs",
+            source={"mode": "existing", "schema_name": "public", "table_name": "documents"},
+            vector={"dimensions": 2},
+        )
     )
 
     assert "result_payload" not in operation.to_dict()
@@ -534,9 +588,7 @@ def test_retry_classification_and_mutation_key_reuse(
     assert len(count_calls) == 2
     assert len(search_calls) == 1
     assert len(mutation_calls) == 2
-    assert {request.headers["Idempotency-Key"] for request in mutation_calls} == {
-        IDEMPOTENCY_KEY
-    }
+    assert {request.headers["Idempotency-Key"] for request in mutation_calls} == {IDEMPOTENCY_KEY}
     assert mutation_calls[0].content == mutation_calls[1].content
 
 
@@ -544,13 +596,9 @@ def test_retry_classification_and_mutation_key_reuse(
     "invoke",
     [
         lambda context: context.search("support_docs", [0.1]),
-        lambda context: context.grouped_search(
-            "support_docs", [0.1], group_by="tenant_id"
-        ),
+        lambda context: context.grouped_search("support_docs", [0.1], group_by="tenant_id"),
         lambda context: context.recall_check("support_docs", [0.1]),
-        lambda context: context.text_hybrid(
-            "support_docs", [0.1], query="deployment"
-        ),
+        lambda context: context.text_hybrid("support_docs", [0.1], query="deployment"),
         lambda context: context.graph_first(
             "support_docs",
             [0.1],
@@ -630,9 +678,7 @@ def test_lifecycle_conflicts_are_not_retried_and_preserve_idempotency(action: st
         )
 
     context = _client(respond, retries=2).project().context
-    invoke = (
-        context.cancel_operation if action == "cancel" else context.retry_operation
-    )
+    invoke = context.cancel_operation if action == "cancel" else context.retry_operation
 
     with pytest.raises(PolygresAPIError) as exc:
         invoke(OPERATION_ID, idempotency_key=IDEMPOTENCY_KEY)
@@ -663,8 +709,10 @@ def test_additive_fields_and_ranked_response_shape_are_preserved() -> None:
         }
     ]
 
-    response = _client(lambda _request: httpx.Response(200, json=payload)).project().context.search(
-        "support_docs", [0.1]
+    response = (
+        _client(lambda _request: httpx.Response(200, json=payload))
+        .project()
+        .context.search("support_docs", [0.1])
     )
     serialized = response.to_dict()
 
@@ -683,10 +731,14 @@ def test_joint_uses_one_isolated_route_and_preserves_typed_provenance() -> None:
         assert request.url.path == "/v1/context/hybrid/joint"
         return httpx.Response(200, json=deepcopy(FIXTURES["joint_examples"]["additive_field"]))
 
-    response = _client(respond, retries=2).project().context.joint(
-        "support_docs",
-        [0.1, 0.2],
-        starts=[{"schema": "public", "table": "accounts", "id": "acct-1"}],
+    response = (
+        _client(respond, retries=2)
+        .project()
+        .context.joint(
+            "support_docs",
+            [0.1, 0.2],
+            starts=[{"schema": "public", "table": "accounts", "id": "acct-1"}],
+        )
     )
 
     assert len(requests) == 1
@@ -850,9 +902,7 @@ def test_namespace_wait_polls_only_operation_route(monkeypatch: pytest.MonkeyPat
     def respond(request: httpx.Request) -> httpx.Response:
         requests.append(request)
         payload = deepcopy(FIXTURES["responses"]["OperationEnvelope"])
-        payload["operation"].update(
-            {"id": OPERATION_ID, "status": "succeeded", "stage": "ready"}
-        )
+        payload["operation"].update({"id": OPERATION_ID, "status": "succeeded", "stage": "ready"})
         return httpx.Response(200, headers={"Retry-After": "3"}, json=payload)
 
     observed: dict[str, Any] = {}

@@ -23,7 +23,7 @@
       "operation_id": "create_vector_configuration_v1_vector_configurations_post",
       "owner": "Runtime Platform",
       "path": "/v1/vector/configurations",
-      "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "reason": "New pgvector configuration creation is retired; use project.context.create_collection with a native pgcontext.vector column.",
       "review_date": "2027-02-04"
     },
     {
@@ -184,6 +184,22 @@
       "owner": "Runtime Platform",
       "path": "/v1/vector/configurations/{config_id}/reindex",
       "reason": "Vector reindexing is a setup operation managed outside the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_vector_compatibility",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/compatibility",
+      "reason": "Vector compatibility bindings are an operator migration surface, not an application retrieval method.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_vector_compatibility_engine",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/configurations/{config_id}/compatibility-engine/{target_engine}",
+      "reason": "Per-configuration compatibility engine selection is an operator rollback control, not an application retrieval method.",
       "review_date": "2027-02-04"
     }
   ],
@@ -463,6 +479,82 @@
       "pagination": "none",
       "public_name": "project.context.add_jsonb_filter_path",
       "python_qualname": "polygres.context.ContextNamespace.add_jsonb_filter_path",
+      "retry_policy": "idempotent_mutation",
+      "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Add a vector to a Context collection.",
+      "example": "operation = project.context.add_vector(collection_id, \"embedding_v2\", 768)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_add_vector"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_add_vector",
+          "path": "/v1/context/collections/{collection_id}/vectors",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "column_name",
+                "dimensions",
+                "index_kind",
+                "metric",
+                "mode",
+                "name",
+                "set_default"
+              ],
+              "required_fields": [
+                "dimensions"
+              ],
+              "schema": "ContextVectorCreateRequest"
+            }
+          ],
+          "request_schema": "ContextVectorCreateRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "202": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "schema": "OperationEnvelope"
+              }
+            ]
+          },
+          "success_responses": {
+            "202": "OperationEnvelope"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.add_vector",
+      "python_qualname": "polygres.context.ContextNamespace.add_vector",
       "retry_policy": "idempotent_mutation",
       "since": "0.2.0",
       "stability": "stable"
@@ -1489,7 +1581,6 @@
                   "active_operation",
                   "collection_id",
                   "collection_name",
-                  "index_status",
                   "last_error_code",
                   "last_error_stage",
                   "last_reconciled_at",
@@ -1498,13 +1589,13 @@
                   "request_id",
                   "serving_status",
                   "status",
-                  "updated_at"
+                  "updated_at",
+                  "vectors"
                 ],
                 "required_fields": [
                   "active_operation",
                   "collection_id",
                   "collection_name",
-                  "index_status",
                   "last_error_code",
                   "last_error_stage",
                   "last_reconciled_at",
@@ -1513,7 +1604,8 @@
                   "request_id",
                   "serving_status",
                   "status",
-                  "updated_at"
+                  "updated_at",
+                  "vectors"
                 ],
                 "schema": "CollectionStatusResponse"
               }
@@ -1770,7 +1862,8 @@
                 "limit",
                 "max_depth",
                 "relationship_types",
-                "start"
+                "start",
+                "vector_name"
               ],
               "required_fields": [
                 "collection",
@@ -1852,7 +1945,8 @@
                 "embedding",
                 "group_by",
                 "group_limit",
-                "limit"
+                "limit",
+                "vector_name"
               ],
               "required_fields": [
                 "collection",
@@ -1943,6 +2037,7 @@
                 "seed_limit",
                 "starts",
                 "traversal_limit",
+                "vector_name",
                 "weights"
               ],
               "required_fields": [
@@ -2317,6 +2412,7 @@
                 "max_depth",
                 "relationship_types",
                 "start",
+                "vector_name",
                 "weights"
               ],
               "required_fields": [
@@ -2399,7 +2495,8 @@
                 "embedding",
                 "filter",
                 "limit",
-                "minimum_recall"
+                "minimum_recall",
+                "vector_name"
               ],
               "required_fields": [
                 "collection",
@@ -2830,7 +2927,8 @@
                 "collection",
                 "embedding",
                 "filter",
-                "limit"
+                "limit",
+                "vector_name"
               ],
               "required_fields": [
                 "collection",
@@ -2917,6 +3015,7 @@
             {
               "allows_additional_fields": false,
               "fields": [
+                "default_vector_name",
                 "max_search_limit",
                 "result_columns",
                 "text_column"
@@ -2993,7 +3092,8 @@
                 "collection",
                 "embedding",
                 "limit",
-                "query"
+                "query",
+                "vector_name"
               ],
               "required_fields": [
                 "collection",
@@ -3081,6 +3181,7 @@
             {
               "allows_additional_fields": false,
               "fields": [
+                "default_vector_name",
                 "max_search_limit",
                 "result_columns",
                 "text_column"
@@ -3259,7 +3360,8 @@
                 "graph_limit",
                 "limit",
                 "max_depth",
-                "relationship_types"
+                "relationship_types",
+                "vector_name"
               ],
               "required_fields": [
                 "collection",
@@ -4336,7 +4438,7 @@
       "stability": "stable"
     }
   ],
-  "openapi_sha256": "bc5fc1fe2520d081679e4376841d9e277999549371911a0b4094af89af0da61b",
+  "openapi_sha256": "bc828889aee0beb04d6c35cfd351d54d02ed547039a30d8316a4faa70cf8bc55",
   "schema_version": 1,
   "sdk": "polygres-sdk",
   "sdk_version": "0.2.0"
