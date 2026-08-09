@@ -6,7 +6,7 @@ import re
 import warnings
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from threading import Lock
 from typing import Literal, cast
@@ -166,7 +166,7 @@ def _parse_deprecation(value: str | None) -> datetime | None:
     if value is None or not value.startswith("@") or not value[1:].isdigit():
         return None
     try:
-        return datetime.fromtimestamp(int(value[1:]), tz=UTC)
+        return datetime.fromtimestamp(int(value[1:]), tz=timezone.utc)
     except (OverflowError, OSError, ValueError):
         return None
 
@@ -180,7 +180,7 @@ def _parse_sunset(value: str | None) -> datetime | None:
         return None
     if parsed.tzinfo is None:
         return None
-    return parsed.astimezone(UTC)
+    return parsed.astimezone(timezone.utc)
 
 
 __all__ = ["PolygresVersionNotice", "PolygresVersionWarning"]

@@ -13,8 +13,12 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-import tomllib
 from jsonschema import Draft202012Validator, FormatChecker
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - exercised by the Python 3.10 CI job
+    import tomli as tomllib
 
 SDK_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = SDK_ROOT.parents[1] if SDK_ROOT.parent.name == "packages" else SDK_ROOT

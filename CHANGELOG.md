@@ -4,12 +4,7 @@ All notable changes to `polygres-sdk` are documented in this file.
 
 ## Unreleased
 
-### Changed
-
-- The retired vector-configuration creation error is exposed as
-  `PolygresValidationError` with pgContext replacement details.
-
-## 0.2.0 - 2026-08-08
+## 0.2.0 - 2026-08-09
 
 ### Added
 
@@ -17,11 +12,17 @@ All notable changes to `polygres-sdk` are documented in this file.
 - Added `PolygresVersionWarning` for available SDK upgrades.
 - Added `PolygresMaintenanceError` so applications can handle maintenance windows separately from other API failures.
 
+### Changed
+
+- The retired vector-configuration creation error is exposed as
+  `PolygresValidationError` with pgContext replacement details.
+
 ### Fixed
 
 - Improved validation and handling of vector result metrics.
 - Vector queries now correctly handle identifiers using the source table's configured ID types.
 - API errors now provide clearer recovery guidance.
+- Restored Python 3.10 compatibility for retry timing and version-notice date parsing.
 
 ## 0.1.0 - 2026-07-09
 

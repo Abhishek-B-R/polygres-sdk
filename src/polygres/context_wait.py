@@ -4,7 +4,7 @@ import math
 import re
 import time
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from enum import Enum
 from typing import Any
@@ -114,8 +114,8 @@ def _retry_after_seconds(value: str | None) -> float | None:
         except (TypeError, ValueError, OverflowError):
             return None
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=UTC)
-        seconds = (parsed - datetime.now(UTC)).total_seconds()
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        seconds = (parsed - datetime.now(timezone.utc)).total_seconds()
     return max(seconds, 0.0)
 
 

@@ -7,7 +7,7 @@ import re
 import sys
 import time
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import urlparse
@@ -1046,8 +1046,8 @@ def _retry_after_delay(value: str | None) -> float | None:
         except (TypeError, ValueError, OverflowError):
             return None
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=UTC)
-        seconds = (parsed - datetime.now(UTC)).total_seconds()
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        seconds = (parsed - datetime.now(timezone.utc)).total_seconds()
     if not math.isfinite(seconds) or seconds < 0:
         return None
     return seconds
