@@ -245,11 +245,11 @@ Use a PostgreSQL driver such as psycopg or SQLAlchemy when your application need
 
 ## Version and support
 
-Package version: [`0.2.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.0).
+Package version: [`0.2.1`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.1).
 
 When contacting support, include the installed SDK version and the request ID.
 
-See the [SDK 0.2.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.0) for release changes.
+See the [SDK 0.2.1 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.1) for release changes.
 
 ## Optional Agent Skill
 

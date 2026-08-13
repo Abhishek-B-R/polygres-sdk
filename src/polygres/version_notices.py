@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import time
 import warnings
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -11,6 +12,8 @@ from email.utils import parsedate_to_datetime
 from threading import Lock
 from typing import Literal, cast
 from urllib.parse import urlparse
+
+import httpx
 
 from polygres._vendor.polygres_lib.api_versions import (
     SDK_NOTICE_ID_HEADER,
@@ -28,6 +31,10 @@ _SEMVER_RE = re.compile(
 _SEVERITIES = frozenset({"info", "warning", "critical"})
 _MAX_URL_LENGTH = 2048
 _MAX_SEEN_NOTICES = 128
+_CENTRAL_NOTICE_URL = "https://api.polygres.com/v1/sdk/notices"
+_CENTRAL_NOTICE_TIMEOUT_SECONDS = 2.0
+_CENTRAL_NOTICE_REFRESH_SECONDS = 10 * 60 * 60
+_CENTRAL_NOTICE_RETRY_SECONDS = 10 * 60
 
 
 class PolygresVersionWarning(UserWarning):
@@ -61,6 +68,9 @@ class PolygresVersionNotice:
 
 _seen_notice_ids: set[str] = set()
 _seen_notice_lock = Lock()
+_central_notice_lock = Lock()
+_central_notice_next_check = 0.0
+_central_notice_etag: str | None = None
 
 
 def parse_version_notice(
@@ -110,6 +120,68 @@ def emit_version_notice(headers: Mapping[str, str], *, current_version: str) -> 
             return
         _seen_notice_ids.add(notice.id)
     warnings.warn(notice.message, PolygresVersionWarning, stacklevel=4)
+
+
+def check_central_version_notices(*, current_version: str) -> None:
+    """Fetch public SDK notices at most once per refresh interval."""
+
+    global _central_notice_etag, _central_notice_next_check
+
+    now = time.monotonic()
+    if now < _central_notice_next_check or not _central_notice_lock.acquire(blocking=False):
+        return
+    try:
+        now = time.monotonic()
+        if now < _central_notice_next_check:
+            return
+        headers = {"User-Agent": f"polygres-python/{current_version}"}
+        if _central_notice_etag is not None:
+            headers["If-None-Match"] = _central_notice_etag
+        try:
+            response = httpx.get(
+                _CENTRAL_NOTICE_URL,
+                params={"version": current_version, "channel": _release_channel(current_version)},
+                headers=headers,
+                timeout=_CENTRAL_NOTICE_TIMEOUT_SECONDS,
+                follow_redirects=False,
+            )
+            if response.status_code == 304:
+                _central_notice_next_check = now + _CENTRAL_NOTICE_REFRESH_SECONDS
+                return
+            response.raise_for_status()
+            payload = response.json()
+            notices = payload.get("notices") if isinstance(payload, dict) else None
+            if not isinstance(notices, list):
+                raise ValueError("invalid SDK notice response")
+            for value in notices[:_MAX_SEEN_NOTICES]:
+                if not isinstance(value, dict):
+                    continue
+                notice_headers = {
+                    SDK_NOTICE_ID_HEADER: value.get("id"),
+                    SDK_NOTICE_RECOMMENDED_VERSION_HEADER: value.get("recommended_version"),
+                    SDK_NOTICE_SEVERITY_HEADER: value.get("severity", "info"),
+                }
+                if value.get("url") is not None:
+                    notice_headers[SDK_NOTICE_URL_HEADER] = value.get("url")
+                if all(isinstance(item, str) for item in notice_headers.values()):
+                    emit_version_notice(notice_headers, current_version=current_version)
+            _central_notice_etag = response.headers.get("ETag")
+            _central_notice_next_check = now + _CENTRAL_NOTICE_REFRESH_SECONDS
+        except (ValueError, httpx.HTTPError):
+            _central_notice_next_check = now + _CENTRAL_NOTICE_RETRY_SECONDS
+    finally:
+        _central_notice_lock.release()
+
+
+def _release_channel(version: str) -> str:
+    parsed = _parse_semver(version)
+    if parsed is None or not parsed[3]:
+        return "stable"
+    label = parsed[3][0].lower()
+    for channel in ("preview", "alpha", "beta", "rc"):
+        if label.startswith(channel):
+            return channel
+    return "preview"
 
 
 def _parse_semver(value: str) -> tuple[int, int, int, tuple[str, ...]] | None:

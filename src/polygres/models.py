@@ -248,6 +248,7 @@ class TextResult:
     properties: dict[str, Any]
     score: float
     similarity: float | None = None
+    key: dict[str, str] | None = None
 
     @classmethod
     def from_api(cls, payload: dict[str, Any]) -> TextResult:
@@ -258,6 +259,7 @@ class TextResult:
             properties=dict(payload.get("properties", {})),
             score=float(payload["score"]),
             similarity=payload.get("similarity"),
+            key=(dict(payload["key"]) if isinstance(payload.get("key"), dict) else None),
         )
 
     def to_dict(self) -> dict[str, Any]:

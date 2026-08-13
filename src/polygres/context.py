@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import UUID
@@ -74,14 +75,28 @@ if TYPE_CHECKING:
 ResponseT = TypeVar("ResponseT", bound=BaseModel)
 RequestTimeout = float | httpx.Timeout | None
 _UNSET = object()
+_CAPABILITY_CACHE_TTL_SECONDS = 60.0
 
 
 @dataclass
 class ContextNamespace:
     _project: Project
+    _capabilities_cache: CapabilitiesResponse | None = field(
+        init=False,
+        default=None,
+        repr=False,
+    )
+    _capabilities_cached_at: float | None = field(init=False, default=None, repr=False)
 
     def get_capabilities(self, *, timeout: RequestTimeout = None) -> CapabilitiesResponse:
-        return self._get_model("/context/capabilities", CapabilitiesResponse, timeout=timeout)
+        capabilities = self._get_model(
+            "/context/capabilities",
+            CapabilitiesResponse,
+            timeout=timeout,
+        )
+        self._capabilities_cache = capabilities
+        self._capabilities_cached_at = time.monotonic()
+        return capabilities
 
     def get_onboarding(self, *, timeout: RequestTimeout = None) -> ContextOnboardingResponse:
         """Return cached pgContext onboarding state without running discovery."""
@@ -459,6 +474,7 @@ class ContextNamespace:
     ) -> Page[PointMapping]:
         collection_uuid = context_uuid(collection_id, field="collection_id")
         _page_limit(limit, field="limit")
+        self._validate_capability_request("point_scroll", {}, timeout=timeout)
         response = self._get_model(
             f"/context/collections/{collection_uuid}/points",
             PointScrollResponse,
@@ -670,6 +686,7 @@ class ContextNamespace:
             CountRequest,
             {"collection": context_collection(collection), "filter": filter},
         )
+        self._validate_capability_request("count", payload, timeout=timeout)
         return self._post_model(
             "/context/count", payload, CountResponse, timeout=timeout, retryable=True
         )
@@ -692,6 +709,12 @@ class ContextNamespace:
                 "limit": limit,
             },
         )
+        self._validate_capability_request(
+            "facets",
+            payload,
+            timeout=timeout,
+            validate_limits=False,
+        )
         return self._post_model(
             "/context/facets", payload, FacetsResponse, timeout=timeout, retryable=True
         )
@@ -708,6 +731,7 @@ class ContextNamespace:
     ) -> RankedResponse:
         return self._ranked(
             "/context/search",
+            "dense_search",
             DenseSearchRequest,
             {
                 "collection": context_collection(collection),
@@ -732,6 +756,7 @@ class ContextNamespace:
     ) -> RankedResponse:
         return self._ranked(
             "/context/grouped-search",
+            "grouped_search",
             GroupedSearchRequest,
             {
                 "collection": context_collection(collection),
@@ -766,6 +791,7 @@ class ContextNamespace:
                 "minimum_recall": minimum_recall,
             },
         )
+        self._validate_capability_request("recall_check", payload, timeout=timeout)
         return self._post_model(
             "/context/recall-check",
             payload,
@@ -786,6 +812,7 @@ class ContextNamespace:
     ) -> RankedResponse:
         return self._ranked(
             "/context/hybrid/text",
+            "text_hybrid",
             TextHybridSearchRequest,
             {
                 "collection": context_collection(collection),
@@ -814,6 +841,7 @@ class ContextNamespace:
     ) -> RankedResponse:
         return self._ranked(
             "/context/hybrid/graph-first",
+            "graph_first",
             GraphFirstSearchRequest,
             {
                 "collection": context_collection(collection),
@@ -847,6 +875,7 @@ class ContextNamespace:
     ) -> RankedResponse:
         return self._ranked(
             "/context/hybrid/vector-first",
+            "vector_first",
             VectorFirstSearchRequest,
             {
                 "collection": context_collection(collection),
@@ -883,6 +912,7 @@ class ContextNamespace:
     ) -> RankedResponse:
         return self._ranked(
             "/context/hybrid/rank-fusion",
+            "rank_fusion",
             RankFusionSearchRequest,
             {
                 "collection": context_collection(collection),
@@ -947,6 +977,7 @@ class ContextNamespace:
                 "limit": limit,
             },
         )
+        self._validate_capability_request("joint", payload, timeout=timeout)
         return self._post_model(
             "/context/hybrid/joint",
             payload,
@@ -1010,12 +1041,42 @@ class ContextNamespace:
     def _ranked(
         self,
         path: str,
+        capability: str,
         request_model: type[BaseModel],
         request: dict[str, Any],
         timeout: RequestTimeout,
     ) -> RankedResponse:
         _, payload = context_model(request_model, request)
+        self._validate_capability_request(capability, payload, timeout=timeout)
         return self._post_model(path, payload, RankedResponse, timeout=timeout, retryable=False)
+
+    def _validate_capability_request(
+        self,
+        capability: str,
+        payload: dict[str, Any],
+        *,
+        timeout: RequestTimeout,
+        validate_limits: bool = True,
+    ) -> None:
+        capabilities = self._capabilities_cache
+        cached_at = self._capabilities_cached_at
+        expired = cached_at is None or time.monotonic() - cached_at >= _CAPABILITY_CACHE_TTL_SECONDS
+        if capabilities is None or expired or not bool(getattr(capabilities, capability)):
+            capabilities = self.get_capabilities(timeout=timeout)
+        if not bool(getattr(capabilities, capability)):
+            blocker = getattr(capabilities, f"{capability}_blocker")
+            blocker_message = getattr(
+                capabilities,
+                f"{capability}_blocker_message",
+                None,
+            )
+            raise PolygresValidationError(
+                blocker_message or f"Context {capability.replace('_', ' ')} is unavailable.",
+                code="CONTEXT_CAPABILITY_UNAVAILABLE",
+                details={"capability": capability, "blocker": blocker},
+            )
+        if validate_limits:
+            _validate_capability_limits(capabilities, payload)
 
     def _get_model(
         self,
@@ -1059,6 +1120,53 @@ class ContextNamespace:
             retryable=True,
         )
         return _operation_response(response)
+
+
+def _validate_capability_limits(
+    capabilities: CapabilitiesResponse,
+    payload: dict[str, Any],
+) -> None:
+    limit_fields = (
+        ("limit", "max_search_limit"),
+        ("context_limit", "max_context_limit"),
+        ("graph_limit", "max_graph_limit"),
+        ("seed_limit", "max_joint_seed_limit"),
+        ("traversal_limit", "max_joint_traversal_limit"),
+        ("max_depth", "max_graph_depth"),
+    )
+    for field_name, capability_field in limit_fields:
+        value = payload.get(field_name)
+        if value is None:
+            continue
+        maximum = int(getattr(capabilities, capability_field))
+        if int(value) > maximum:
+            raise PolygresValidationError(
+                f"{field_name} must be {maximum} or less for this project",
+                code="CONTEXT_LIMIT_EXCEEDED",
+                details={"field": field_name, "limit": maximum},
+            )
+
+    embedding = payload.get("embedding")
+    if isinstance(embedding, list) and len(embedding) > capabilities.max_dimensions:
+        raise PolygresValidationError(
+            f"embedding must contain at most {capabilities.max_dimensions} dimensions",
+            code="CONTEXT_LIMIT_EXCEEDED",
+            details={"field": "embedding", "limit": capabilities.max_dimensions},
+        )
+
+    relationship_types = payload.get("relationship_types")
+    if (
+        isinstance(relationship_types, list)
+        and len(relationship_types) > capabilities.max_relationship_types
+    ):
+        raise PolygresValidationError(
+            "relationship_types exceeds this project's capability limit",
+            code="CONTEXT_LIMIT_EXCEEDED",
+            details={
+                "field": "relationship_types",
+                "limit": capabilities.max_relationship_types,
+            },
+        )
 
 
 def _attach_context_method_metadata() -> None:

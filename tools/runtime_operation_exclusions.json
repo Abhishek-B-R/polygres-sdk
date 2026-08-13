@@ -132,8 +132,20 @@
     "review_date": "2027-02-04"
   },
   {
+    "operation_id": "reindex_text_configuration_v1_text_configurations__config_id__reindex_post",
+    "reason": "Text reindexing is a setup operation managed outside the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
     "operation_id": "reindex_vector_configuration_v1_vector_configurations__config_id__reindex_post",
     "reason": "Vector reindexing is a setup operation managed outside the retrieval SDK.",
+    "owner": "Runtime Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "text_configuration_diagnostics_v1_text_configurations__config_id__diagnostics_get",
+    "reason": "Text index diagnostics are managed through the dashboard and control-plane workflow.",
     "owner": "Runtime Platform",
     "review_date": "2027-02-04"
   },

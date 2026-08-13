@@ -27,6 +27,12 @@ RUNTIME_URL = "https://p0123456789abcdef0123456.api.db.polygres.com/v1"
 ROUTE_CTX = getattr(respx, "mo" + "ck")
 
 
+def test_sdk_upgrade_required_response_is_not_retryable() -> None:
+    """SDK 0.1.0's retryable status contract excludes HTTP 426."""
+
+    assert 426 not in client_module.RETRY_STATUSES
+
+
 def _stub(route: object, **kwargs: object) -> object:
     return getattr(route, "mo" + "ck")(**kwargs)
 
@@ -62,13 +68,20 @@ def test_retired_vector_configuration_creation_maps_to_validation_error() -> Non
             "error": {
                 "code": "VECTOR_CREATION_RETIRED",
                 "message": (
-                    "New pgvector column registrations are no longer supported. Create a "
-                    "pgContext collection with a pgcontext.vector column instead."
+                    "New pgvector column registrations are no longer supported.\n"
+                    "Update your CLI version with `pipx upgrade polygres-cli`, and create a "
+                    "collection using `polygres context collections create`.\n"
+                    "Refer to the documentation for more information: "
+                    "https://docs.evokoa.com/polygres/cli/context#collection-lifecycle"
                 ),
                 "details": {
                     "replacement": "pgcontext_collection",
                     "endpoint": "/v1/context/collections",
+                    "upgrade_command": "pipx upgrade polygres-cli",
                     "sdk_method": "project.context.create_collection",
+                    "documentation_url": (
+                        "https://docs.evokoa.com/polygres/cli/context#collection-lifecycle"
+                    ),
                 },
             },
             "request_id": "req_retired_vector_creation",
@@ -579,6 +592,7 @@ def test_text_search_methods_serialize_payloads() -> None:
     assert '"filters":{"status":"published"}' in tsvector.calls[0].request.content.decode()
     assert '"query":"postgress"' in fuzzy.calls[0].request.content.decode()
     assert tsvector_page.results[0].score == 0.75
+    assert tsvector_page.results[0].key == {"tenant_id": "tenant_1", "document_id": "doc_1"}
     assert fuzzy_page.results[0].similarity == 0.68
     with pytest.raises(PolygresValidationError):
         project.text.fuzzy("", config="docs_title_fuzzy")
@@ -850,6 +864,7 @@ def _text_payload(mode: str) -> dict[str, object]:
                 "schema": "public",
                 "table": "documents",
                 "id": "doc_1",
+                "key": {"tenant_id": "tenant_1", "document_id": "doc_1"},
                 "properties": {"title": "Postgres search"},
                 "score": 0.75,
                 "similarity": 0.68 if mode == "fuzzy" else None,

@@ -33,6 +33,41 @@ IDEMPOTENCY_KEY = "sdk-context-idempotency"
 FIXTURES = json.loads(
     (Path(__file__).parent / "fixtures" / "context" / "contract-fixtures.json").read_text()
 )
+CONTEXT_CAPABILITIES = (
+    "setup",
+    "dense_search",
+    "point_scroll",
+    "count",
+    "facets",
+    "grouped_search",
+    "recall_check",
+    "text_hybrid",
+    "graph_first",
+    "vector_first",
+    "rank_fusion",
+    "joint",
+)
+
+
+def _available_capabilities() -> dict[str, Any]:
+    payload = deepcopy(FIXTURES["responses"]["CapabilitiesResponse"])
+    for capability in CONTEXT_CAPABILITIES:
+        payload[capability] = True
+        payload[f"{capability}_blocker"] = None
+        payload[f"{capability}_blocker_message"] = None
+    payload.update(
+        {
+            "max_dimensions": 4_096,
+            "max_search_limit": 1_000,
+            "max_context_limit": 1_000,
+            "max_graph_limit": 1_000,
+            "max_joint_seed_limit": 32,
+            "max_joint_traversal_limit": 1_000,
+            "max_graph_depth": 20,
+            "max_relationship_types": 32,
+        }
+    )
+    return payload
 
 
 def _client(handler: Callable[[httpx.Request], httpx.Response], *, retries: int = 0) -> Polygres:
@@ -46,7 +81,7 @@ def _response_payload(request: httpx.Request) -> dict[str, Any]:
     path = request.url.path.removeprefix("/v1")
     responses = FIXTURES["responses"]
     if path == "/context/capabilities":
-        return deepcopy(responses["CapabilitiesResponse"])
+        return _available_capabilities()
     if path.startswith("/context/onboarding"):
         return deepcopy(responses["ContextOnboardingResponse"])
     if path == "/context/discover":
@@ -528,6 +563,143 @@ def test_retrieval_accepts_uuid_or_exact_name_and_rejects_invalid_local_input() 
     assert len(requests) == before
 
 
+def test_context_retrieval_caches_capabilities_and_rejects_project_limits_locally() -> None:
+    requests: list[httpx.Request] = []
+    capabilities = _available_capabilities()
+    capabilities.update(
+        {
+            "max_search_limit": 50,
+            "max_context_limit": 50,
+            "max_graph_limit": 50,
+            "max_joint_seed_limit": 3,
+            "max_joint_traversal_limit": 100,
+            "max_graph_depth": 5,
+        }
+    )
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path.endswith("/context/capabilities"):
+            return httpx.Response(200, json=capabilities)
+        return httpx.Response(200, json=deepcopy(FIXTURES["responses"]["RankedResponse"]))
+
+    context = _client(respond).project().context
+    context.search("support_docs", [0.1], limit=10)
+
+    with pytest.raises(PolygresValidationError) as depth_error:
+        context.joint(
+            "support_docs",
+            [0.1],
+            max_depth=6,
+            context_limit=50,
+            seed_limit=3,
+            graph_limit=50,
+            traversal_limit=100,
+        )
+    with pytest.raises(PolygresValidationError) as limit_error:
+        context.search("support_docs", [0.1], limit=51)
+
+    assert depth_error.value.code == "CONTEXT_LIMIT_EXCEEDED"
+    assert depth_error.value.details == {"field": "max_depth", "limit": 5}
+    assert limit_error.value.details == {"field": "limit", "limit": 50}
+    assert [request.url.path for request in requests] == [
+        "/v1/context/capabilities",
+        "/v1/context/search",
+    ]
+
+
+def test_context_retrieval_rejects_unavailable_capability_before_query() -> None:
+    requests: list[httpx.Request] = []
+    capabilities = _available_capabilities()
+    capabilities.update(
+        {
+            "joint": False,
+            "joint_blocker": "context_joint_unavailable",
+            "joint_blocker_message": "Context Joint is unavailable for this project.",
+        }
+    )
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=capabilities)
+
+    with pytest.raises(PolygresValidationError) as raised:
+        _client(respond).project().context.joint("support_docs", [0.1])
+
+    assert raised.value.code == "CONTEXT_CAPABILITY_UNAVAILABLE"
+    assert raised.value.details == {
+        "capability": "joint",
+        "blocker": "context_joint_unavailable",
+    }
+    assert [request.url.path for request in requests] == ["/v1/context/capabilities"]
+
+
+def test_context_retrieval_refreshes_cached_negative_capability() -> None:
+    requests: list[httpx.Request] = []
+    capability_calls = 0
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        nonlocal capability_calls
+        requests.append(request)
+        if request.url.path.endswith("/context/capabilities"):
+            capability_calls += 1
+            capabilities = _available_capabilities()
+            if capability_calls == 1:
+                capabilities.update(
+                    {
+                        "joint": False,
+                        "joint_blocker": "context_graph_not_ready",
+                        "joint_blocker_message": "Context graph is not ready.",
+                    }
+                )
+            return httpx.Response(200, json=capabilities)
+        return httpx.Response(
+            200,
+            json=deepcopy(FIXTURES["responses"]["ContextJointResponse"]),
+        )
+
+    context = _client(respond).project().context
+    with pytest.raises(PolygresValidationError):
+        context.joint("support_docs", [0.1])
+    response = context.joint("support_docs", [0.1])
+
+    assert isinstance(response, ContextJointResponse)
+    assert [request.url.path for request in requests] == [
+        "/v1/context/capabilities",
+        "/v1/context/capabilities",
+        "/v1/context/hybrid/joint",
+    ]
+
+
+def test_point_scroll_validates_capability_and_facets_uses_contract_limit() -> None:
+    requests: list[httpx.Request] = []
+    capabilities = _available_capabilities()
+    capabilities["max_search_limit"] = 5
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        if request.url.path.endswith("/context/capabilities"):
+            return httpx.Response(200, json=capabilities)
+        return httpx.Response(200, json=_response_payload(request))
+
+    context = _client(respond).project().context
+    context.facets("support_docs", "tenant_id", limit=10)
+    capabilities.update(
+        {
+            "point_scroll": False,
+            "point_scroll_blocker": "context_point_scroll_reader_unavailable",
+            "point_scroll_blocker_message": "Point scroll is unavailable.",
+        }
+    )
+    context.get_capabilities()
+
+    with pytest.raises(PolygresValidationError) as raised:
+        context.scroll_points(COLLECTION_ID)
+
+    assert raised.value.details["capability"] == "point_scroll"
+    assert not any(request.url.path.endswith("/points") for request in requests)
+
+
 def test_point_mutation_preserves_synchronous_or_operation_response() -> None:
     calls = 0
 
@@ -618,21 +790,25 @@ def test_ranked_requests_never_retry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(client_module.time, "sleep", lambda _seconds: None)
-    attempts = 0
+    query_attempts = 0
 
-    def respond(_request: httpx.Request) -> httpx.Response:
-        nonlocal attempts
-        attempts += 1
+    def respond(request: httpx.Request) -> httpx.Response:
+        nonlocal query_attempts
+        if request.url.path.endswith("/context/capabilities"):
+            return httpx.Response(200, json=_available_capabilities())
+        query_attempts += 1
         return httpx.Response(503, json={"error": {"code": "SERVICE_UNAVAILABLE"}})
 
     with pytest.raises(PolygresRuntimeError):
         invoke(_client(respond, retries=2).project().context)
 
-    assert attempts == 1
+    assert query_attempts == 1
 
 
 def test_context_error_mapping_redacts_secrets_and_preserves_safe_fields() -> None:
-    def respond(_request: httpx.Request) -> httpx.Response:
+    def respond(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/context/capabilities"):
+            return httpx.Response(200, json=_available_capabilities())
         return httpx.Response(
             409,
             json={
@@ -709,11 +885,12 @@ def test_additive_fields_and_ranked_response_shape_are_preserved() -> None:
         }
     ]
 
-    response = (
-        _client(lambda _request: httpx.Response(200, json=payload))
-        .project()
-        .context.search("support_docs", [0.1])
-    )
+    def respond(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/context/capabilities"):
+            return httpx.Response(200, json=_available_capabilities())
+        return httpx.Response(200, json=payload)
+
+    response = _client(respond).project().context.search("support_docs", [0.1])
     serialized = response.to_dict()
 
     assert isinstance(response.results[0], ContextSearchResult)
@@ -728,6 +905,8 @@ def test_joint_uses_one_isolated_route_and_preserves_typed_provenance() -> None:
 
     def respond(request: httpx.Request) -> httpx.Response:
         requests.append(request)
+        if request.url.path == "/v1/context/capabilities":
+            return httpx.Response(200, json=_available_capabilities())
         assert request.url.path == "/v1/context/hybrid/joint"
         return httpx.Response(200, json=deepcopy(FIXTURES["joint_examples"]["additive_field"]))
 
@@ -741,7 +920,10 @@ def test_joint_uses_one_isolated_route_and_preserves_typed_provenance() -> None:
         )
     )
 
-    assert len(requests) == 1
+    assert [request.url.path for request in requests] == [
+        "/v1/context/capabilities",
+        "/v1/context/hybrid/joint",
+    ]
     assert response.mode.value == "joint"
     assert response.results[0].introduced_by_graph is True
     assert response.results[0].baseline_rank is None

@@ -2,7 +2,7 @@
 
 This file is generated. Edit Python method metadata, docstrings, or the Runtime OpenAPI contract instead.
 
-- SDK package version: `0.2.0`
+- SDK package version: `0.2.1`
 - HTTP API family: `v1`
 - Default API behavior version: `2026-08-04`
 - Method specification schema: `1`
@@ -189,6 +189,13 @@ Return pgContext capabilities for this Runtime.
 ```python
 capabilities = project.context.get_capabilities()
 ```
+
+Context retrieval methods fetch this response lazily on their first call and
+cache it on the project Context namespace. They validate the requested mode,
+dimensions, result and candidate limits, graph depth, and relationship-type
+count before sending the retrieval request. Calling `get_capabilities()`
+explicitly refreshes the cache. Cached capabilities expire after 60 seconds,
+and an unavailable capability is refreshed on the next attempted call.
 
 ### `project.context.get_collection()`
 

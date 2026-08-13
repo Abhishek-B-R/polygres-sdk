@@ -180,6 +180,14 @@
     },
     {
       "method": "POST",
+      "operation_id": "reindex_text_configuration_v1_text_configurations__config_id__reindex_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/text/configurations/{config_id}/reindex",
+      "reason": "Text reindexing is a setup operation managed outside the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
       "operation_id": "reindex_vector_configuration_v1_vector_configurations__config_id__reindex_post",
       "owner": "Runtime Platform",
       "path": "/v1/vector/configurations/{config_id}/reindex",
@@ -200,6 +208,14 @@
       "owner": "Runtime Platform",
       "path": "/v1/vector/configurations/{config_id}/compatibility-engine/{target_engine}",
       "reason": "Per-configuration compatibility engine selection is an operator rollback control, not an application retrieval method.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "text_configuration_diagnostics_v1_text_configurations__config_id__diagnostics_get",
+      "owner": "Runtime Platform",
+      "path": "/v1/text/configurations/{config_id}/diagnostics",
+      "reason": "Text index diagnostics are managed through the dashboard and control-plane workflow.",
       "review_date": "2027-02-04"
     }
   ],
@@ -4438,8 +4454,8 @@
       "stability": "stable"
     }
   ],
-  "openapi_sha256": "bc828889aee0beb04d6c35cfd351d54d02ed547039a30d8316a4faa70cf8bc55",
+  "openapi_sha256": "7a0960535e680ffd590776b2f6fea4188cb857c75bf5f5568680e6189f746b5f",
   "schema_version": 1,
   "sdk": "polygres-sdk",
-  "sdk_version": "0.2.0"
+  "sdk_version": "0.2.1"
 }

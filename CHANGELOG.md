@@ -4,6 +4,20 @@ All notable changes to `polygres-sdk` are documented in this file.
 
 ## Unreleased
 
+## 0.2.1 - 2026-08-12
+
+### Changed
+
+- pgContext retrieval methods now check the project's supported operations and
+  query limits before sending a request.
+- Capability checks cover result and candidate limits, embedding dimensions,
+  graph depth, and relationship-type limits while preserving existing method
+  signatures.
+- The bundled Runtime API contract now includes the completed text-search
+  configuration and diagnostics operations.
+- Release notices are now checked through the central Polygres API, so future
+  SDK update notices no longer require project Runtime API restarts.
+
 ## 0.2.0 - 2026-08-09
 
 ### Added

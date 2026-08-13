@@ -42,7 +42,7 @@ from polygres.models import (
     TextResult,
     VectorResult,
 )
-from polygres.version_notices import emit_version_notice
+from polygres.version_notices import check_central_version_notices, emit_version_notice
 
 PROJECT_RE = re.compile(r"^p[a-z0-9]{23}$")
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
@@ -350,6 +350,7 @@ class Polygres:
                 if deadline is not None and time.monotonic() >= deadline:
                     raise _deadline_error(method, path)
             emit_version_notice(response.headers, current_version=__version__)
+            check_central_version_notices(current_version=__version__)
             if error is not None:
                 raise error
             payload = response.json()

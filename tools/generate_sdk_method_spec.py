@@ -41,6 +41,16 @@ EXCEPTION_CATEGORIES = [
     "runtime",
     "validation",
 ]
+REFERENCE_NOTES = {
+    "project.context.get_capabilities": (
+        "Context retrieval methods fetch this response lazily on their first call and\n"
+        "cache it on the project Context namespace. They validate the requested mode,\n"
+        "dimensions, result and candidate limits, graph depth, and relationship-type\n"
+        "count before sending the retrieval request. Calling `get_capabilities()`\n"
+        "explicitly refreshes the cache. Cached capabilities expire after 60 seconds,\n"
+        "and an unavailable capability is refreshed on the next attempted call."
+    )
+}
 
 
 def build_method_spec() -> dict[str, Any]:
@@ -257,6 +267,8 @@ def render_reference(document: dict[str, Any]) -> str:
                     "",
                 ]
             )
+            if note := REFERENCE_NOTES.get(method["public_name"]):
+                lines.extend([note, ""])
     return "\n".join(lines).rstrip() + "\n"
 
 

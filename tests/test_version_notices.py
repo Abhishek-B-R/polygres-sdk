@@ -25,6 +25,8 @@ ROUTE_CTX = getattr(respx, "mo" + "ck")
 @pytest.fixture(autouse=True)
 def _clear_seen_notice_ids() -> None:
     notice_module._seen_notice_ids.clear()
+    notice_module._central_notice_next_check = float("inf")
+    notice_module._central_notice_etag = None
 
 
 def _headers(
@@ -127,6 +129,57 @@ def test_sdk_emits_notice_before_raising_final_api_error() -> None:
 
 
 @ROUTE_CTX
+def test_sdk_fetches_and_emits_central_notice() -> None:
+    notice_module._central_notice_next_check = 0.0
+    central = respx.get(notice_module._CENTRAL_NOTICE_URL).mock(
+        return_value=httpx.Response(
+            200,
+            headers={"ETag": '"sdk-release"'},
+            json={
+                "notices": [
+                    {
+                        "id": "sdk-0.3.0-central",
+                        "recommended_version": "0.3.0",
+                        "severity": "info",
+                        "url": "https://docs.polygres.com/reference/changelog",
+                    }
+                ]
+            },
+        )
+    )
+    respx.get(f"{RUNTIME_URL}/retrieval/readiness").mock(
+        return_value=httpx.Response(200, json=_readiness_payload("req_central_notice"))
+    )
+
+    with pytest.warns(PolygresVersionWarning, match=r"SDK 0\.3\.0 is available"):
+        Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=0).project().readiness()
+
+    assert central.call_count == 1
+    request = central.calls[0].request
+    assert request.url.params["version"] == __version__
+    assert request.url.params["channel"] == "stable"
+
+
+@ROUTE_CTX
+def test_sdk_central_notice_failure_does_not_fail_user_request() -> None:
+    notice_module._central_notice_next_check = 0.0
+    central = respx.get(notice_module._CENTRAL_NOTICE_URL).mock(
+        side_effect=httpx.ConnectError("offline")
+    )
+    respx.get(f"{RUNTIME_URL}/retrieval/readiness").mock(
+        return_value=httpx.Response(200, json=_readiness_payload("req_notice_offline"))
+    )
+
+    readiness = Polygres(
+        api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=0
+    ).project().readiness()
+
+    assert readiness.request_id == "req_notice_offline"
+    assert central.call_count == 1
+    assert notice_module._central_notice_next_check > 0
+
+
+@ROUTE_CTX
 def test_sdk_does_not_emit_notice_from_an_intermediate_retry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -153,5 +206,5 @@ def test_sdk_does_not_emit_notice_from_an_intermediate_retry(
     assert not [item for item in caught if issubclass(item.category, PolygresVersionWarning)]
 
 
-def test_public_sdk_version_remains_the_release_candidate() -> None:
-    assert __version__ == "0.2.0"
+def test_public_sdk_version_matches_current_release() -> None:
+    assert __version__ == "0.2.1"

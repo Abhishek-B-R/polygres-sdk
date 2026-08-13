@@ -2895,6 +2895,37 @@
         "title": "EntityRef",
         "type": "object"
       },
+      "ExistingTextTsvectorSetupRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "column": {
+            "title": "Column",
+            "type": "string"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "mode": {
+            "const": "existing",
+            "title": "Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "mode",
+          "column"
+        ],
+        "title": "ExistingTextTsvectorSetupRequest",
+        "type": "object"
+      },
       "FacetValue": {
         "additionalProperties": true,
         "properties": {
@@ -3133,6 +3164,46 @@
           "graph_weight"
         ],
         "title": "FusionMetadata",
+        "type": "object"
+      },
+      "GeneratedTextTsvectorSetupRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "generated_column": {
+            "title": "Generated Column",
+            "type": "string"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "mode": {
+            "const": "generate",
+            "title": "Mode",
+            "type": "string"
+          },
+          "source_columns": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Source Columns",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mode",
+          "source_columns",
+          "generated_column"
+        ],
+        "title": "GeneratedTextTsvectorSetupRequest",
         "type": "object"
       },
       "GraphBuildRequest": {
@@ -5144,6 +5215,13 @@
       "TextConfigurationCreateRequest": {
         "additionalProperties": false,
         "properties": {
+          "default_limit": {
+            "default": 10,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Default Limit",
+            "type": "integer"
+          },
           "filter_columns": {
             "items": {
               "type": "string"
@@ -5155,6 +5233,13 @@
             "default": "english",
             "title": "Language",
             "type": "string"
+          },
+          "max_limit": {
+            "default": 100,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Max Limit",
+            "type": "integer"
           },
           "metadata_columns": {
             "items": {
@@ -5222,6 +5307,31 @@
             ],
             "title": "Text Column"
           },
+          "tsvector": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "existing": "#/components/schemas/ExistingTextTsvectorSetupRequest",
+                    "generate": "#/components/schemas/GeneratedTextTsvectorSetupRequest"
+                  },
+                  "propertyName": "mode"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ExistingTextTsvectorSetupRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GeneratedTextTsvectorSetupRequest"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tsvector"
+          },
           "tsvector_column": {
             "anyOf": [
               {
@@ -5231,6 +5341,8 @@
                 "type": "null"
               }
             ],
+            "deprecated": true,
+            "description": "Legacy existing-column input. Prefer tsvector.mode=existing.",
             "title": "Tsvector Column"
           }
         },
@@ -5466,11 +5578,17 @@
             "type": "object"
           },
           "limit": {
-            "default": 10,
-            "maximum": 1000.0,
-            "minimum": 1.0,
-            "title": "Limit",
-            "type": "integer"
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
           },
           "query": {
             "maxLength": 2000,
@@ -12408,6 +12526,196 @@
           }
         ],
         "summary": "Patch Text Configuration"
+      }
+    },
+    "/v1/text/configurations/{config_id}/diagnostics": {
+      "get": {
+        "operationId": "text_configuration_diagnostics_v1_text_configurations__config_id__diagnostics_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "config_id",
+            "required": true,
+            "schema": {
+              "title": "Config Id",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Text Configuration Diagnostics V1 Text Configurations  Config Id  Diagnostics Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Text Configuration Diagnostics"
+      }
+    },
+    "/v1/text/configurations/{config_id}/reindex": {
+      "post": {
+        "operationId": "reindex_text_configuration_v1_text_configurations__config_id__reindex_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "config_id",
+            "required": true,
+            "schema": {
+              "title": "Config Id",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Reindex Text Configuration V1 Text Configurations  Config Id  Reindex Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Reindex Text Configuration"
       }
     },
     "/v1/text/fuzzy": {
