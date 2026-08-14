@@ -129,6 +129,105 @@ class RetrievalReadiness:
 
 
 @dataclass
+class RowWriteValidation:
+    valid: bool
+    operation: str
+    schema: str
+    table: str
+    writable_columns: list[str]
+    conflict_constraint: str | None
+    context: dict[str, Any] | None
+    request_id: str | None
+
+    @classmethod
+    def from_api(cls, payload: dict[str, Any]) -> RowWriteValidation:
+        return cls(
+            valid=bool(payload.get("valid")),
+            operation=str(payload["operation"]),
+            schema=str(payload["schema"]),
+            table=str(payload["table"]),
+            writable_columns=[str(value) for value in payload.get("writable_columns", [])],
+            conflict_constraint=(
+                str(payload["conflict_constraint"])
+                if payload.get("conflict_constraint") is not None
+                else None
+            ),
+            context=dict(payload["context"]) if isinstance(payload.get("context"), dict) else None,
+            request_id=(str(payload["request_id"]) if payload.get("request_id") else None),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class RowContextReconciliationResult:
+    collection_id: str
+    status: str
+    operation_id: str | None
+    operation_status: str | None
+    retry_until: str | None
+    error: dict[str, Any] | None
+
+    @classmethod
+    def from_api(cls, payload: dict[str, Any]) -> RowContextReconciliationResult:
+        return cls(
+            collection_id=str(payload["collection_id"]),
+            status=str(payload["status"]),
+            operation_id=(str(payload["operation_id"]) if payload.get("operation_id") else None),
+            operation_status=(
+                str(payload["operation_status"])
+                if payload.get("operation_status") is not None
+                else None
+            ),
+            retry_until=(str(payload["retry_until"]) if payload.get("retry_until") else None),
+            error=dict(payload["error"]) if isinstance(payload.get("error"), dict) else None,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class RowWriteResult:
+    operation: str
+    schema: str
+    table: str
+    returned: dict[str, Any]
+    status: str
+    row_committed: bool
+    context: RowContextReconciliationResult | None
+    idempotency_key: str | None
+    request_id: str | None
+
+    @classmethod
+    def from_api(cls, payload: dict[str, Any]) -> RowWriteResult:
+        context_payload = payload.get("context")
+        return cls(
+            operation=str(payload["operation"]),
+            schema=str(payload["schema"]),
+            table=str(payload["table"]),
+            returned=dict(payload.get("returned") or {}),
+            status=str(payload["status"]),
+            row_committed=bool(payload.get("row_committed")),
+            context=(
+                RowContextReconciliationResult.from_api(context_payload)
+                if isinstance(context_payload, dict)
+                else None
+            ),
+            idempotency_key=(
+                str(payload["idempotency_key"])
+                if payload.get("idempotency_key") is not None
+                else None
+            ),
+            request_id=(str(payload["request_id"]) if payload.get("request_id") else None),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class GraphNode:
     schema: str
     table: str

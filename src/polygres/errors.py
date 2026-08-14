@@ -3,11 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from polygres._vendor.polygres_lib.auth import AUTH_ERROR_CATALOG, AuthErrorCode
-from polygres._vendor.polygres_lib.context import (
-    CONTEXT_ERROR_CATALOG,
-    ContextErrorCode,
-)
+from polygres._vendor.polygres_lib.errors import ERROR_CATALOG
 
 
 class PolygresError(Exception):
@@ -74,6 +70,10 @@ class PolygresRuntimeError(PolygresAPIError):
     """Raised for transient API/runtime failures."""
 
 
+class PolygresAmbiguousWriteError(PolygresRuntimeError):
+    """Raised when a row mutation may have committed but acknowledgement was lost."""
+
+
 @dataclass(frozen=True, slots=True)
 class _CanonicalErrorDetails:
     code: str
@@ -83,39 +83,22 @@ class _CanonicalErrorDetails:
 
 
 def canonical_error_details(
-    code: object, details: dict[str, Any]
+    code: object, variant: object, details: dict[str, Any]
 ) -> _CanonicalErrorDetails | None:
     """Adapt central safe error descriptors to the stable SDK exception hierarchy."""
     if not isinstance(code, str):
         return None
-    try:
-        auth_code = AuthErrorCode(code)
-    except ValueError:
-        pass
-    else:
-        descriptor = AUTH_ERROR_CATALOG[auth_code]
-        return _CanonicalErrorDetails(
-            code=descriptor.code.value,
-            message=descriptor.safe_message,
-            status_code=descriptor.http_status,
-            details={
-                key: value
-                for key, value in details.items()
-                if key in descriptor.safe_detail_keys
-            },
-        )
-    try:
-        context_code = ContextErrorCode(code)
-    except ValueError:
+    descriptor = ERROR_CATALOG.get(code)
+    if descriptor is None:
         return None
-    context_descriptor = CONTEXT_ERROR_CATALOG[context_code]
+    selected_variant = descriptor.variants.get(variant) if isinstance(variant, str) else None
     return _CanonicalErrorDetails(
-        code=context_code.value,
-        message=context_descriptor.message,
-        status_code=context_descriptor.status_code,
+        code=code,
+        message=selected_variant.message if selected_variant is not None else descriptor.message,
+        status_code=(
+            selected_variant.http_status if selected_variant is not None else descriptor.http_status
+        ),
         details={
-            key: value
-            for key, value in details.items()
-            if key in context_descriptor.safe_detail_fields
+            key: value for key, value in details.items() if key in descriptor.safe_detail_fields
         },
     )

@@ -20,6 +20,7 @@ from polygres._vendor.polygres_lib.auth import ProjectApiKeyService
 from polygres._version import __version__
 from polygres.context import ContextNamespace
 from polygres.errors import (
+    PolygresAmbiguousWriteError,
     PolygresAPIError,
     PolygresAuthError,
     PolygresError,
@@ -42,6 +43,7 @@ from polygres.models import (
     TextResult,
     VectorResult,
 )
+from polygres.rows import RowsNamespace
 from polygres.version_notices import check_central_version_notices, emit_version_notice
 
 PROJECT_RE = re.compile(r"^p[a-z0-9]{23}$")
@@ -372,6 +374,7 @@ class Project:
     text: TextNamespace = field(init=False)
     hybrid: HybridNamespace = field(init=False)
     context: ContextNamespace = field(init=False)
+    rows: RowsNamespace = field(init=False)
 
     def __post_init__(self) -> None:
         self.graph = GraphNamespace(self)
@@ -379,6 +382,7 @@ class Project:
         self.text = TextNamespace(self)
         self.hybrid = HybridNamespace(self)
         self.context = ContextNamespace(self)
+        self.rows = RowsNamespace(self)
 
     def readiness(self) -> RetrievalReadiness:
         payload = self._client._get("/retrieval/readiness")
@@ -428,6 +432,7 @@ class GraphNamespace:
         relationship_types: list[str] | None = None,
         direction: str = "out",
         filters: dict[str, Any] | None = None,
+        target_table: dict[str, Any] | None = None,
         limit: int = 50,
         cursor: str | None = None,
         timeout: float | None = None,
@@ -442,6 +447,7 @@ class GraphNamespace:
             "relationship_types": relationship_types,
             "direction": _sdk_direction(direction),
             "filters": filters or {},
+            "target_table": target_table,
             "limit": limit,
             "cursor": cursor,
         }
@@ -461,6 +467,7 @@ class GraphNamespace:
         relationship_types: list[str] | None = None,
         direction: str = "any",
         filters: dict[str, Any] | None = None,
+        target_table: dict[str, Any] | None = None,
         limit: int = 100,
         cursor: str | None = None,
     ) -> Page[GraphResult]:
@@ -474,6 +481,7 @@ class GraphNamespace:
                 "relationship_types": relationship_types,
                 "direction": _sdk_direction(direction),
                 "filters": filters or {},
+                "target_table": target_table,
                 "limit": limit,
                 "cursor": cursor,
             },
@@ -487,6 +495,7 @@ class GraphNamespace:
         relationship_types: list[str] | None = None,
         direction: str = "any",
         filters: dict[str, Any] | None = None,
+        target_table: dict[str, Any] | None = None,
         limit: int = 20,
         cursor: str | None = None,
     ) -> Page[GraphResult]:
@@ -499,6 +508,7 @@ class GraphNamespace:
                 "relationship_types": relationship_types,
                 "direction": _sdk_direction(direction),
                 "filters": filters or {},
+                "target_table": target_table,
                 "limit": limit,
                 "cursor": cursor,
             },
@@ -819,6 +829,44 @@ def _attach_client_method_metadata() -> None:
             "none",
         ),
         (
+            RowsNamespace.validate,
+            "project.rows.validate",
+            "runtime_validate_row_write",
+            "Validate a single-row write without executing it.",
+            'validation = project.rows.validate(schema="public", table="events", row={"id": "1"})',
+            "read_only_post",
+            "none",
+        ),
+        (
+            RowsNamespace.insert,
+            "project.rows.insert",
+            "runtime_write_row",
+            "Insert one row into an eligible project-owned table.",
+            'result = project.rows.insert(schema="public", table="events", row={"id": "1"})',
+            "none",
+            "none",
+        ),
+        (
+            RowsNamespace.upsert,
+            "project.rows.upsert",
+            "runtime_write_row",
+            "Upsert one row through a primary or unique constraint.",
+            'result = project.rows.upsert(schema="public", table="events", '
+            'row={"id": "1"}, conflict_columns=["id"])',
+            "none",
+            "none",
+        ),
+        (
+            RowsNamespace.ignore,
+            "project.rows.ignore",
+            "runtime_write_row",
+            "Insert one row and ignore a matching primary or unique conflict.",
+            'result = project.rows.ignore(schema="public", table="events", '
+            'row={"id": "1"}, conflict_columns=["id"])',
+            "none",
+            "none",
+        ),
+        (
             GraphNamespace.expand,
             "project.graph.expand",
             "runtime_graph_expand",
@@ -934,7 +982,7 @@ def _attach_client_method_metadata() -> None:
             example=example,
             public_name=public_name,
             operation_ids=(operation_id,),
-            since="0.1.0",
+            since=("0.3.0" if public_name.startswith("project.rows.") else "0.1.0"),
             retry_policy=retry,
             pagination=pagination,
         )
@@ -1098,12 +1146,11 @@ def _api_error(response: httpx.Response, *, secret: str | None = None) -> Polygr
         _redact_text(str(request_id_value), secret) if request_id_value is not None else None
     )
     code = error.get("code")
+    variant = error.get("variant")
     details = error.get("details") if isinstance(error.get("details"), dict) else {}
-    canonical = canonical_error_details(code, details)
+    canonical = canonical_error_details(code, variant, details)
     server_message = str(error.get("message") or f"Polygres API error {response.status_code}")
     message = canonical.message if canonical is not None else server_message
-    if canonical is not None and isinstance(code, str) and code.startswith("CONTEXT_"):
-        message = server_message
     if canonical is not None:
         code = canonical.code
         details = canonical.details
@@ -1128,6 +1175,8 @@ def _api_error(response: httpx.Response, *, secret: str | None = None) -> Polygr
         return PolygresRateLimitError(message, **kwargs)
     if code in {"MAINTENANCE_READ_ONLY", "MAINTENANCE_FULL"}:
         return PolygresMaintenanceError(message, **kwargs)
+    if code == "ROW_WRITE_OUTCOME_AMBIGUOUS":
+        return PolygresAmbiguousWriteError(message, **kwargs)
     if status_code in {408, 500, 502, 503, 504}:
         return PolygresRuntimeError(message, **kwargs)
     if status_code == 400 and code == "UNSUPPORTED_API_VERSION":
@@ -1140,6 +1189,8 @@ def _api_error(response: httpx.Response, *, secret: str | None = None) -> Polygr
     }:
         return PolygresValidationError(message, **kwargs)
     if status_code == 400 and isinstance(code, str) and code.startswith("CONTEXT_"):
+        return PolygresValidationError(message, **kwargs)
+    if status_code in {400, 413, 422} and isinstance(code, str) and code.startswith("ROW_"):
         return PolygresValidationError(message, **kwargs)
     return PolygresAPIError(message, **kwargs)
 

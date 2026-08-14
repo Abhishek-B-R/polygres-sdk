@@ -19,6 +19,7 @@ from polygres import (
     __version__,
 )
 from polygres._api_version import API_VERSION_HEADER, CLIENT_INFO_HEADER, DEFAULT_API_VERSION
+from polygres._vendor.polygres_lib.errors import catalog_message
 
 API_KEY = "poly_live_0123456789abcdef0123456789abcdef"
 PROJECT_ID = "p0123456789abcdef0123456"
@@ -424,7 +425,14 @@ def test_graph_methods_serialize_payloads_and_parse_pages() -> None:
     )
     neighborhood_route = _stub(
         respx.post(f"{RUNTIME_URL}/graph/neighborhood"),
-        return_value=httpx.Response(200, json={**_graph_page_payload(), "request_id": "req_near"}),
+        return_value=httpx.Response(
+            200,
+            json={
+                **_graph_page_payload(),
+                "request_id": "req_near",
+                "groups": [{"depth": 1, "table": "customers", "count": 1}],
+            },
+        ),
     )
     related_route = _stub(
         respx.post(f"{RUNTIME_URL}/graph/related"),
@@ -442,6 +450,7 @@ def test_graph_methods_serialize_payloads_and_parse_pages() -> None:
             relationship_types=["placed_by"],
             direction="both",
             filters={"status": "active"},
+            target_table={"schema": "public", "table": "customers"},
             limit=25,
         )
     )
@@ -460,12 +469,16 @@ def test_graph_methods_serialize_payloads_and_parse_pages() -> None:
     assert '"relationship_types":["placed_by"]' in payload
     assert '"edge_types"' not in payload
     assert '"filters":{"status":"active"}' in payload
+    assert '"target_table":{"schema":"public","table":"customers"}' in payload
     assert page.results[0].node.properties == {"status": "active"}
     assert page.results[0].graph_score == 0.5
     neighborhood_payload = neighborhood_route.calls[0].request.content.decode()
     assert '"relationship_types":["placed_by"]' in neighborhood_payload
     assert '"relationship_types":["placed_by"]' in related_route.calls[0].request.content.decode()
     assert neighborhood.request_id == "req_near"
+    assert neighborhood.metadata["groups"] == [
+        {"depth": 1, "table": "customers", "count": 1}
+    ]
     assert related.request_id == "req_related"
     with pytest.raises(PolygresValidationError):
         project.graph.neighborhood(
@@ -817,7 +830,7 @@ def test_maintenance_error_preserves_message_without_retry(
     assert route.call_count == 1
     assert delays == []
     assert exc.value.code == "MAINTENANCE_FULL"
-    assert str(exc.value) == "Database upgrades are in progress."
+    assert str(exc.value) == catalog_message("MAINTENANCE_FULL")
 
 
 def test_setup_mutation_methods_are_not_exposed() -> None:

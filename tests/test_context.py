@@ -1066,6 +1066,19 @@ def test_waiter_timeout_failure_and_cancellation_do_not_cancel() -> None:
     assert failed.value.details == {
         "collection": "support_docs",
         "operation_id": OPERATION_ID,
+        "operation_status": "failed",
+    }
+
+    with pytest.raises(PolygresRuntimeError) as failed_without_body:
+        wait_for_context_operation(
+            OPERATION_ID,
+            initial=_operation(status="failed", stage="failed"),
+            fetch=fetch,
+            timeout=10,
+        )
+    assert failed_without_body.value.details == {
+        "operation_id": OPERATION_ID,
+        "operation_status": "failed",
     }
 
     with pytest.raises(PolygresAPIError) as cancelled:

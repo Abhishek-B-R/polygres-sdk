@@ -67,6 +67,7 @@ def build_method_spec() -> dict[str, Any]:
         VectorNamespace,
     )
     from polygres.context import ContextNamespace
+    from polygres.rows import RowsNamespace
 
     openapi_bytes = OPENAPI_PATH.read_bytes()
     openapi = json.loads(openapi_bytes)
@@ -78,6 +79,7 @@ def build_method_spec() -> dict[str, Any]:
         TextNamespace,
         HybridNamespace,
         ContextNamespace,
+        RowsNamespace,
     )
     methods: list[dict[str, Any]] = []
     uncovered: list[str] = []

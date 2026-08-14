@@ -2,7 +2,7 @@
 
 This file is generated. Edit Python method metadata, docstrings, or the Runtime OpenAPI contract instead.
 
-- SDK package version: `0.2.1`
+- SDK package version: `0.3.0`
 - HTTP API family: `v1`
 - Default API behavior version: `2026-08-04`
 - Method specification schema: `1`
@@ -501,6 +501,47 @@ Run vector-first hybrid retrieval.
 
 ```python
 page = project.hybrid.vector_first(embedding)
+```
+
+## `project.rows`
+
+| SDK method | HTTP operation | Since | Retry | Pagination | Deprecated |
+| --- | --- | --- | --- | --- | --- |
+| `project.rows.ignore()` | `POST /v1/tables/{schema_name}/{table_name}/rows` (`runtime_write_row`) | `0.3.0` | `none` | `none` | No |
+| `project.rows.insert()` | `POST /v1/tables/{schema_name}/{table_name}/rows` (`runtime_write_row`) | `0.3.0` | `none` | `none` | No |
+| `project.rows.upsert()` | `POST /v1/tables/{schema_name}/{table_name}/rows` (`runtime_write_row`) | `0.3.0` | `none` | `none` | No |
+| `project.rows.validate()` | `POST /v1/tables/{schema_name}/{table_name}/rows/validate` (`runtime_validate_row_write`) | `0.3.0` | `read_only_post` | `none` | No |
+
+### `project.rows.ignore()`
+
+Insert one row and ignore a matching primary or unique conflict.
+
+```python
+result = project.rows.ignore(schema="public", table="events", row={"id": "1"}, conflict_columns=["id"])
+```
+
+### `project.rows.insert()`
+
+Insert one row into an eligible project-owned table.
+
+```python
+result = project.rows.insert(schema="public", table="events", row={"id": "1"})
+```
+
+### `project.rows.upsert()`
+
+Upsert one row through a primary or unique constraint.
+
+```python
+result = project.rows.upsert(schema="public", table="events", row={"id": "1"}, conflict_columns=["id"])
+```
+
+### `project.rows.validate()`
+
+Validate a single-row write without executing it.
+
+```python
+validation = project.rows.validate(schema="public", table="events", row={"id": "1"})
 ```
 
 ## `project.text`

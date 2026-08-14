@@ -1213,6 +1213,17 @@
           },
           "message": {
             "type": "string"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
           }
         },
         "required": [
@@ -1909,6 +1920,17 @@
           "message": {
             "title": "Message",
             "type": "string"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant"
           }
         },
         "required": [
@@ -2895,6 +2917,58 @@
         "title": "EntityRef",
         "type": "object"
       },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "details"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "ErrorEnvelope": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "error"
+        ],
+        "title": "ErrorEnvelope",
+        "type": "object"
+      },
       "ExistingTextTsvectorSetupRequest": {
         "additionalProperties": false,
         "properties": {
@@ -3348,6 +3422,16 @@
           },
           "start": {
             "$ref": "#/components/schemas/EntityRef"
+          },
+          "target_table": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GraphTableRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -3782,6 +3866,25 @@
           "graph_maintenance_interval_minutes"
         ],
         "title": "GraphSystemSettingsRequest",
+        "type": "object"
+      },
+      "GraphTableRef": {
+        "additionalProperties": false,
+        "properties": {
+          "schema": {
+            "title": "Schema",
+            "type": "string"
+          },
+          "table": {
+            "title": "Table",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "table"
+        ],
+        "title": "GraphTableRef",
         "type": "object"
       },
       "GroupedSearchRequest": {
@@ -5124,6 +5227,380 @@
           "to"
         ],
         "title": "Relationship",
+        "type": "object"
+      },
+      "RowContextError": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "retryable",
+          "details"
+        ],
+        "title": "RowContextError",
+        "type": "object"
+      },
+      "RowContextReconciliationResult": {
+        "additionalProperties": false,
+        "properties": {
+          "collection_id": {
+            "format": "uuid",
+            "title": "Collection Id",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RowContextError"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "operation_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Status"
+          },
+          "retry_until": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry Until"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "pending",
+              "partial_failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "collection_id",
+          "status",
+          "operation_id",
+          "operation_status",
+          "retry_until",
+          "error"
+        ],
+        "title": "RowContextReconciliationResult",
+        "type": "object"
+      },
+      "RowContextRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collection Id"
+          },
+          "reconcile": {
+            "const": true,
+            "title": "Reconcile",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "reconcile"
+        ],
+        "title": "RowContextRequest",
+        "type": "object"
+      },
+      "RowValidationContext": {
+        "additionalProperties": false,
+        "properties": {
+          "collection_id": {
+            "format": "uuid",
+            "title": "Collection Id",
+            "type": "string"
+          },
+          "requested": {
+            "title": "Requested",
+            "type": "boolean"
+          },
+          "source_key_column": {
+            "title": "Source Key Column",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested",
+          "collection_id",
+          "source_key_column"
+        ],
+        "title": "RowValidationContext",
+        "type": "object"
+      },
+      "RowWriteRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "conflict_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conflict Columns"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RowContextRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mode": {
+            "default": "insert",
+            "enum": [
+              "insert",
+              "upsert",
+              "ignore"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "returning": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Returning",
+            "type": "array"
+          },
+          "row": {
+            "additionalProperties": true,
+            "maxProperties": 128,
+            "minProperties": 1,
+            "title": "Row",
+            "type": "object"
+          },
+          "update_columns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Update Columns"
+          }
+        },
+        "required": [
+          "row"
+        ],
+        "title": "RowWriteRequest",
+        "type": "object"
+      },
+      "RowWriteResult": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RowContextReconciliationResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
+          },
+          "operation": {
+            "enum": [
+              "inserted",
+              "upserted",
+              "ignored"
+            ],
+            "title": "Operation",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "returned": {
+            "additionalProperties": true,
+            "title": "Returned",
+            "type": "object"
+          },
+          "row_committed": {
+            "const": true,
+            "title": "Row Committed",
+            "type": "boolean"
+          },
+          "schema": {
+            "title": "Schema",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "pending",
+              "partial_failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "table": {
+            "title": "Table",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation",
+          "schema",
+          "table",
+          "returned",
+          "status",
+          "row_committed",
+          "request_id"
+        ],
+        "title": "RowWriteResult",
+        "type": "object"
+      },
+      "RowWriteValidation": {
+        "additionalProperties": false,
+        "properties": {
+          "conflict_constraint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conflict Constraint"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RowValidationContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "operation": {
+            "enum": [
+              "insert",
+              "upsert",
+              "ignore"
+            ],
+            "title": "Operation",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "schema": {
+            "title": "Schema",
+            "type": "string"
+          },
+          "table": {
+            "title": "Table",
+            "type": "string"
+          },
+          "valid": {
+            "const": true,
+            "title": "Valid",
+            "type": "boolean"
+          },
+          "writable_columns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Writable Columns",
+            "type": "array"
+          }
+        },
+        "required": [
+          "valid",
+          "operation",
+          "schema",
+          "table",
+          "writable_columns",
+          "conflict_constraint",
+          "request_id"
+        ],
+        "title": "RowWriteValidation",
         "type": "object"
       },
       "RuntimeCapabilities": {
@@ -12088,6 +12565,969 @@
           }
         ],
         "summary": "Retrieval Readiness"
+      }
+    },
+    "/v1/tables/{schema_name}/{table_name}/rows": {
+      "post": {
+        "operationId": "runtime_write_row",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "schema_name",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "title": "Schema Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "table_name",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "title": "Table Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RowWriteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowWriteResult"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowWriteResult"
+                }
+              }
+            },
+            "description": "Context reconciliation pending",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Invalid row-write request or unsupported table contract",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication failed",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authorization failed",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Table or Context collection not found",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict, constraint failure, or idempotency mismatch",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request or response size limit exceeded",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request validation failed",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limit exceeded; write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Runtime failure; write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Runtime unavailable or read-only; write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Write Row",
+        "tags": [
+          "rows"
+        ]
+      }
+    },
+    "/v1/tables/{schema_name}/{table_name}/rows/validate": {
+      "post": {
+        "operationId": "runtime_validate_row_write",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "schema_name",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "title": "Schema Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "table_name",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "title": "Table Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RowWriteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RowWriteValidation"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Invalid row-write request or unsupported table contract",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication failed",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authorization failed",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Table or Context collection not found",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict, constraint failure, or idempotency mismatch",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request or response size limit exceeded",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Request validation failed",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Rate limit exceeded; write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Runtime failure; write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Runtime unavailable or read-only; write outcome may be ambiguous",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Validate Row Write",
+        "tags": [
+          "rows"
+        ]
       }
     },
     "/v1/text/configurations": {

@@ -243,13 +243,37 @@ print(connection.direct_url_without_password)
 
 Use a PostgreSQL driver such as psycopg or SQLAlchemy when your application needs a database connection. The Polygres SDK is an HTTP retrieval client and does not bundle a PostgreSQL driver.
 
+## Single-row writes
+
+Use `project.rows` for one JSON-native row. Context reconciliation is explicit:
+omit both Context options for a generic table, or select one collection so the
+same operation writes the row and creates its pgContext point.
+
+```python
+result = project.rows.upsert(
+    schema="public",
+    table="memories",
+    row={"id": "memory_123", "content": "Remember the deployment window."},
+    conflict_columns=["id"],
+    returning=["id"],
+    context_collection_id="2e172638-bd77-4a2c-bc42-406f4f2938d7",
+    idempotency_key="memory-123-v1",
+    wait_for_context=True,
+)
+```
+
+UUIDs and timestamps are JSON strings. Arrays and vectors are JSON arrays.
+Never automatically retry a row-only write after a timeout; its outcome may be
+ambiguous. A Context-backed request may be resumed only with the exact same
+payload and idempotency key.
+
 ## Version and support
 
-Package version: [`0.2.1`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.1).
+Package version: [`0.3.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.3.0).
 
 When contacting support, include the installed SDK version and the request ID.
 
-See the [SDK 0.2.1 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.2.1) for release changes.
+See the [SDK 0.3.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.3.0) for release changes.
 
 ## Optional Agent Skill
 

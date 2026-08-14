@@ -3,6 +3,7 @@ from polygres.client import Polygres
 from polygres.context_models import *  # noqa: F403
 from polygres.context_models import __all__ as _context_model_exports
 from polygres.errors import (
+    PolygresAmbiguousWriteError,
     PolygresAPIError,
     PolygresAuthError,
     PolygresError,
@@ -23,6 +24,9 @@ from polygres.models import (
     HybridResult,
     Page,
     RetrievalReadiness,
+    RowContextReconciliationResult,
+    RowWriteResult,
+    RowWriteValidation,
     TextResult,
     VectorResult,
 )
@@ -39,6 +43,7 @@ __all__ = [
     "Page",
     "Polygres",
     "PolygresAPIError",
+    "PolygresAmbiguousWriteError",
     "PolygresAuthError",
     "PolygresError",
     "PolygresMaintenanceError",
@@ -50,6 +55,9 @@ __all__ = [
     "PolygresVersionNotice",
     "PolygresVersionWarning",
     "RetrievalReadiness",
+    "RowContextReconciliationResult",
+    "RowWriteResult",
+    "RowWriteValidation",
     "TextResult",
     "VectorResult",
     "__version__",

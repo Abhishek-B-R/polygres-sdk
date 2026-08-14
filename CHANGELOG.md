@@ -4,6 +4,21 @@ All notable changes to `polygres-sdk` are documented in this file.
 
 ## Unreleased
 
+## 0.3.0 - 2026-08-14
+
+### Added
+
+- Added `project.rows.validate()`, `insert()`, `upsert()`, and `ignore()` for
+  single-row Runtime writes with typed results and stable validation errors.
+- Added explicit pgContext reconciliation to row writes, including completed,
+  pending, and partial-failure outcomes backed by durable operations.
+- Added `PolygresAmbiguousWriteError` for write outcomes that cannot be proven.
+
+### Changed
+
+- Row mutations are sent exactly once. Automatic transport and status retries
+  are disabled unless an exact Context-backed idempotency replay is requested.
+
 ## 0.2.1 - 2026-08-12
 
 ### Changed

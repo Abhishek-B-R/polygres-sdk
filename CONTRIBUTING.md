@@ -23,7 +23,7 @@ python tools/generate_runtime_openapi_snapshot.py --check
 python tools/generate_sdk_method_spec.py --check
 python tools/generate_sdk_method_spec.py --validate-only
 python tools/check_sdk_compatibility.py \
-  --baseline compatibility/0.1.0/python-sdk-v1.methods.json
+  --baseline compatibility/0.2.1/python-sdk-v1.methods.json
 python -m build
 python tools/verify_distribution.py dist/*.whl dist/*.tar.gz
 ```
@@ -60,7 +60,7 @@ Release rehearsal happens first on TestPyPI:
    /tmp/polygres-sdk-testpypi/bin/python -m pip install \
      --index-url https://test.pypi.org/simple/ \
      --extra-index-url https://pypi.org/simple/ \
-     polygres-sdk==0.2.1
+     polygres-sdk==0.3.0
    /tmp/polygres-sdk-testpypi/bin/python - <<'PY'
    import importlib.metadata
    from polygres import Polygres
@@ -74,12 +74,15 @@ Publish to PyPI only after the same commit has passed TestPyPI validation. Push
 a release tag from the public repository:
 
 ```bash
-git tag polygres-sdk-v0.2.1
-git push origin polygres-sdk-v0.2.1
+git tag polygres-sdk-v0.3.0
+git push origin polygres-sdk-v0.3.0
 ```
 
 The `pypi` GitHub environment must be approved before the upload proceeds.
-Project URLs in `pyproject.toml` must use valid HTTPS URLs accepted by PyPI.
+After PyPI accepts the package, the workflow creates the matching GitHub
+Release from the version's changelog entry and attaches the wheel and source
+distribution. Project URLs in `pyproject.toml` must use valid HTTPS URLs
+accepted by PyPI.
 
 ## Scope
 

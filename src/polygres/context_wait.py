@@ -77,7 +77,10 @@ def wait_for_context_operation(
                 status_code=409,
                 request_id=_request_id(operation),
                 code="CONTEXT_OPERATION_CANCELLED",
-                details={"operation_id": operation_id},
+                details={
+                    "operation_id": operation_id,
+                    "operation_status": "cancelled",
+                },
             )
 
         now = monotonic()
@@ -130,35 +133,41 @@ def _failed_operation_error(
             status_code=500,
             request_id=_request_id(operation),
             code="CONTEXT_OPERATION_FAILED",
-            details={"operation_id": operation_id},
+            details={
+                "operation_id": operation_id,
+                "operation_status": "failed",
+            },
         )
     details = dict(failure.details)
-    canonical = canonical_error_details(failure.code, details)
-    if canonical is not None:
-        details = canonical.details
+    canonical = canonical_error_details(failure.code, failure.variant, details)
+    if canonical is None:
+        canonical = canonical_error_details("CONTEXT_OPERATION_FAILED", None, {})
+    assert canonical is not None
+    details = canonical.details
     details.setdefault("operation_id", operation_id)
+    details["operation_status"] = "failed"
     kwargs = {
-        "status_code": failure.http_status,
+        "status_code": canonical.status_code,
         "request_id": _request_id(operation),
-        "code": failure.code,
+        "code": canonical.code,
         "details": _redact_secret_value(details),
     }
     exception_type: type[Exception]
-    if failure.http_status == 400:
+    if canonical.status_code == 400:
         exception_type = PolygresValidationError
-    elif failure.http_status == 401:
+    elif canonical.status_code == 401:
         exception_type = PolygresAuthError
-    elif failure.http_status == 403:
+    elif canonical.status_code == 403:
         exception_type = PolygresPermissionError
-    elif failure.http_status == 404:
+    elif canonical.status_code == 404:
         exception_type = PolygresNotFoundError
-    elif failure.http_status == 429:
+    elif canonical.status_code == 429:
         exception_type = PolygresRateLimitError
-    elif failure.http_status in {408, 500, 502, 503, 504}:
+    elif canonical.status_code in {408, 500, 502, 503, 504}:
         exception_type = PolygresRuntimeError
     else:
         exception_type = PolygresAPIError
-    return exception_type(_redact_secret(failure.message), **kwargs)
+    return exception_type(canonical.message, **kwargs)
 
 
 def _timeout_error(

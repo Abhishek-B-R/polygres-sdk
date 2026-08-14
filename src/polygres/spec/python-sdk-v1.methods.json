@@ -3653,7 +3653,8 @@
                 "limit",
                 "max_depth",
                 "relationship_types",
-                "start"
+                "start",
+                "target_table"
               ],
               "required_fields": [
                 "start"
@@ -3723,7 +3724,8 @@
                 "limit",
                 "max_depth",
                 "relationship_types",
-                "start"
+                "start",
+                "target_table"
               ],
               "required_fields": [
                 "start"
@@ -3862,7 +3864,8 @@
                 "limit",
                 "max_depth",
                 "relationship_types",
-                "start"
+                "start",
+                "target_table"
               ],
               "required_fields": [
                 "start"
@@ -4176,6 +4179,434 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Insert one row and ignore a matching primary or unique conflict.",
+      "example": "result = project.rows.ignore(schema=\"public\", table=\"events\", row={\"id\": \"1\"}, conflict_columns=[\"id\"])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_write_row"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_write_row",
+          "path": "/v1/tables/{schema_name}/{table_name}/rows",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "conflict_columns",
+                "context",
+                "mode",
+                "returning",
+                "row",
+                "update_columns"
+              ],
+              "required_fields": [
+                "row"
+              ],
+              "schema": "RowWriteRequest"
+            }
+          ],
+          "request_schema": "RowWriteRequest",
+          "security": [
+            {
+              "RuntimeBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": false,
+                "fields": [
+                  "context",
+                  "idempotency_key",
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "schema": "RowWriteResult"
+              }
+            ],
+            "202": [
+              {
+                "allows_additional_fields": false,
+                "fields": [
+                  "context",
+                  "idempotency_key",
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "schema": "RowWriteResult"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "RowWriteResult",
+            "202": "RowWriteResult"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.rows.ignore",
+      "python_qualname": "polygres.rows.RowsNamespace.ignore",
+      "retry_policy": "none",
+      "since": "0.3.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Insert one row into an eligible project-owned table.",
+      "example": "result = project.rows.insert(schema=\"public\", table=\"events\", row={\"id\": \"1\"})",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_write_row"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_write_row",
+          "path": "/v1/tables/{schema_name}/{table_name}/rows",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "conflict_columns",
+                "context",
+                "mode",
+                "returning",
+                "row",
+                "update_columns"
+              ],
+              "required_fields": [
+                "row"
+              ],
+              "schema": "RowWriteRequest"
+            }
+          ],
+          "request_schema": "RowWriteRequest",
+          "security": [
+            {
+              "RuntimeBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": false,
+                "fields": [
+                  "context",
+                  "idempotency_key",
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "schema": "RowWriteResult"
+              }
+            ],
+            "202": [
+              {
+                "allows_additional_fields": false,
+                "fields": [
+                  "context",
+                  "idempotency_key",
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "schema": "RowWriteResult"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "RowWriteResult",
+            "202": "RowWriteResult"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.rows.insert",
+      "python_qualname": "polygres.rows.RowsNamespace.insert",
+      "retry_policy": "none",
+      "since": "0.3.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Upsert one row through a primary or unique constraint.",
+      "example": "result = project.rows.upsert(schema=\"public\", table=\"events\", row={\"id\": \"1\"}, conflict_columns=[\"id\"])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_write_row"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_write_row",
+          "path": "/v1/tables/{schema_name}/{table_name}/rows",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "conflict_columns",
+                "context",
+                "mode",
+                "returning",
+                "row",
+                "update_columns"
+              ],
+              "required_fields": [
+                "row"
+              ],
+              "schema": "RowWriteRequest"
+            }
+          ],
+          "request_schema": "RowWriteRequest",
+          "security": [
+            {
+              "RuntimeBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": false,
+                "fields": [
+                  "context",
+                  "idempotency_key",
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "schema": "RowWriteResult"
+              }
+            ],
+            "202": [
+              {
+                "allows_additional_fields": false,
+                "fields": [
+                  "context",
+                  "idempotency_key",
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id",
+                  "returned",
+                  "row_committed",
+                  "schema",
+                  "status",
+                  "table"
+                ],
+                "schema": "RowWriteResult"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "RowWriteResult",
+            "202": "RowWriteResult"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.rows.upsert",
+      "python_qualname": "polygres.rows.RowsNamespace.upsert",
+      "retry_policy": "none",
+      "since": "0.3.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Validate a single-row write without executing it.",
+      "example": "validation = project.rows.validate(schema=\"public\", table=\"events\", row={\"id\": \"1\"})",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_validate_row_write"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_validate_row_write",
+          "path": "/v1/tables/{schema_name}/{table_name}/rows/validate",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "conflict_columns",
+                "context",
+                "mode",
+                "returning",
+                "row",
+                "update_columns"
+              ],
+              "required_fields": [
+                "row"
+              ],
+              "schema": "RowWriteRequest"
+            }
+          ],
+          "request_schema": "RowWriteRequest",
+          "security": [
+            {
+              "RuntimeBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": false,
+                "fields": [
+                  "conflict_constraint",
+                  "context",
+                  "operation",
+                  "request_id",
+                  "schema",
+                  "table",
+                  "valid",
+                  "writable_columns"
+                ],
+                "required_fields": [
+                  "conflict_constraint",
+                  "operation",
+                  "request_id",
+                  "schema",
+                  "table",
+                  "valid",
+                  "writable_columns"
+                ],
+                "schema": "RowWriteValidation"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "RowWriteValidation"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.rows.validate",
+      "python_qualname": "polygres.rows.RowsNamespace.validate",
+      "retry_policy": "read_only_post",
+      "since": "0.3.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Run fuzzy text search with a named configuration.",
       "example": "page = project.text.fuzzy(\"query\", config=\"documents\")",
       "exception_categories": [
@@ -4454,8 +4885,8 @@
       "stability": "stable"
     }
   ],
-  "openapi_sha256": "7a0960535e680ffd590776b2f6fea4188cb857c75bf5f5568680e6189f746b5f",
+  "openapi_sha256": "9f9aa7ebf2f269b95b2d90757bc7385f324fa3ab4bc5e5e288ef1682cab5a4be",
   "schema_version": 1,
   "sdk": "polygres-sdk",
-  "sdk_version": "0.2.1"
+  "sdk_version": "0.3.0"
 }
