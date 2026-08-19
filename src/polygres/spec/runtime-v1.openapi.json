@@ -50,6 +50,117 @@
       }
     },
     "schemas": {
+      "BackfillPointsRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "batch_size": {
+            "default": 1000,
+            "minimum": 1.0,
+            "title": "Batch Size",
+            "type": "integer"
+          },
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          }
+        },
+        "required": [
+          "collection"
+        ],
+        "title": "BackfillPointsRequest",
+        "type": "object"
+      },
+      "BulkPointKeysRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "batch_size": {
+            "default": 1000,
+            "minimum": 1.0,
+            "title": "Batch Size",
+            "type": "integer"
+          },
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "source_keys": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Source Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_keys",
+          "collection"
+        ],
+        "title": "BulkPointKeysRequest",
+        "type": "object"
+      },
+      "CandidateSearchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_point_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Candidate Point Ids",
+            "type": "array"
+          },
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "embedding": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Embedding",
+            "type": "array"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter"
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
+          }
+        },
+        "required": [
+          "collection",
+          "embedding",
+          "candidate_point_ids"
+        ],
+        "title": "CandidateSearchRequest",
+        "type": "object"
+      },
       "CapabilitiesResponse": {
         "additionalProperties": true,
         "properties": {
@@ -278,6 +389,9 @@
             "title": "Max Values Per Match",
             "type": "integer"
           },
+          "pgcontext_compatibility": {
+            "$ref": "#/components/schemas/PgContextCompatibilityCapabilities"
+          },
           "point_scroll": {
             "title": "Point Scroll",
             "type": "boolean"
@@ -456,6 +570,7 @@
           "request_id",
           "contract_version",
           "product_status",
+          "pgcontext_compatibility",
           "runtime",
           "setup",
           "setup_blocker",
@@ -500,6 +615,132 @@
           "max_point_keys_per_operation"
         ],
         "title": "CapabilitiesResponse",
+        "type": "object"
+      },
+      "ClearPayloadRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "source_keys": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Source Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_keys",
+          "collection"
+        ],
+        "title": "ClearPayloadRequest",
+        "type": "object"
+      },
+      "CollectionAlias": {
+        "additionalProperties": true,
+        "properties": {
+          "alias_name": {
+            "title": "Alias Name",
+            "type": "string"
+          },
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "alias_name",
+          "collection_name"
+        ],
+        "title": "CollectionAlias",
+        "type": "object"
+      },
+      "CollectionAliasDropResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "alias_name": {
+            "title": "Alias Name",
+            "type": "string"
+          },
+          "dropped": {
+            "title": "Dropped",
+            "type": "boolean"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "alias_name",
+          "dropped"
+        ],
+        "title": "CollectionAliasDropResponse",
+        "type": "object"
+      },
+      "CollectionAliasListResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "aliases": {
+            "items": {
+              "$ref": "#/components/schemas/CollectionAlias"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "aliases"
+        ],
+        "title": "CollectionAliasListResponse",
+        "type": "object"
+      },
+      "CollectionAliasRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "alias_name": {
+            "title": "Alias Name",
+            "type": "string"
+          },
+          "target_collection_name": {
+            "title": "Target Collection Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "alias_name",
+          "target_collection_name"
+        ],
+        "title": "CollectionAliasRequest",
+        "type": "object"
+      },
+      "CollectionAliasResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "alias": {
+            "$ref": "#/components/schemas/CollectionAlias"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "alias"
+        ],
+        "title": "CollectionAliasResponse",
         "type": "object"
       },
       "CollectionCreateRequest": {
@@ -605,6 +846,250 @@
           "deletion_plan"
         ],
         "title": "CollectionGetResponse",
+        "type": "object"
+      },
+      "CollectionLimits": {
+        "additionalProperties": true,
+        "properties": {
+          "max_candidate_budget": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Candidate Budget"
+          },
+          "max_dimensions": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Dimensions"
+          },
+          "max_filter_nodes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Filter Nodes"
+          },
+          "max_index_memory_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Index Memory Bytes"
+          },
+          "max_points": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Points"
+          },
+          "max_search_limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Search Limit"
+          },
+          "max_vectors": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Vectors"
+          },
+          "query_timeout_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Timeout Ms"
+          },
+          "strict_mode": {
+            "title": "Strict Mode",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "strict_mode",
+          "max_dimensions",
+          "max_vectors",
+          "max_points",
+          "max_filter_nodes",
+          "max_search_limit",
+          "max_candidate_budget",
+          "query_timeout_ms",
+          "max_index_memory_bytes"
+        ],
+        "title": "CollectionLimits",
+        "type": "object"
+      },
+      "CollectionLimitsRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "max_candidate_budget": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Candidate Budget"
+          },
+          "max_dimensions": {
+            "anyOf": [
+              {
+                "maximum": 16000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Dimensions"
+          },
+          "max_filter_nodes": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Filter Nodes"
+          },
+          "max_index_memory_bytes": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Index Memory Bytes"
+          },
+          "max_points": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Points"
+          },
+          "max_search_limit": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Search Limit"
+          },
+          "max_vectors": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Vectors"
+          },
+          "query_timeout_ms": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Timeout Ms"
+          },
+          "strict_mode": {
+            "title": "Strict Mode",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "strict_mode"
+        ],
+        "title": "CollectionLimitsRequest",
+        "type": "object"
+      },
+      "CollectionLimitsResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/CollectionLimits"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "collection_name",
+          "limits"
+        ],
+        "title": "CollectionLimitsResponse",
         "type": "object"
       },
       "CollectionListResponse": {
@@ -851,6 +1336,33 @@
           }
         },
         "title": "CollectionUpdateRequest",
+        "type": "object"
+      },
+      "CollectionVectorsResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "vectors": {
+            "items": {
+              "$ref": "#/components/schemas/PgContextVectorMetadata"
+            },
+            "title": "Vectors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "collection_name",
+          "vectors"
+        ],
+        "title": "CollectionVectorsResponse",
         "type": "object"
       },
       "ContextCollection": {
@@ -1971,6 +2483,36 @@
         "title": "ContextOperationStatus",
         "type": "string"
       },
+      "ContextPointDiscoveryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "context_point_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Context Point Ids",
+            "type": "array"
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "collection",
+          "context_point_ids"
+        ],
+        "title": "ContextPointDiscoveryRequest",
+        "type": "object"
+      },
       "ContextPointReconciliationStatus": {
         "enum": [
           "pending",
@@ -1981,6 +2523,262 @@
         ],
         "title": "ContextPointReconciliationStatus",
         "type": "string"
+      },
+      "ContextQueryPlan": {
+        "additionalProperties": false,
+        "description": "Immutable JSON query plan compatible with pgContext 0.2.0 builders.",
+        "properties": {
+          "branch": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextQueryPlan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "branches": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContextQueryPlan"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branches"
+          },
+          "candidates_per_query": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidates Per Query"
+          },
+          "context_point_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Point Ids"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter"
+          },
+          "formula": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formula"
+          },
+          "kind": {
+            "enum": [
+              "nearest",
+              "sparse_nearest",
+              "full_text",
+              "late_interaction",
+              "recommend",
+              "discover",
+              "lookup",
+              "prefetch",
+              "weight",
+              "score_threshold",
+              "formula",
+              "rerank"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "min_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Score"
+          },
+          "negative_point_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negative Point Ids"
+          },
+          "point_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point Ids"
+          },
+          "positive_point_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positive Point Ids"
+          },
+          "query_vectors": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Vectors"
+          },
+          "text_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Column"
+          },
+          "text_query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Query"
+          },
+          "vector": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector"
+          },
+          "vector_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector Name"
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "ContextQueryPlan",
+        "type": "object"
       },
       "ContextRankedMode": {
         "enum": [
@@ -2475,6 +3273,87 @@
         "title": "CountResponse",
         "type": "object"
       },
+      "CreateEmbeddingMigrationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "source_model_name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Source Model Name",
+            "type": "string"
+          },
+          "source_model_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Source Model Version",
+            "type": "string"
+          },
+          "target_model_name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Target Model Name",
+            "type": "string"
+          },
+          "target_model_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Target Model Version",
+            "type": "string"
+          },
+          "total_points": {
+            "minimum": 0.0,
+            "title": "Total Points",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "collection",
+          "source_model_name",
+          "source_model_version",
+          "target_model_name",
+          "target_model_version",
+          "total_points"
+        ],
+        "title": "CreateEmbeddingMigrationRequest",
+        "type": "object"
+      },
+      "DeletePayloadRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "payload_keys": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Payload Keys",
+            "type": "array"
+          },
+          "source_keys": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Source Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_keys",
+          "collection",
+          "payload_keys"
+        ],
+        "title": "DeletePayloadRequest",
+        "type": "object"
+      },
       "DeletionPlan": {
         "additionalProperties": true,
         "properties": {
@@ -2722,6 +3601,13 @@
             ],
             "title": "Classification"
           },
+          "columns": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryColumn"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
           "reasons": {
             "items": {
               "$ref": "#/components/schemas/DiscoveryReason"
@@ -2747,6 +3633,35 @@
           "reasons"
         ],
         "title": "DiscoveryCandidate",
+        "type": "object"
+      },
+      "DiscoveryColumn": {
+        "additionalProperties": true,
+        "properties": {
+          "column_name": {
+            "title": "Column Name",
+            "type": "string"
+          },
+          "data_type": {
+            "title": "Data Type",
+            "type": "string"
+          },
+          "nullable": {
+            "title": "Nullable",
+            "type": "boolean"
+          },
+          "ordinal_position": {
+            "title": "Ordinal Position",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "column_name",
+          "data_type",
+          "nullable",
+          "ordinal_position"
+        ],
+        "title": "DiscoveryColumn",
         "type": "object"
       },
       "DiscoveryReason": {
@@ -2885,6 +3800,82 @@
           "nullable"
         ],
         "title": "DiscoveryVector",
+        "type": "object"
+      },
+      "EmbeddingMigrationRow": {
+        "additionalProperties": true,
+        "properties": {
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "migration_id": {
+            "title": "Migration Id",
+            "type": "integer"
+          },
+          "processed_points": {
+            "title": "Processed Points",
+            "type": "integer"
+          },
+          "source_model": {
+            "title": "Source Model",
+            "type": "string"
+          },
+          "source_version": {
+            "title": "Source Version",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "target_model": {
+            "title": "Target Model",
+            "type": "string"
+          },
+          "target_version": {
+            "title": "Target Version",
+            "type": "string"
+          },
+          "total_points": {
+            "title": "Total Points",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "migration_id",
+          "collection_name",
+          "source_model",
+          "source_version",
+          "target_model",
+          "target_version",
+          "status",
+          "total_points",
+          "processed_points"
+        ],
+        "title": "EmbeddingMigrationRow",
+        "type": "object"
+      },
+      "EmbeddingMigrationsResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/EmbeddingMigrationRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "EmbeddingMigrationsResponse",
         "type": "object"
       },
       "EmptyRequest": {
@@ -4059,6 +5050,340 @@
         "title": "HybridRequest",
         "type": "object"
       },
+      "IndexAdvisorResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/IndexAdvisorRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "IndexAdvisorResponse",
+        "type": "object"
+      },
+      "IndexAdvisorRow": {
+        "additionalProperties": true,
+        "properties": {
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "column_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column Name"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "filter_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter Key"
+          },
+          "recommendation": {
+            "title": "Recommendation",
+            "type": "string"
+          },
+          "suggested_sql": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Sql"
+          }
+        },
+        "required": [
+          "collection_name",
+          "filter_key",
+          "column_name",
+          "recommendation",
+          "detail",
+          "suggested_sql"
+        ],
+        "title": "IndexAdvisorRow",
+        "type": "object"
+      },
+      "IndexDiagnosticsResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/IndexDiagnosticsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "IndexDiagnosticsResponse",
+        "type": "object"
+      },
+      "IndexDiagnosticsRow": {
+        "additionalProperties": true,
+        "properties": {
+          "access_method": {
+            "title": "Access Method",
+            "type": "string"
+          },
+          "context_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Error"
+          },
+          "index_name": {
+            "title": "Index Name",
+            "type": "string"
+          },
+          "index_schema": {
+            "title": "Index Schema",
+            "type": "string"
+          },
+          "repair_advice": {
+            "title": "Repair Advice",
+            "type": "string"
+          },
+          "sqlstate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sqlstate"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "table_name": {
+            "title": "Table Name",
+            "type": "string"
+          },
+          "table_schema": {
+            "title": "Table Schema",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index_schema",
+          "index_name",
+          "table_schema",
+          "table_name",
+          "access_method",
+          "status",
+          "context_error",
+          "sqlstate",
+          "repair_advice"
+        ],
+        "title": "IndexDiagnosticsRow",
+        "type": "object"
+      },
+      "IndexMemoryEstimateResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/IndexMemoryEstimateRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "IndexMemoryEstimateResponse",
+        "type": "object"
+      },
+      "IndexMemoryEstimateRow": {
+        "additionalProperties": true,
+        "properties": {
+          "access_method": {
+            "title": "Access Method",
+            "type": "string"
+          },
+          "dimensions": {
+            "title": "Dimensions",
+            "type": "integer"
+          },
+          "estimated_rows": {
+            "title": "Estimated Rows",
+            "type": "integer"
+          },
+          "index_name": {
+            "title": "Index Name",
+            "type": "string"
+          },
+          "index_schema": {
+            "title": "Index Schema",
+            "type": "string"
+          },
+          "link_bytes": {
+            "title": "Link Bytes",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "table_name": {
+            "title": "Table Name",
+            "type": "string"
+          },
+          "table_schema": {
+            "title": "Table Schema",
+            "type": "string"
+          },
+          "total_bytes": {
+            "title": "Total Bytes",
+            "type": "integer"
+          },
+          "vector_bytes": {
+            "title": "Vector Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "index_schema",
+          "index_name",
+          "table_schema",
+          "table_name",
+          "access_method",
+          "estimated_rows",
+          "dimensions",
+          "vector_bytes",
+          "link_bytes",
+          "total_bytes",
+          "status"
+        ],
+        "title": "IndexMemoryEstimateRow",
+        "type": "object"
+      },
+      "IndexStatusResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/IndexStatusRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "IndexStatusResponse",
+        "type": "object"
+      },
+      "IndexStatusRow": {
+        "additionalProperties": true,
+        "properties": {
+          "access_method": {
+            "title": "Access Method",
+            "type": "string"
+          },
+          "index_name": {
+            "title": "Index Name",
+            "type": "string"
+          },
+          "index_schema": {
+            "title": "Index Schema",
+            "type": "string"
+          },
+          "is_live": {
+            "title": "Is Live",
+            "type": "boolean"
+          },
+          "is_ready": {
+            "title": "Is Ready",
+            "type": "boolean"
+          },
+          "is_valid": {
+            "title": "Is Valid",
+            "type": "boolean"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "table_name": {
+            "title": "Table Name",
+            "type": "string"
+          },
+          "table_schema": {
+            "title": "Table Schema",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index_schema",
+          "index_name",
+          "table_schema",
+          "table_name",
+          "access_method",
+          "is_valid",
+          "is_ready",
+          "is_live",
+          "status"
+        ],
+        "title": "IndexStatusRow",
+        "type": "object"
+      },
       "JointFusionMetadata": {
         "additionalProperties": true,
         "properties": {
@@ -4430,6 +5755,67 @@
         "title": "LexicalLane",
         "type": "object"
       },
+      "ModelVersionRow": {
+        "additionalProperties": true,
+        "properties": {
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "dimensions": {
+            "title": "Dimensions",
+            "type": "integer"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "collection_name",
+          "model_name",
+          "model_version",
+          "dimensions",
+          "metric",
+          "is_active"
+        ],
+        "title": "ModelVersionRow",
+        "type": "object"
+      },
+      "ModelVersionsResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ModelVersionRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "ModelVersionsResponse",
+        "type": "object"
+      },
       "OperationEnvelope": {
         "additionalProperties": true,
         "properties": {
@@ -4485,6 +5871,454 @@
           "has_more"
         ],
         "title": "OperationListResponse",
+        "type": "object"
+      },
+      "OptimizationStatusResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/OptimizationStatusRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "OptimizationStatusResponse",
+        "type": "object"
+      },
+      "OptimizationStatusRow": {
+        "additionalProperties": true,
+        "properties": {
+          "active_points": {
+            "title": "Active Points",
+            "type": "integer"
+          },
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "filter_fields": {
+            "title": "Filter Fields",
+            "type": "integer"
+          },
+          "has_source_table": {
+            "title": "Has Source Table",
+            "type": "boolean"
+          },
+          "hnsw_indexes": {
+            "title": "Hnsw Indexes",
+            "type": "integer"
+          },
+          "registered_vectors": {
+            "title": "Registered Vectors",
+            "type": "integer"
+          },
+          "source_table_exists": {
+            "title": "Source Table Exists",
+            "type": "boolean"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "table_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Name"
+          },
+          "table_schema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Schema"
+          }
+        },
+        "required": [
+          "collection_name",
+          "table_schema",
+          "table_name",
+          "has_source_table",
+          "source_table_exists",
+          "registered_vectors",
+          "active_points",
+          "filter_fields",
+          "hnsw_indexes",
+          "status"
+        ],
+        "title": "OptimizationStatusRow",
+        "type": "object"
+      },
+      "PayloadMutationResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PayloadMutationResult"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "results"
+        ],
+        "title": "PayloadMutationResponse",
+        "type": "object"
+      },
+      "PayloadMutationResult": {
+        "additionalProperties": true,
+        "properties": {
+          "source_key": {
+            "title": "Source Key",
+            "type": "string"
+          },
+          "updated": {
+            "title": "Updated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "source_key",
+          "updated"
+        ],
+        "title": "PayloadMutationResult",
+        "type": "object"
+      },
+      "PgContextCollectionInfo": {
+        "additionalProperties": true,
+        "properties": {
+          "collection_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Collection Id",
+            "type": "integer"
+          },
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "owner_name": {
+            "title": "Owner Name",
+            "type": "string"
+          },
+          "table_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Name"
+          },
+          "table_schema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Schema"
+          }
+        },
+        "required": [
+          "collection_id",
+          "collection_name",
+          "owner_name",
+          "table_schema",
+          "table_name"
+        ],
+        "title": "PgContextCollectionInfo",
+        "type": "object"
+      },
+      "PgContextCollectionInfoResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "collection": {
+            "$ref": "#/components/schemas/PgContextCollectionInfo"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "collection"
+        ],
+        "title": "PgContextCollectionInfoResponse",
+        "type": "object"
+      },
+      "PgContextCompatibilityCapabilities": {
+        "additionalProperties": true,
+        "properties": {
+          "aligned": {
+            "title": "Aligned",
+            "type": "integer"
+          },
+          "deferred": {
+            "title": "Deferred",
+            "type": "integer"
+          },
+          "managed_equivalent": {
+            "title": "Managed Equivalent",
+            "type": "integer"
+          },
+          "missing_sdk": {
+            "const": 0,
+            "title": "Missing Sdk",
+            "type": "integer"
+          },
+          "partial": {
+            "title": "Partial",
+            "type": "integer"
+          },
+          "sql_only": {
+            "title": "Sql Only",
+            "type": "integer"
+          },
+          "stable_items": {
+            "title": "Stable Items",
+            "type": "integer"
+          },
+          "target_version": {
+            "const": "0.2.0",
+            "title": "Target Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_version",
+          "stable_items",
+          "aligned",
+          "managed_equivalent",
+          "partial",
+          "sql_only",
+          "deferred",
+          "missing_sdk"
+        ],
+        "title": "PgContextCompatibilityCapabilities",
+        "type": "object"
+      },
+      "PgContextScoredPoint": {
+        "additionalProperties": true,
+        "properties": {
+          "point_id": {
+            "title": "Point Id",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "source_key": {
+            "title": "Source Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "point_id",
+          "source_key",
+          "score"
+        ],
+        "title": "PgContextScoredPoint",
+        "type": "object"
+      },
+      "PgContextScoredResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PgContextScoredPoint"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "results"
+        ],
+        "title": "PgContextScoredResponse",
+        "type": "object"
+      },
+      "PgContextVectorMetadata": {
+        "additionalProperties": true,
+        "properties": {
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "dimensions": {
+            "maximum": 16000.0,
+            "minimum": 1.0,
+            "title": "Dimensions",
+            "type": "integer"
+          },
+          "hnsw_options": {
+            "additionalProperties": true,
+            "title": "Hnsw Options",
+            "type": "object"
+          },
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "quantization_options": {
+            "additionalProperties": true,
+            "title": "Quantization Options",
+            "type": "object"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "table_name": {
+            "title": "Table Name",
+            "type": "string"
+          },
+          "table_schema": {
+            "title": "Table Schema",
+            "type": "string"
+          },
+          "vector_column": {
+            "title": "Vector Column",
+            "type": "string"
+          },
+          "vector_name": {
+            "title": "Vector Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "collection_name",
+          "vector_name",
+          "table_schema",
+          "table_name",
+          "vector_column",
+          "dimensions",
+          "metric",
+          "hnsw_options",
+          "quantization_options",
+          "status"
+        ],
+        "title": "PgContextVectorMetadata",
+        "type": "object"
+      },
+      "PointBatchProgress": {
+        "additionalProperties": true,
+        "properties": {
+          "batch_number": {
+            "title": "Batch Number",
+            "type": "integer"
+          },
+          "deleted_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deleted Count"
+          },
+          "inserted_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inserted Count"
+          },
+          "missing_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missing Count"
+          },
+          "processed_count": {
+            "title": "Processed Count",
+            "type": "integer"
+          },
+          "reactivated_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reactivated Count"
+          }
+        },
+        "required": [
+          "batch_number",
+          "processed_count"
+        ],
+        "title": "PointBatchProgress",
+        "type": "object"
+      },
+      "PointBatchResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "batches": {
+            "items": {
+              "$ref": "#/components/schemas/PointBatchProgress"
+            },
+            "title": "Batches",
+            "type": "array"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "batches"
+        ],
+        "title": "PointBatchResponse",
         "type": "object"
       },
       "PointKeysRequest": {
@@ -4873,6 +6707,408 @@
         "title": "PreflightResponse",
         "type": "object"
       },
+      "QueryCohortStatsResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/QueryCohortStatsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "QueryCohortStatsResponse",
+        "type": "object"
+      },
+      "QueryCohortStatsRow": {
+        "additionalProperties": true,
+        "properties": {
+          "avg_latency_ms": {
+            "title": "Avg Latency Ms",
+            "type": "number"
+          },
+          "avg_recall_achieved": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Recall Achieved"
+          },
+          "avg_recall_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Recall Threshold"
+          },
+          "cohort": {
+            "title": "Cohort",
+            "type": "string"
+          },
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "latency_bucket": {
+            "title": "Latency Bucket",
+            "type": "string"
+          },
+          "lifecycle_state": {
+            "title": "Lifecycle State",
+            "type": "string"
+          },
+          "query_count": {
+            "title": "Query Count",
+            "type": "integer"
+          },
+          "query_kind": {
+            "title": "Query Kind",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "total_candidates": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Candidates"
+          },
+          "total_results": {
+            "title": "Total Results",
+            "type": "integer"
+          },
+          "total_rows_pruned": {
+            "title": "Total Rows Pruned",
+            "type": "integer"
+          },
+          "total_rows_rechecked": {
+            "title": "Total Rows Rechecked",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "collection_name",
+          "cohort",
+          "query_kind",
+          "query_count",
+          "total_results",
+          "total_candidates",
+          "total_rows_rechecked",
+          "total_rows_pruned",
+          "avg_recall_threshold",
+          "avg_recall_achieved",
+          "latency_bucket",
+          "lifecycle_state",
+          "avg_latency_ms",
+          "status"
+        ],
+        "title": "QueryCohortStatsRow",
+        "type": "object"
+      },
+      "QueryExecuteRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/ContextQueryPlan"
+          }
+        },
+        "required": [
+          "collection",
+          "plan"
+        ],
+        "title": "QueryExecuteRequest",
+        "type": "object"
+      },
+      "QueryExecutionResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "collection": {
+            "$ref": "#/components/schemas/RankedCollection"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/QueryExecutionResult"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "collection",
+          "results"
+        ],
+        "title": "QueryExecutionResponse",
+        "type": "object"
+      },
+      "QueryExecutionResult": {
+        "additionalProperties": true,
+        "properties": {
+          "point_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Point Id",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "source_key": {
+            "title": "Source Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "point_id",
+          "source_key",
+          "score"
+        ],
+        "title": "QueryExecutionResult",
+        "type": "object"
+      },
+      "QueryExecutionStatsResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/QueryExecutionStatsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "QueryExecutionStatsResponse",
+        "type": "object"
+      },
+      "QueryExecutionStatsRow": {
+        "additionalProperties": true,
+        "properties": {
+          "avg_latency_ms": {
+            "title": "Avg Latency Ms",
+            "type": "number"
+          },
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "completion": {
+            "title": "Completion",
+            "type": "string"
+          },
+          "latency_bucket": {
+            "title": "Latency Bucket",
+            "type": "string"
+          },
+          "lifecycle_state": {
+            "title": "Lifecycle State",
+            "type": "string"
+          },
+          "query_count": {
+            "title": "Query Count",
+            "type": "integer"
+          },
+          "query_kind": {
+            "title": "Query Kind",
+            "type": "string"
+          },
+          "strategy": {
+            "title": "Strategy",
+            "type": "string"
+          },
+          "total_candidates": {
+            "title": "Total Candidates",
+            "type": "integer"
+          },
+          "total_expansions": {
+            "title": "Total Expansions",
+            "type": "integer"
+          },
+          "total_filter_candidates": {
+            "title": "Total Filter Candidates",
+            "type": "integer"
+          },
+          "total_rechecks": {
+            "title": "Total Rechecks",
+            "type": "integer"
+          },
+          "total_stages": {
+            "title": "Total Stages",
+            "type": "integer"
+          },
+          "total_visits": {
+            "title": "Total Visits",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "collection_name",
+          "query_kind",
+          "strategy",
+          "query_count",
+          "total_visits",
+          "total_filter_candidates",
+          "total_candidates",
+          "total_rechecks",
+          "total_stages",
+          "total_expansions",
+          "completion",
+          "latency_bucket",
+          "lifecycle_state",
+          "avg_latency_ms"
+        ],
+        "title": "QueryExecutionStatsRow",
+        "type": "object"
+      },
+      "QueryExplainRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "text_column": {
+            "title": "Text Column",
+            "type": "string"
+          }
+        },
+        "required": [
+          "collection",
+          "text_column"
+        ],
+        "title": "QueryExplainRequest",
+        "type": "object"
+      },
+      "QueryExplainResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "collection": {
+            "$ref": "#/components/schemas/RankedCollection"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/QueryExplainRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "collection",
+          "rows"
+        ],
+        "title": "QueryExplainResponse",
+        "type": "object"
+      },
+      "QueryExplainRow": {
+        "additionalProperties": true,
+        "properties": {
+          "branch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch"
+          },
+          "candidate_budget": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Budget"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "estimated_candidates": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Candidates"
+          },
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "strategy": {
+            "title": "Strategy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "detail",
+          "branch",
+          "strategy",
+          "status",
+          "estimated_candidates",
+          "candidate_budget"
+        ],
+        "title": "QueryExplainRow",
+        "type": "object"
+      },
       "RankFusionSearchRequest": {
         "additionalProperties": false,
         "properties": {
@@ -5058,6 +7294,103 @@
         "title": "RankedResponse",
         "type": "object"
       },
+      "RawVectorSearchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "default": 10,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "metric": {
+            "enum": [
+              "l2",
+              "inner_product",
+              "cosine",
+              "l1"
+            ],
+            "title": "Metric",
+            "type": "string"
+          },
+          "point_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Point Ids",
+            "type": "array"
+          },
+          "query": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Query",
+            "type": "array"
+          },
+          "vectors": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "minItems": 1,
+            "title": "Vectors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "query",
+          "point_ids",
+          "vectors",
+          "metric"
+        ],
+        "title": "RawVectorSearchRequest",
+        "type": "object"
+      },
+      "RawVectorSearchResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/RawVectorSearchResult"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "results"
+        ],
+        "title": "RawVectorSearchResponse",
+        "type": "object"
+      },
+      "RawVectorSearchResult": {
+        "additionalProperties": true,
+        "properties": {
+          "point_id": {
+            "title": "Point Id",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "point_id",
+          "score"
+        ],
+        "title": "RawVectorSearchResult",
+        "type": "object"
+      },
       "RecallCheckRequest": {
         "additionalProperties": false,
         "properties": {
@@ -5177,6 +7510,75 @@
         "title": "RecallCheckResponse",
         "type": "object"
       },
+      "RecommendRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "negative_point_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Negative Point Ids",
+            "type": "array"
+          },
+          "negative_vectors": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Negative Vectors",
+            "type": "array"
+          },
+          "positive_point_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positive Point Ids"
+          },
+          "positive_vectors": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positive Vectors"
+          }
+        },
+        "required": [
+          "collection"
+        ],
+        "title": "RecommendRequest",
+        "type": "object"
+      },
       "RecommendedAction": {
         "additionalProperties": true,
         "properties": {
@@ -5193,6 +7595,52 @@
           "message"
         ],
         "title": "RecommendedAction",
+        "type": "object"
+      },
+      "RegisterModelVersionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "dimensions": {
+            "maximum": 16000.0,
+            "minimum": 1.0,
+            "title": "Dimensions",
+            "type": "integer"
+          },
+          "metric": {
+            "enum": [
+              "l2",
+              "inner_product",
+              "cosine",
+              "l1"
+            ],
+            "title": "Metric",
+            "type": "string"
+          },
+          "model_name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Model Name",
+            "type": "string"
+          },
+          "model_version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Model Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "collection",
+          "model_name",
+          "model_version",
+          "dimensions",
+          "metric"
+        ],
+        "title": "RegisterModelVersionRequest",
         "type": "object"
       },
       "Relationship": {
@@ -5689,6 +8137,137 @@
         "title": "RuntimeCapabilities",
         "type": "object"
       },
+      "SetPayloadRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "collection": {
+            "title": "Collection",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "minProperties": 1,
+            "title": "Payload",
+            "type": "object"
+          },
+          "source_keys": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "minItems": 1,
+            "title": "Source Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_keys",
+          "collection",
+          "payload"
+        ],
+        "title": "SetPayloadRequest",
+        "type": "object"
+      },
+      "TelemetryResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/TelemetryRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "TelemetryResponse",
+        "type": "object"
+      },
+      "TelemetryRow": {
+        "additionalProperties": true,
+        "properties": {
+          "active_points": {
+            "title": "Active Points",
+            "type": "integer"
+          },
+          "collection_name": {
+            "title": "Collection Name",
+            "type": "string"
+          },
+          "deleted_points": {
+            "title": "Deleted Points",
+            "type": "integer"
+          },
+          "filter_fields": {
+            "title": "Filter Fields",
+            "type": "integer"
+          },
+          "has_source_table": {
+            "title": "Has Source Table",
+            "type": "boolean"
+          },
+          "hnsw_indexes": {
+            "title": "Hnsw Indexes",
+            "type": "integer"
+          },
+          "registered_vectors": {
+            "title": "Registered Vectors",
+            "type": "integer"
+          },
+          "source_table_exists": {
+            "title": "Source Table Exists",
+            "type": "boolean"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "table_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Name"
+          },
+          "table_schema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Schema"
+          }
+        },
+        "required": [
+          "collection_name",
+          "table_schema",
+          "table_name",
+          "has_source_table",
+          "source_table_exists",
+          "registered_vectors",
+          "active_points",
+          "deleted_points",
+          "filter_fields",
+          "hnsw_indexes",
+          "status"
+        ],
+        "title": "TelemetryRow",
+        "type": "object"
+      },
       "TextConfigurationCreateRequest": {
         "additionalProperties": false,
         "properties": {
@@ -6081,6 +8660,108 @@
         "title": "TextSearchRequest",
         "type": "object"
       },
+      "UpdateEmbeddingMigrationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "processed_points": {
+            "minimum": 0.0,
+            "title": "Processed Points",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "planned",
+              "running",
+              "completed",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "processed_points",
+          "status"
+        ],
+        "title": "UpdateEmbeddingMigrationRequest",
+        "type": "object"
+      },
+      "VacuumAdviceResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/VacuumAdviceRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "rows"
+        ],
+        "title": "VacuumAdviceResponse",
+        "type": "object"
+      },
+      "VacuumAdviceRow": {
+        "additionalProperties": true,
+        "properties": {
+          "access_method": {
+            "title": "Access Method",
+            "type": "string"
+          },
+          "dead_table_tuples": {
+            "title": "Dead Table Tuples",
+            "type": "integer"
+          },
+          "estimated_index_tuples": {
+            "title": "Estimated Index Tuples",
+            "type": "integer"
+          },
+          "index_name": {
+            "title": "Index Name",
+            "type": "string"
+          },
+          "index_pages": {
+            "title": "Index Pages",
+            "type": "integer"
+          },
+          "index_schema": {
+            "title": "Index Schema",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "table_name": {
+            "title": "Table Name",
+            "type": "string"
+          },
+          "table_schema": {
+            "title": "Table Schema",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index_schema",
+          "index_name",
+          "table_schema",
+          "table_name",
+          "access_method",
+          "estimated_index_tuples",
+          "index_pages",
+          "dead_table_tuples",
+          "status"
+        ],
+        "title": "VacuumAdviceRow",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -6309,6 +8990,56 @@
           }
         },
         "title": "VectorConfigurationPatchRequest",
+        "type": "object"
+      },
+      "VectorConfigureRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "hnsw_options": {
+            "additionalProperties": true,
+            "title": "Hnsw Options",
+            "type": "object"
+          },
+          "quantization_options": {
+            "additionalProperties": true,
+            "title": "Quantization Options",
+            "type": "object"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "building",
+              "disabled",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "hnsw_options",
+          "quantization_options",
+          "status"
+        ],
+        "title": "VectorConfigureRequest",
+        "type": "object"
+      },
+      "VectorConfigureResponse": {
+        "additionalProperties": true,
+        "properties": {
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "vector": {
+            "$ref": "#/components/schemas/PgContextVectorMetadata"
+          }
+        },
+        "required": [
+          "request_id",
+          "vector"
+        ],
+        "title": "VectorConfigureResponse",
         "type": "object"
       },
       "VectorFirstSearchRequest": {
@@ -6707,6 +9438,284 @@
         "summary": "Connection Info"
       }
     },
+    "/v1/context/aliases": {
+      "get": {
+        "operationId": "runtime_context_list_collection_aliases",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionAliasListResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context List Collection Aliases",
+        "tags": [
+          "context"
+        ]
+      },
+      "post": {
+        "operationId": "runtime_context_create_collection_alias",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionAliasRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionAliasResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Create Collection Alias",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/aliases/{alias_name}": {
+      "delete": {
+        "operationId": "runtime_context_drop_collection_alias",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "alias_name",
+            "required": true,
+            "schema": {
+              "title": "Alias Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionAliasDropResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Drop Collection Alias",
+        "tags": [
+          "context"
+        ]
+      }
+    },
     "/v1/context/capabilities": {
       "get": {
         "operationId": "runtime_context_capabilities",
@@ -7031,6 +10040,1928 @@
           }
         ],
         "summary": "Create Collection",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/embedding-migrations": {
+      "get": {
+        "operationId": "runtime_context_embedding_migrations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbeddingMigrationsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Embedding Migrations",
+        "tags": [
+          "context"
+        ]
+      },
+      "post": {
+        "operationId": "runtime_context_create_embedding_migration",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmbeddingMigrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbeddingMigrationsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Create Embedding Migration",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/embedding-migrations/{migration_id}": {
+      "patch": {
+        "operationId": "runtime_context_update_embedding_migration",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "migration_id",
+            "required": true,
+            "schema": {
+              "title": "Migration Id",
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEmbeddingMigrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbeddingMigrationsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Update Embedding Migration",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/index-advisor": {
+      "get": {
+        "operationId": "runtime_context_index_advisor",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexAdvisorResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Index Advisor",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/diagnostics": {
+      "get": {
+        "operationId": "runtime_context_index_diagnostics",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "index_name",
+            "required": true,
+            "schema": {
+              "title": "Index Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexDiagnosticsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Index Diagnostics",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/memory-estimate": {
+      "get": {
+        "operationId": "runtime_context_estimate_index_memory",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "index_name",
+            "required": true,
+            "schema": {
+              "title": "Index Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexMemoryEstimateResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Estimate Index Memory",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/status": {
+      "get": {
+        "operationId": "runtime_context_index_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "index_name",
+            "required": true,
+            "schema": {
+              "title": "Index Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Index Status",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/vacuum-advice": {
+      "get": {
+        "operationId": "runtime_context_vacuum_advice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "index_name",
+            "required": true,
+            "schema": {
+              "title": "Index Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VacuumAdviceResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Vacuum Advice",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/info": {
+      "get": {
+        "operationId": "runtime_context_collection_info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PgContextCollectionInfoResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Collection Info",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/limits": {
+      "get": {
+        "operationId": "runtime_context_collection_limits",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionLimitsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Collection Limits",
+        "tags": [
+          "context"
+        ]
+      },
+      "patch": {
+        "operationId": "runtime_context_configure_collection_limits",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionLimitsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionLimitsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Configure Collection Limits",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/model-versions": {
+      "get": {
+        "operationId": "runtime_context_model_versions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelVersionsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Model Versions",
+        "tags": [
+          "context"
+        ]
+      },
+      "post": {
+        "operationId": "runtime_context_register_model_version",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterModelVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelVersionsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Register Model Version",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/optimization-status": {
+      "get": {
+        "operationId": "runtime_context_optimization_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimizationStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Optimization Status",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/query-cohort-stats": {
+      "get": {
+        "operationId": "runtime_context_query_cohort_stats",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryCohortStatsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Query Cohort Stats",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/query-execution-stats": {
+      "get": {
+        "operationId": "runtime_context_query_execution_stats",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryExecutionStatsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Query Execution Stats",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/telemetry": {
+      "get": {
+        "operationId": "runtime_context_telemetry",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Telemetry",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/vectors": {
+      "get": {
+        "operationId": "runtime_context_collection_vectors",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionVectorsResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Collection Vectors",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/collections/by-name/{collection_name}/vectors/{vector_name}": {
+      "patch": {
+        "operationId": "runtime_context_configure_vector",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "collection_name",
+            "required": true,
+            "schema": {
+              "title": "Collection Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "vector_name",
+            "required": true,
+            "schema": {
+              "title": "Vector Name",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VectorConfigureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VectorConfigureResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Configure Vector",
         "tags": [
           "context"
         ]
@@ -9115,6 +14046,103 @@
         ]
       }
     },
+    "/v1/context/explore": {
+      "post": {
+        "operationId": "runtime_context_explore",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextPointDiscoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PgContextScoredResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Explore Points",
+        "tags": [
+          "context"
+        ]
+      }
+    },
     "/v1/context/facets": {
       "post": {
         "operationId": "runtime_context_facets",
@@ -10776,6 +15804,588 @@
         ]
       }
     },
+    "/v1/context/points/backfill": {
+      "post": {
+        "operationId": "runtime_context_backfill_points",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillPointsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointBatchResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Backfill Points",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/points/bulk-delete": {
+      "post": {
+        "operationId": "runtime_context_bulk_delete_points",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPointKeysRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointBatchResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Bulk Delete Points",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/points/bulk-upsert": {
+      "post": {
+        "operationId": "runtime_context_bulk_upsert_points",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPointKeysRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PointBatchResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Bulk Upsert Points",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/points/payload": {
+      "put": {
+        "operationId": "runtime_context_set_payload",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPayloadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Set Payload",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/points/payload/clear": {
+      "post": {
+        "operationId": "runtime_context_clear_payload",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClearPayloadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Clear Payload",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/points/payload/delete": {
+      "post": {
+        "operationId": "runtime_context_delete_payload",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeletePayloadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadMutationResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Delete Payload",
+        "tags": [
+          "context"
+        ]
+      }
+    },
     "/v1/context/preflight": {
       "post": {
         "operationId": "runtime_context_preflight",
@@ -10868,6 +16478,200 @@
           }
         ],
         "summary": "Context Preflight",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/query/execute": {
+      "post": {
+        "operationId": "runtime_context_execute_query",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryExecuteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryExecutionResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Execute Query",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/query/explain": {
+      "post": {
+        "operationId": "runtime_context_explain_query",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryExplainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryExplainResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Explain Query",
         "tags": [
           "context"
         ]
@@ -10970,6 +16774,103 @@
         ]
       }
     },
+    "/v1/context/recommend": {
+      "post": {
+        "operationId": "runtime_context_recommend",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PgContextScoredResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Recommend",
+        "tags": [
+          "context"
+        ]
+      }
+    },
     "/v1/context/search": {
       "post": {
         "operationId": "runtime_context_search",
@@ -11062,6 +16963,297 @@
           }
         ],
         "summary": "Context Search",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/search/candidates": {
+      "post": {
+        "operationId": "runtime_context_candidate_search",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PgContextScoredResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Candidate Search",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/search/discover": {
+      "post": {
+        "operationId": "runtime_context_discover_points",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContextPointDiscoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PgContextScoredResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Discover Points",
+        "tags": [
+          "context"
+        ]
+      }
+    },
+    "/v1/context/search/raw": {
+      "post": {
+        "operationId": "runtime_context_raw_vector_search",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawVectorSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RawVectorSearchResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextErrorEnvelope"
+                }
+              }
+            },
+            "description": "Context request is invalid.",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextBearerAuth": []
+          }
+        ],
+        "summary": "Context Raw Vector Search",
         "tags": [
           "context"
         ]
@@ -12567,7 +18759,198 @@
         "summary": "Retrieval Readiness"
       }
     },
+    "/v1/tables": {
+      "get": {
+        "operationId": "runtime_list_tables",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Runtime List Tables",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "List Tables",
+        "tags": [
+          "rows"
+        ]
+      }
+    },
     "/v1/tables/{schema_name}/{table_name}/rows": {
+      "get": {
+        "operationId": "runtime_get_table_rows",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "schema_name",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "title": "Schema Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "table_name",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "title": "Table Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Runtime Get Table Rows",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Table Rows",
+        "tags": [
+          "rows"
+        ]
+      },
       "post": {
         "operationId": "runtime_write_row",
         "parameters": [

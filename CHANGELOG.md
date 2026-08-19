@@ -4,6 +4,37 @@ All notable changes to `polygres-sdk` are documented in this file.
 
 ## Unreleased
 
+## 0.4.0 - 2026-08-16
+
+### Added
+
+- Added pgContext 0.2.0-aligned names for vector and filter registration,
+  collection deletion, point scrolling, facets, and dense plus full-text
+  queries.
+- Added a frozen SDK 0.3.0 method-contract baseline for compatibility checks.
+- Added a pinned, CI-checked pgContext 0.2.0 compatibility inventory that
+  records aligned, managed, safely partial, SQL-only, deferred privileged, and
+  experimental items with no ambiguous missing stable signatures.
+- Added typed collection aliases, limits, vector configuration, bulk points,
+  payload mutation, candidate and raw-vector search, recommendation,
+  discovery, exploration, query-plan builders and execution, index
+  diagnostics, collection telemetry, query statistics, model versions, and
+  embedding migrations.
+- Added additive pgContext compatibility counts to Context capabilities.
+
+### Compatibility
+
+- Existing SDK 0.3.0 method names remain available with unchanged signatures,
+  HTTP requests, response types, exceptions, idempotency, and retry behavior.
+- Aligned names delegate silently to the existing SDK 0.3.0 implementations.
+  Upgrading without changing application code does not select new behavior.
+
+### Changed
+
+- Added synchronized-project mode handling: `connection_info()` raises
+  `PolygresPermissionError` with `SYNCED_PROJECT_SURFACE_UNAVAILABLE` while
+  readiness, vector, hybrid, graph, text-search, and pgContext stay available.
+
 ## 0.3.0 - 2026-08-14
 
 ### Added

@@ -11,14 +11,25 @@ from pydantic import BaseModel, ValidationError
 
 from polygres._method_metadata import bind_sdk_method
 from polygres._vendor.polygres_lib.context import (
+    BackfillPointsRequest,
+    BulkPointKeysRequest,
+    CandidateSearchRequest,
     CapabilitiesResponse,
+    ClearPayloadRequest,
+    CollectionAliasDropResponse,
+    CollectionAliasListResponse,
+    CollectionAliasRequest,
+    CollectionAliasResponse,
     CollectionCreateRequest,
     CollectionDeleteRequest,
     CollectionGetResponse,
+    CollectionLimitsRequest,
+    CollectionLimitsResponse,
     CollectionListResponse,
     CollectionSetDefaultRequest,
     CollectionStatusResponse,
     CollectionUpdateRequest,
+    CollectionVectorsResponse,
     ContextCollection,
     ContextCollectionStatus,
     ContextJointResponse,
@@ -26,13 +37,18 @@ from polygres._vendor.polygres_lib.context import (
     ContextOperation,
     ContextOperationKind,
     ContextOperationStatus,
+    ContextPointDiscoveryRequest,
+    ContextQueryPlan,
     ContextVectorCreateRequest,
     CountRequest,
     CountResponse,
+    CreateEmbeddingMigrationRequest,
+    DeletePayloadRequest,
     DenseSearchRequest,
     DiagnosticsResponse,
     DiscoveryRequest,
     DiscoveryResponse,
+    EmbeddingMigrationsResponse,
     EmptyRequest,
     FacetsRequest,
     FacetsResponse,
@@ -41,26 +57,53 @@ from polygres._vendor.polygres_lib.context import (
     FilterListResponse,
     GraphFirstSearchRequest,
     GroupedSearchRequest,
+    IndexAdvisorResponse,
+    IndexDiagnosticsResponse,
+    IndexMemoryEstimateResponse,
+    IndexStatusResponse,
     JointSearchRequest,
+    ModelVersionsResponse,
     OperationEnvelope,
     OperationListResponse,
+    OptimizationStatusResponse,
+    PayloadMutationResponse,
+    PgContextCollectionInfoResponse,
+    PgContextScoredResponse,
+    PointBatchResponse,
     PointKeysRequest,
     PointMapping,
     PointMutationResponse,
     PointScrollResponse,
     PointStatusResponse,
     PreflightResponse,
+    QueryCohortStatsResponse,
+    QueryExecuteRequest,
+    QueryExecutionResponse,
+    QueryExecutionStatsResponse,
+    QueryExplainRequest,
+    QueryExplainResponse,
     RankedResponse,
     RankFusionSearchRequest,
+    RawVectorSearchRequest,
+    RawVectorSearchResponse,
     RecallCheckRequest,
     RecallCheckResponse,
+    RecommendRequest,
+    RegisterModelVersionRequest,
+    SetPayloadRequest,
+    TelemetryResponse,
     TextHybridSearchRequest,
+    UpdateEmbeddingMigrationRequest,
+    VacuumAdviceResponse,
+    VectorConfigureRequest,
+    VectorConfigureResponse,
     VectorFirstSearchRequest,
     VerificationResponse,
 )
 from polygres.context_validation import (
     context_collection,
     context_idempotency_key,
+    context_identifier,
     context_model,
     context_query,
     context_uuid,
@@ -98,6 +141,156 @@ class ContextNamespace:
         self._capabilities_cached_at = time.monotonic()
         return capabilities
 
+    def create_collection_alias(
+        self,
+        alias_name: str,
+        target_collection_name: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> CollectionAliasResponse:
+        _, payload = context_model(
+            CollectionAliasRequest,
+            {"alias_name": alias_name, "target_collection_name": target_collection_name},
+        )
+        return self._post_model(
+            "/context/aliases",
+            payload,
+            CollectionAliasResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def collection_aliases(
+        self,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> CollectionAliasListResponse:
+        return self._get_model(
+            "/context/aliases",
+            CollectionAliasListResponse,
+            timeout=timeout,
+        )
+
+    def drop_collection_alias(
+        self,
+        alias_name: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> CollectionAliasDropResponse:
+        alias = context_identifier(alias_name, field="alias_name")
+        response = self._project._client._request(
+            "DELETE",
+            f"/context/aliases/{alias}",
+            timeout=timeout,
+            retryable=False,
+        )
+        return _response_model(CollectionAliasDropResponse, response)
+
+    def collection_info(
+        self,
+        collection_name: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> PgContextCollectionInfoResponse:
+        collection = context_identifier(collection_name, field="collection_name")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/info",
+            PgContextCollectionInfoResponse,
+            timeout=timeout,
+        )
+
+    def collection_limits(
+        self,
+        collection_name: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> CollectionLimitsResponse:
+        collection = context_identifier(collection_name, field="collection_name")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/limits",
+            CollectionLimitsResponse,
+            timeout=timeout,
+        )
+
+    def configure_collection_limits(
+        self,
+        collection_name: str,
+        *,
+        strict_mode: bool,
+        max_dimensions: int | None = None,
+        max_vectors: int | None = None,
+        max_points: int | None = None,
+        max_filter_nodes: int | None = None,
+        max_search_limit: int | None = None,
+        max_candidate_budget: int | None = None,
+        query_timeout_ms: int | None = None,
+        max_index_memory_bytes: int | None = None,
+        timeout: RequestTimeout = None,
+    ) -> CollectionLimitsResponse:
+        collection = context_identifier(collection_name, field="collection_name")
+        _, payload = context_model(
+            CollectionLimitsRequest,
+            {
+                "strict_mode": strict_mode,
+                "max_dimensions": max_dimensions,
+                "max_vectors": max_vectors,
+                "max_points": max_points,
+                "max_filter_nodes": max_filter_nodes,
+                "max_search_limit": max_search_limit,
+                "max_candidate_budget": max_candidate_budget,
+                "query_timeout_ms": query_timeout_ms,
+                "max_index_memory_bytes": max_index_memory_bytes,
+            },
+        )
+        response = self._project._client._patch(
+            f"/context/collections/by-name/{collection}/limits",
+            payload,
+            timeout=timeout,
+            retryable=False,
+        )
+        return _response_model(CollectionLimitsResponse, response)
+
+    def collection_vectors(
+        self,
+        collection_name: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> CollectionVectorsResponse:
+        collection = context_identifier(collection_name, field="collection_name")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/vectors",
+            CollectionVectorsResponse,
+            timeout=timeout,
+        )
+
+    def configure_vector(
+        self,
+        collection_name: str,
+        vector_name: str,
+        *,
+        hnsw_options: dict[str, Any],
+        quantization_options: dict[str, Any],
+        status: str,
+        timeout: RequestTimeout = None,
+    ) -> VectorConfigureResponse:
+        collection = context_identifier(collection_name, field="collection_name")
+        vector = context_identifier(vector_name, field="vector_name")
+        _, payload = context_model(
+            VectorConfigureRequest,
+            {
+                "hnsw_options": hnsw_options,
+                "quantization_options": quantization_options,
+                "status": status,
+            },
+        )
+        response = self._project._client._patch(
+            f"/context/collections/by-name/{collection}/vectors/{vector}",
+            payload,
+            timeout=timeout,
+            retryable=False,
+        )
+        return _response_model(VectorConfigureResponse, response)
+
     def get_onboarding(self, *, timeout: RequestTimeout = None) -> ContextOnboardingResponse:
         """Return cached pgContext onboarding state without running discovery."""
         return self._get_model("/context/onboarding", ContextOnboardingResponse, timeout=timeout)
@@ -129,6 +322,200 @@ class ContextNamespace:
             timeout=timeout,
             retryable=True,
         )
+
+    def _collection_index_read(
+        self, collection: str, index_name: str, suffix: str, response_model, timeout
+    ):
+        collection = context_identifier(collection, field="collection")
+        index_name = context_identifier(index_name, field="index_name")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/indexes/{index_name}/{suffix}",
+            response_model,
+            timeout=timeout,
+        )
+
+    def index_status(
+        self, collection: str, index_name: str, *, timeout: RequestTimeout = None
+    ) -> IndexStatusResponse:
+        return self._collection_index_read(
+            collection, index_name, "status", IndexStatusResponse, timeout
+        )
+
+    def index_diagnostics(
+        self, collection: str, index_name: str, *, timeout: RequestTimeout = None
+    ) -> IndexDiagnosticsResponse:
+        return self._collection_index_read(
+            collection, index_name, "diagnostics", IndexDiagnosticsResponse, timeout
+        )
+
+    def estimate_index_memory(
+        self, collection: str, index_name: str, *, timeout: RequestTimeout = None
+    ) -> IndexMemoryEstimateResponse:
+        return self._collection_index_read(
+            collection, index_name, "memory-estimate", IndexMemoryEstimateResponse, timeout
+        )
+
+    def vacuum_advice(
+        self, collection: str, index_name: str, *, timeout: RequestTimeout = None
+    ) -> VacuumAdviceResponse:
+        return self._collection_index_read(
+            collection, index_name, "vacuum-advice", VacuumAdviceResponse, timeout
+        )
+
+    def index_advisor(
+        self, collection: str, *, timeout: RequestTimeout = None
+    ) -> IndexAdvisorResponse:
+        collection = context_identifier(collection, field="collection")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/index-advisor",
+            IndexAdvisorResponse,
+            timeout=timeout,
+        )
+
+    def optimization_status(
+        self, collection: str, *, timeout: RequestTimeout = None
+    ) -> OptimizationStatusResponse:
+        collection = context_identifier(collection, field="collection")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/optimization-status",
+            OptimizationStatusResponse,
+            timeout=timeout,
+        )
+
+    def telemetry(self, collection: str, *, timeout: RequestTimeout = None) -> TelemetryResponse:
+        collection = context_identifier(collection, field="collection")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/telemetry",
+            TelemetryResponse,
+            timeout=timeout,
+        )
+
+    def query_cohort_stats(
+        self, collection: str, *, timeout: RequestTimeout = None
+    ) -> QueryCohortStatsResponse:
+        collection = context_identifier(collection, field="collection")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/query-cohort-stats",
+            QueryCohortStatsResponse,
+            timeout=timeout,
+        )
+
+    def query_execution_stats(
+        self, collection: str, *, timeout: RequestTimeout = None
+    ) -> QueryExecutionStatsResponse:
+        collection = context_identifier(collection, field="collection")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/query-execution-stats",
+            QueryExecutionStatsResponse,
+            timeout=timeout,
+        )
+
+    def model_versions(
+        self, collection: str, *, timeout: RequestTimeout = None
+    ) -> ModelVersionsResponse:
+        collection = context_identifier(collection, field="collection")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/model-versions",
+            ModelVersionsResponse,
+            timeout=timeout,
+        )
+
+    def register_model_version(
+        self,
+        collection: str,
+        model_name: str,
+        model_version: str,
+        dimensions: int,
+        metric: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> ModelVersionsResponse:
+        collection = context_identifier(collection, field="collection")
+        _, payload = context_model(
+            RegisterModelVersionRequest,
+            {
+                "collection": collection,
+                "model_name": model_name,
+                "model_version": model_version,
+                "dimensions": dimensions,
+                "metric": metric,
+            },
+        )
+        return self._post_model(
+            f"/context/collections/by-name/{collection}/model-versions",
+            payload,
+            ModelVersionsResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def embedding_migrations(
+        self, collection: str, *, timeout: RequestTimeout = None
+    ) -> EmbeddingMigrationsResponse:
+        collection = context_identifier(collection, field="collection")
+        return self._get_model(
+            f"/context/collections/by-name/{collection}/embedding-migrations",
+            EmbeddingMigrationsResponse,
+            timeout=timeout,
+        )
+
+    def create_embedding_migration(
+        self,
+        collection: str,
+        source_model_name: str,
+        source_model_version: str,
+        target_model_name: str,
+        target_model_version: str,
+        total_points: int,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> EmbeddingMigrationsResponse:
+        collection = context_identifier(collection, field="collection")
+        _, payload = context_model(
+            CreateEmbeddingMigrationRequest,
+            {
+                "collection": collection,
+                "source_model_name": source_model_name,
+                "source_model_version": source_model_version,
+                "target_model_name": target_model_name,
+                "target_model_version": target_model_version,
+                "total_points": total_points,
+            },
+        )
+        return self._post_model(
+            f"/context/collections/by-name/{collection}/embedding-migrations",
+            payload,
+            EmbeddingMigrationsResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def update_embedding_migration(
+        self,
+        collection: str,
+        migration_id: int,
+        processed_points: int,
+        status: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> EmbeddingMigrationsResponse:
+        collection = context_identifier(collection, field="collection")
+        if migration_id < 0:
+            raise PolygresValidationError(
+                "migration_id must not be negative", code="INVALID_ARGUMENT"
+            )
+        _, payload = context_model(
+            UpdateEmbeddingMigrationRequest,
+            {"processed_points": processed_points, "status": status},
+        )
+        response = self._project._client._request(
+            "PATCH",
+            f"/context/collections/by-name/{collection}/embedding-migrations/{migration_id}",
+            json=payload,
+            timeout=timeout,
+            retryable=False,
+        )
+        return _response_model(EmbeddingMigrationsResponse, response)
 
     def discover_sources(
         self,
@@ -293,6 +680,35 @@ class ContextNamespace:
         idempotency_key: str | None = None,
         timeout: RequestTimeout = None,
     ) -> ContextOperation:
+        return self.register_vector(
+            collection_id,
+            column_name,
+            dimensions,
+            name=name,
+            mode=mode,
+            metric=metric,
+            index_kind=index_kind,
+            set_default=set_default,
+            idempotency_key=idempotency_key,
+            timeout=timeout,
+        )
+
+    def register_vector(
+        self,
+        collection_id: str | UUID,
+        column_name: str,
+        dimensions: int,
+        *,
+        name: str | None = None,
+        mode: str = "existing",
+        metric: str = "cosine",
+        index_kind: str = "hnsw",
+        set_default: bool = False,
+        idempotency_key: str | None = None,
+        timeout: RequestTimeout = None,
+    ) -> ContextOperation:
+        """Register a named pgContext vector on a collection."""
+
         collection_uuid = context_uuid(collection_id, field="collection_id")
         _, payload = context_model(
             ContextVectorCreateRequest,
@@ -386,6 +802,23 @@ class ContextNamespace:
         idempotency_key: str | None = None,
         timeout: RequestTimeout = None,
     ) -> ContextOperation:
+        return self.drop_collection(
+            collection_id,
+            confirm_collection_id=confirm_collection_id,
+            idempotency_key=idempotency_key,
+            timeout=timeout,
+        )
+
+    def drop_collection(
+        self,
+        collection_id: str | UUID,
+        *,
+        confirm_collection_id: str | UUID,
+        idempotency_key: str | None = None,
+        timeout: RequestTimeout = None,
+    ) -> ContextOperation:
+        """Drop a pgContext collection after explicit UUID confirmation."""
+
         collection_uuid = context_uuid(collection_id, field="collection_id")
         confirmation = context_uuid(confirm_collection_id, field="confirm_collection_id")
         if confirmation != collection_uuid:
@@ -422,6 +855,25 @@ class ContextNamespace:
         idempotency_key: str | None = None,
         timeout: RequestTimeout = None,
     ) -> ContextOperation:
+        return self.register_filter_column(
+            collection_id,
+            key,
+            column,
+            idempotency_key=idempotency_key,
+            timeout=timeout,
+        )
+
+    def register_filter_column(
+        self,
+        collection_id: str | UUID,
+        key: str,
+        column: str,
+        *,
+        idempotency_key: str | None = None,
+        timeout: RequestTimeout = None,
+    ) -> ContextOperation:
+        """Register an ordinary source column as a pgContext filter."""
+
         collection_uuid = context_uuid(collection_id, field="collection_id")
         _, payload = context_model(FilterColumnRequest, {"key": key, "column": column})
         return self._operation_mutation(
@@ -442,6 +894,27 @@ class ContextNamespace:
         idempotency_key: str | None = None,
         timeout: RequestTimeout = None,
     ) -> ContextOperation:
+        return self.register_jsonb_path(
+            collection_id,
+            key,
+            column,
+            path,
+            idempotency_key=idempotency_key,
+            timeout=timeout,
+        )
+
+    def register_jsonb_path(
+        self,
+        collection_id: str | UUID,
+        key: str,
+        column: str,
+        path: list[str],
+        *,
+        idempotency_key: str | None = None,
+        timeout: RequestTimeout = None,
+    ) -> ContextOperation:
+        """Register an ordered JSONB path as a pgContext filter."""
+
         collection_uuid = context_uuid(collection_id, field="collection_id")
         _, payload = context_model(
             FilterJsonbPathRequest, {"key": key, "column": column, "path": path}
@@ -472,6 +945,23 @@ class ContextNamespace:
         cursor: str | None = None,
         timeout: RequestTimeout = None,
     ) -> Page[PointMapping]:
+        return self.scroll(
+            collection_id,
+            limit=limit,
+            cursor=cursor,
+            timeout=timeout,
+        )
+
+    def scroll(
+        self,
+        collection_id: str | UUID,
+        *,
+        limit: int = 50,
+        cursor: str | None = None,
+        timeout: RequestTimeout = None,
+    ) -> Page[PointMapping]:
+        """Scroll active pgContext point mappings for a collection."""
+
         collection_uuid = context_uuid(collection_id, field="collection_id")
         _page_limit(limit, field="limit")
         self._validate_capability_request("point_scroll", {}, timeout=timeout)
@@ -483,7 +973,7 @@ class ContextNamespace:
         )
 
         def fetch_next(next_cursor: str) -> Page[PointMapping]:
-            return self.scroll_points(
+            return self.scroll(
                 collection_uuid,
                 limit=limit,
                 cursor=next_cursor,
@@ -529,6 +1019,111 @@ class ContextNamespace:
             action="delete",
             idempotency_key=idempotency_key,
             timeout=timeout,
+        )
+
+    def bulk_upsert_points(
+        self,
+        collection: str,
+        source_keys: list[str],
+        *,
+        batch_size: int = 1000,
+        timeout: RequestTimeout = None,
+    ) -> PointBatchResponse:
+        _, payload = context_model(
+            BulkPointKeysRequest,
+            {"collection": collection, "source_keys": source_keys, "batch_size": batch_size},
+        )
+        return self._post_model(
+            "/context/points/bulk-upsert",
+            payload,
+            PointBatchResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def bulk_delete_points(
+        self,
+        collection: str,
+        source_keys: list[str],
+        *,
+        batch_size: int = 1000,
+        timeout: RequestTimeout = None,
+    ) -> PointBatchResponse:
+        _, payload = context_model(
+            BulkPointKeysRequest,
+            {"collection": collection, "source_keys": source_keys, "batch_size": batch_size},
+        )
+        return self._post_model(
+            "/context/points/bulk-delete",
+            payload,
+            PointBatchResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def backfill_points(
+        self, collection: str, *, batch_size: int = 1000, timeout: RequestTimeout = None
+    ) -> PointBatchResponse:
+        _, payload = context_model(
+            BackfillPointsRequest, {"collection": collection, "batch_size": batch_size}
+        )
+        return self._post_model(
+            "/context/points/backfill",
+            payload,
+            PointBatchResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def set_payload(
+        self,
+        collection: str,
+        source_keys: list[str],
+        payload: dict[str, Any],
+        *,
+        timeout: RequestTimeout = None,
+    ) -> PayloadMutationResponse:
+        _, body = context_model(
+            SetPayloadRequest,
+            {"collection": collection, "source_keys": source_keys, "payload": payload},
+        )
+        response = self._project._client._request(
+            "PUT", "/context/points/payload", json=body, timeout=timeout, retryable=False
+        )
+        return _response_model(PayloadMutationResponse, response)
+
+    def delete_payload(
+        self,
+        collection: str,
+        source_keys: list[str],
+        payload_keys: list[str],
+        *,
+        timeout: RequestTimeout = None,
+    ) -> PayloadMutationResponse:
+        _, body = context_model(
+            DeletePayloadRequest,
+            {"collection": collection, "source_keys": source_keys, "payload_keys": payload_keys},
+        )
+        return self._post_model(
+            "/context/points/payload/delete",
+            body,
+            PayloadMutationResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def clear_payload(
+        self, collection: str, source_keys: list[str], *, timeout: RequestTimeout = None
+    ) -> PayloadMutationResponse:
+        _, body = context_model(
+            ClearPayloadRequest, {"collection": collection, "source_keys": source_keys}
+        )
+        return self._post_model(
+            "/context/points/payload/clear",
+            body,
+            PayloadMutationResponse,
+            timeout=timeout,
+            retryable=False,
         )
 
     def reconcile_points(
@@ -700,6 +1295,25 @@ class ContextNamespace:
         limit: int = 10,
         timeout: RequestTimeout = None,
     ) -> FacetsResponse:
+        return self.facet(
+            collection,
+            field,
+            filter=filter,
+            limit=limit,
+            timeout=timeout,
+        )
+
+    def facet(
+        self,
+        collection: str | UUID,
+        field: str,
+        *,
+        filter: dict[str, Any] | None = None,
+        limit: int = 10,
+        timeout: RequestTimeout = None,
+    ) -> FacetsResponse:
+        """Count values for one registered pgContext filter field."""
+
         _, payload = context_model(
             FacetsRequest,
             {
@@ -741,6 +1355,122 @@ class ContextNamespace:
                 "limit": limit,
             },
             timeout,
+        )
+
+    def raw_vector_search(
+        self,
+        query: list[float],
+        point_ids: list[int],
+        vectors: list[list[float]],
+        metric: str,
+        *,
+        limit: int = 10,
+        timeout: RequestTimeout = None,
+    ) -> RawVectorSearchResponse:
+        _, payload = context_model(
+            RawVectorSearchRequest,
+            {
+                "query": query,
+                "point_ids": point_ids,
+                "vectors": vectors,
+                "metric": metric,
+                "limit": limit,
+            },
+        )
+        return self._post_model(
+            "/context/search/raw", payload, RawVectorSearchResponse, timeout=timeout, retryable=True
+        )
+
+    def candidate_search(
+        self,
+        collection: str,
+        embedding: list[float],
+        candidate_point_ids: list[int],
+        *,
+        vector_name: str | None = None,
+        filter: dict[str, Any] | None = None,
+        limit: int = 10,
+        timeout: RequestTimeout = None,
+    ) -> PgContextScoredResponse:
+        _, payload = context_model(
+            CandidateSearchRequest,
+            {
+                "collection": collection,
+                "embedding": embedding,
+                "candidate_point_ids": candidate_point_ids,
+                "vector_name": vector_name,
+                "filter": filter,
+                "limit": limit,
+            },
+        )
+        return self._post_model(
+            "/context/search/candidates",
+            payload,
+            PgContextScoredResponse,
+            timeout=timeout,
+            retryable=True,
+        )
+
+    def recommend(
+        self,
+        collection: str,
+        *,
+        positive_point_ids: list[int] | None = None,
+        negative_point_ids: list[int] | None = None,
+        positive_vectors: list[list[float]] | None = None,
+        negative_vectors: list[list[float]] | None = None,
+        limit: int = 10,
+        timeout: RequestTimeout = None,
+    ) -> PgContextScoredResponse:
+        _, payload = context_model(
+            RecommendRequest,
+            {
+                "collection": collection,
+                "positive_point_ids": positive_point_ids,
+                "negative_point_ids": negative_point_ids or [],
+                "positive_vectors": positive_vectors,
+                "negative_vectors": negative_vectors or [],
+                "limit": limit,
+            },
+        )
+        return self._post_model(
+            "/context/recommend", payload, PgContextScoredResponse, timeout=timeout, retryable=True
+        )
+
+    def discover(
+        self,
+        collection: str,
+        context_point_ids: list[int],
+        *,
+        limit: int = 10,
+        timeout: RequestTimeout = None,
+    ) -> PgContextScoredResponse:
+        _, payload = context_model(
+            ContextPointDiscoveryRequest,
+            {"collection": collection, "context_point_ids": context_point_ids, "limit": limit},
+        )
+        return self._post_model(
+            "/context/search/discover",
+            payload,
+            PgContextScoredResponse,
+            timeout=timeout,
+            retryable=True,
+        )
+
+    def explore(
+        self,
+        collection: str,
+        context_point_ids: list[int],
+        *,
+        limit: int = 10,
+        timeout: RequestTimeout = None,
+    ) -> PgContextScoredResponse:
+        _, payload = context_model(
+            ContextPointDiscoveryRequest,
+            {"collection": collection, "context_point_ids": context_point_ids, "limit": limit},
+        )
+        return self._post_model(
+            "/context/explore", payload, PgContextScoredResponse, timeout=timeout, retryable=True
         )
 
     def grouped_search(
@@ -810,6 +1540,27 @@ class ContextNamespace:
         limit: int = 10,
         timeout: RequestTimeout = None,
     ) -> RankedResponse:
+        return self.query(
+            collection,
+            embedding,
+            vector_name=vector_name,
+            query=query,
+            limit=limit,
+            timeout=timeout,
+        )
+
+    def query(
+        self,
+        collection: str | UUID,
+        embedding: list[float],
+        *,
+        vector_name: str | None = None,
+        query: str,
+        limit: int = 10,
+        timeout: RequestTimeout = None,
+    ) -> RankedResponse:
+        """Run the stable pgContext dense plus full-text query."""
+
         return self._ranked(
             "/context/hybrid/text",
             "text_hybrid",
@@ -822,6 +1573,180 @@ class ContextNamespace:
                 "limit": limit,
             },
             timeout,
+        )
+
+    def query_nearest(
+        self,
+        vector: list[float],
+        limit: int = 10,
+        *,
+        vector_name: str | None = None,
+        filter: dict[str, Any] | None = None,
+    ) -> ContextQueryPlan:
+        request: dict[str, Any] = {"kind": "nearest", "vector": vector, "limit": limit}
+        if vector_name is not None or filter is not None:
+            request.update({"vector_name": vector_name, "filter": filter})
+        return context_model(ContextQueryPlan, request)[0]
+
+    def query_sparse_nearest(
+        self,
+        vector_name: str,
+        vector: str,
+        limit: int = 10,
+        *,
+        filter: dict[str, Any] | None = None,
+    ) -> ContextQueryPlan:
+        request: dict[str, Any] = {
+            "kind": "sparse_nearest",
+            "vector_name": vector_name,
+            "vector": vector,
+            "limit": limit,
+        }
+        if filter is not None:
+            request["filter"] = filter
+        return context_model(ContextQueryPlan, request)[0]
+
+    def query_full_text(
+        self,
+        text_query: str,
+        text_column: str,
+        limit: int = 10,
+    ) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {
+                "kind": "full_text",
+                "text_query": text_query,
+                "text_column": text_column,
+                "limit": limit,
+            },
+        )[0]
+
+    def query_late_interaction(
+        self,
+        query_vectors: list[list[float]],
+        candidates_per_query: int,
+        limit: int = 10,
+    ) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {
+                "kind": "late_interaction",
+                "query_vectors": query_vectors,
+                "candidates_per_query": candidates_per_query,
+                "limit": limit,
+            },
+        )[0]
+
+    def query_recommend(
+        self,
+        positive_point_ids: list[int],
+        negative_point_ids: list[int],
+        limit: int = 10,
+    ) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {
+                "kind": "recommend",
+                "positive_point_ids": positive_point_ids,
+                "negative_point_ids": negative_point_ids,
+                "limit": limit,
+            },
+        )[0]
+
+    def query_discover(
+        self,
+        context_point_ids: list[int],
+        limit: int = 10,
+    ) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {"kind": "discover", "context_point_ids": context_point_ids, "limit": limit},
+        )[0]
+
+    def query_lookup(self, point_ids: list[int]) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {"kind": "lookup", "point_ids": point_ids},
+        )[0]
+
+    def query_prefetch(self, branches: list[ContextQueryPlan]) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {"kind": "prefetch", "branches": branches},
+        )[0]
+
+    def query_weight(self, branch: ContextQueryPlan, weight: float) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {"kind": "weight", "branch": branch, "weight": weight},
+        )[0]
+
+    def query_score_threshold(
+        self,
+        branch: ContextQueryPlan,
+        min_score: float | None,
+        max_score: float | None,
+    ) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {
+                "kind": "score_threshold",
+                "branch": branch,
+                "min_score": min_score,
+                "max_score": max_score,
+            },
+        )[0]
+
+    def query_formula(self, branch: ContextQueryPlan, formula: str) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {"kind": "formula", "branch": branch, "formula": formula},
+        )[0]
+
+    def query_rerank(self, branch: ContextQueryPlan, limit: int) -> ContextQueryPlan:
+        return context_model(
+            ContextQueryPlan,
+            {"kind": "rerank", "branch": branch, "limit": limit},
+        )[0]
+
+    def execute_query(
+        self,
+        collection: str | UUID,
+        plan: ContextQueryPlan,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> QueryExecutionResponse:
+        _, payload = context_model(
+            QueryExecuteRequest,
+            {"collection": context_collection(collection), "plan": plan},
+            exclude_unset=True,
+        )
+        return self._post_model(
+            "/context/query/execute",
+            payload,
+            QueryExecutionResponse,
+            timeout=timeout,
+            retryable=False,
+        )
+
+    def explain(
+        self,
+        collection: str | UUID,
+        text_column: str,
+        *,
+        timeout: RequestTimeout = None,
+    ) -> QueryExplainResponse:
+        _, payload = context_model(
+            QueryExplainRequest,
+            {"collection": context_collection(collection), "text_column": text_column},
+        )
+        return self._post_model(
+            "/context/query/explain",
+            payload,
+            QueryExplainResponse,
+            timeout=timeout,
+            retryable=False,
         )
 
     def graph_first(
@@ -1615,6 +2540,485 @@ def _attach_context_method_metadata() -> None:
             retry_policy=retry,
             pagination=pagination,
             binding_kind=kind,
+        )
+
+    aligned_bindings = (
+        (
+            ContextNamespace.register_vector,
+            "register_vector",
+            "runtime_context_add_vector",
+            "Register a named vector on a pgContext collection.",
+            ('operation = project.context.register_vector(collection_id, "embedding_v2", 768)'),
+            "idempotent_mutation",
+            "none",
+        ),
+        (
+            ContextNamespace.drop_collection,
+            "drop_collection",
+            "runtime_context_delete_collection",
+            "Drop a confirmed pgContext collection.",
+            (
+                "operation = project.context.drop_collection("
+                "collection_id, confirm_collection_id=collection_id)"
+            ),
+            "idempotent_mutation",
+            "none",
+        ),
+        (
+            ContextNamespace.register_filter_column,
+            "register_filter_column",
+            "runtime_context_add_filter_column",
+            "Register a scalar filter column on a pgContext collection.",
+            (
+                "operation = project.context.register_filter_column("
+                'collection_id, "tenant", "tenant_id")'
+            ),
+            "idempotent_mutation",
+            "none",
+        ),
+        (
+            ContextNamespace.register_jsonb_path,
+            "register_jsonb_path",
+            "runtime_context_add_filter_jsonb_path",
+            "Register a JSONB filter path on a pgContext collection.",
+            (
+                "operation = project.context.register_jsonb_path("
+                'collection_id, "topic", "metadata", ["topic"])'
+            ),
+            "idempotent_mutation",
+            "none",
+        ),
+        (
+            ContextNamespace.scroll,
+            "scroll",
+            "runtime_context_scroll_points",
+            "Scroll pgContext point mappings with cursor pagination.",
+            "page = project.context.scroll(collection_id)",
+            "read_only_get",
+            "auto_cursor",
+        ),
+        (
+            ContextNamespace.facet,
+            "facet",
+            "runtime_context_facets",
+            "Return facet counts for one registered pgContext field.",
+            'facets = project.context.facet("support", "tenant_id")',
+            "read_only_post",
+            "none",
+        ),
+        (
+            ContextNamespace.query,
+            "query",
+            "runtime_context_text_hybrid",
+            "Run the stable pgContext dense plus full-text query.",
+            'results = project.context.query("support", embedding, query="refund")',
+            "none",
+            "none",
+        ),
+    )
+    for function, name, operation_id, description, example, retry, pagination in aligned_bindings:
+        bind_sdk_method(
+            function,
+            description=description,
+            example=example,
+            public_name=f"project.context.{name}",
+            operation_ids=(operation_id,),
+            since="0.4.0",
+            retry_policy=retry,
+            pagination=pagination,
+        )
+
+    local_query_builders = (
+        (
+            ContextNamespace.query_nearest,
+            "query_nearest",
+            "Build a dense nearest query plan.",
+            "plan = project.context.query_nearest(embedding, limit=20)",
+        ),
+        (
+            ContextNamespace.query_sparse_nearest,
+            "query_sparse_nearest",
+            "Build a named sparse nearest query plan.",
+            'plan = project.context.query_sparse_nearest("terms", sparse_vector, limit=20)',
+        ),
+        (
+            ContextNamespace.query_full_text,
+            "query_full_text",
+            "Build a PostgreSQL full-text query plan.",
+            'plan = project.context.query_full_text("refund", "content", limit=20)',
+        ),
+        (
+            ContextNamespace.query_late_interaction,
+            "query_late_interaction",
+            "Build a late-interaction query plan.",
+            "plan = project.context.query_late_interaction(query_vectors, 50, limit=20)",
+        ),
+        (
+            ContextNamespace.query_recommend,
+            "query_recommend",
+            "Build a point recommendation query plan.",
+            "plan = project.context.query_recommend([1], [], limit=20)",
+        ),
+        (
+            ContextNamespace.query_discover,
+            "query_discover",
+            "Build a contextual discovery query plan.",
+            "plan = project.context.query_discover([1, 2], limit=20)",
+        ),
+        (
+            ContextNamespace.query_lookup,
+            "query_lookup",
+            "Build a point lookup query plan.",
+            "plan = project.context.query_lookup([1, 2])",
+        ),
+        (
+            ContextNamespace.query_prefetch,
+            "query_prefetch",
+            "Build a query plan that prefetches multiple branches.",
+            "plan = project.context.query_prefetch([dense, lexical])",
+        ),
+        (
+            ContextNamespace.query_weight,
+            "query_weight",
+            "Weight one query-plan branch.",
+            "weighted = project.context.query_weight(dense, 0.7)",
+        ),
+        (
+            ContextNamespace.query_score_threshold,
+            "query_score_threshold",
+            "Apply score bounds to one query-plan branch.",
+            "bounded = project.context.query_score_threshold(dense, None, 0.4)",
+        ),
+        (
+            ContextNamespace.query_formula,
+            "query_formula",
+            "Apply a pgContext score formula to one query-plan branch.",
+            'scored = project.context.query_formula(dense, "score")',
+        ),
+        (
+            ContextNamespace.query_rerank,
+            "query_rerank",
+            "Rerank one query-plan branch.",
+            "plan = project.context.query_rerank(prefetched, 20)",
+        ),
+    )
+    for function, name, description, example in local_query_builders:
+        bind_sdk_method(
+            function,
+            description=description,
+            example=example,
+            public_name=f"project.context.{name}",
+            operation_ids=(),
+            since="0.4.0",
+            retry_policy="none",
+            binding_kind="local",
+        )
+
+    for function, name, operation_id, description, example in (
+        (
+            ContextNamespace.execute_query,
+            "execute_query",
+            "runtime_context_execute_query",
+            "Execute a validated pgContext query plan.",
+            'results = project.context.execute_query("support", plan)',
+        ),
+        (
+            ContextNamespace.explain,
+            "explain",
+            "runtime_context_explain_query",
+            "Explain the stable dense plus full-text pgContext query.",
+            'explanation = project.context.explain("support", "content")',
+        ),
+    ):
+        bind_sdk_method(
+            function,
+            description=description,
+            example=example,
+            public_name=f"project.context.{name}",
+            operation_ids=(operation_id,),
+            since="0.4.0",
+            retry_policy="none",
+        )
+
+    for function, name, operation_id, description, example, retry in (
+        (
+            ContextNamespace.create_collection_alias,
+            "create_collection_alias",
+            "runtime_context_create_collection_alias",
+            "Create or retarget a pgContext collection alias.",
+            'alias = project.context.create_collection_alias("support", "support_v2")',
+            "none",
+        ),
+        (
+            ContextNamespace.collection_aliases,
+            "collection_aliases",
+            "runtime_context_list_collection_aliases",
+            "List visible pgContext collection aliases.",
+            "aliases = project.context.collection_aliases()",
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.drop_collection_alias,
+            "drop_collection_alias",
+            "runtime_context_drop_collection_alias",
+            "Drop a pgContext collection alias.",
+            'result = project.context.drop_collection_alias("support")',
+            "none",
+        ),
+        (
+            ContextNamespace.collection_info,
+            "collection_info",
+            "runtime_context_collection_info",
+            "Return exact pgContext collection metadata by name.",
+            'info = project.context.collection_info("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.collection_limits,
+            "collection_limits",
+            "runtime_context_collection_limits",
+            "Return strict-mode limits for a pgContext collection.",
+            'limits = project.context.collection_limits("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.configure_collection_limits,
+            "configure_collection_limits",
+            "runtime_context_configure_collection_limits",
+            "Configure strict-mode limits for a pgContext collection.",
+            'limits = project.context.configure_collection_limits("support", strict_mode=True)',
+            "none",
+        ),
+        (
+            ContextNamespace.collection_vectors,
+            "collection_vectors",
+            "runtime_context_collection_vectors",
+            "List registered dense vectors for a pgContext collection.",
+            'vectors = project.context.collection_vectors("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.configure_vector,
+            "configure_vector",
+            "runtime_context_configure_vector",
+            "Configure dense-vector metadata for a pgContext collection.",
+            (
+                'vector = project.context.configure_vector("support", "embedding", '
+                'hnsw_options={}, quantization_options={}, status="ready")'
+            ),
+            "none",
+        ),
+        (
+            ContextNamespace.bulk_upsert_points,
+            "bulk_upsert_points",
+            "runtime_context_bulk_upsert_points",
+            "Upsert point mappings in bounded pgContext batches.",
+            'result = project.context.bulk_upsert_points("support", ["row-1"])',
+            "none",
+        ),
+        (
+            ContextNamespace.bulk_delete_points,
+            "bulk_delete_points",
+            "runtime_context_bulk_delete_points",
+            "Delete point mappings in bounded pgContext batches.",
+            'result = project.context.bulk_delete_points("support", ["row-1"])',
+            "none",
+        ),
+        (
+            ContextNamespace.backfill_points,
+            "backfill_points",
+            "runtime_context_backfill_points",
+            "Backfill point mappings from the source table.",
+            'result = project.context.backfill_points("support")',
+            "none",
+        ),
+        (
+            ContextNamespace.set_payload,
+            "set_payload",
+            "runtime_context_set_payload",
+            "Set registered payload fields for source rows.",
+            'result = project.context.set_payload("support", ["row-1"], {"locale": "en"})',
+            "none",
+        ),
+        (
+            ContextNamespace.delete_payload,
+            "delete_payload",
+            "runtime_context_delete_payload",
+            "Delete selected registered payload fields.",
+            'result = project.context.delete_payload("support", ["row-1"], ["locale"])',
+            "none",
+        ),
+        (
+            ContextNamespace.clear_payload,
+            "clear_payload",
+            "runtime_context_clear_payload",
+            "Clear all registered payload fields.",
+            'result = project.context.clear_payload("support", ["row-1"])',
+            "none",
+        ),
+        (
+            ContextNamespace.candidate_search,
+            "candidate_search",
+            "runtime_context_candidate_search",
+            "Search within explicit candidate point IDs.",
+            'result = project.context.candidate_search("support", embedding, [1, 2])',
+            "none",
+        ),
+        (
+            ContextNamespace.recommend,
+            "recommend",
+            "runtime_context_recommend",
+            "Recommend points from positive and negative examples.",
+            'result = project.context.recommend("support", positive_point_ids=[1])',
+            "none",
+        ),
+        (
+            ContextNamespace.discover,
+            "discover",
+            "runtime_context_discover_points",
+            "Discover points from context point IDs.",
+            'result = project.context.discover("support", [1, 2])',
+            "none",
+        ),
+        (
+            ContextNamespace.explore,
+            "explore",
+            "runtime_context_explore",
+            "Explore points from context point IDs.",
+            'result = project.context.explore("support", [1, 2])',
+            "none",
+        ),
+        (
+            ContextNamespace.index_status,
+            "index_status",
+            "runtime_context_index_status",
+            "Return collection-scoped index lifecycle status.",
+            'status = project.context.index_status("support", "support_embedding_idx")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.index_diagnostics,
+            "index_diagnostics",
+            "runtime_context_index_diagnostics",
+            "Return collection-scoped index diagnostics.",
+            'status = project.context.index_diagnostics("support", "support_embedding_idx")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.estimate_index_memory,
+            "estimate_index_memory",
+            "runtime_context_estimate_index_memory",
+            "Estimate collection index memory.",
+            'estimate = project.context.estimate_index_memory("support", "support_embedding_idx")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.vacuum_advice,
+            "vacuum_advice",
+            "runtime_context_vacuum_advice",
+            "Return collection index vacuum advice.",
+            'advice = project.context.vacuum_advice("support", "support_embedding_idx")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.index_advisor,
+            "index_advisor",
+            "runtime_context_index_advisor",
+            "Return collection filter-index recommendations.",
+            'advice = project.context.index_advisor("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.optimization_status,
+            "optimization_status",
+            "runtime_context_optimization_status",
+            "Return collection optimization readiness.",
+            'status = project.context.optimization_status("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.telemetry,
+            "telemetry",
+            "runtime_context_telemetry",
+            "Return collection-scoped telemetry rollups.",
+            'telemetry = project.context.telemetry("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.model_versions,
+            "model_versions",
+            "runtime_context_model_versions",
+            "List embedding model versions for a collection.",
+            'models = project.context.model_versions("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.register_model_version,
+            "register_model_version",
+            "runtime_context_register_model_version",
+            "Register an embedding model version.",
+            "model = project.context.register_model_version("
+            '"support", "embed", "2", 1536, "cosine")',
+            "none",
+        ),
+        (
+            ContextNamespace.embedding_migrations,
+            "embedding_migrations",
+            "runtime_context_embedding_migrations",
+            "List embedding migrations for a collection.",
+            'migrations = project.context.embedding_migrations("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.create_embedding_migration,
+            "create_embedding_migration",
+            "runtime_context_create_embedding_migration",
+            "Create a collection embedding migration.",
+            "migration = project.context.create_embedding_migration("
+            '"support", "embed", "1", "embed", "2", 100)',
+            "none",
+        ),
+        (
+            ContextNamespace.update_embedding_migration,
+            "update_embedding_migration",
+            "runtime_context_update_embedding_migration",
+            "Update collection embedding migration progress.",
+            'migration = project.context.update_embedding_migration("support", 1, 50, "running")',
+            "none",
+        ),
+        (
+            ContextNamespace.raw_vector_search,
+            "raw_vector_search",
+            "runtime_context_raw_vector_search",
+            "Search an explicit array of dense vectors.",
+            'results = project.context.raw_vector_search(query, [1], [vector], "cosine")',
+            "none",
+        ),
+        (
+            ContextNamespace.query_cohort_stats,
+            "query_cohort_stats",
+            "runtime_context_query_cohort_stats",
+            "Return collection-scoped query cohort statistics.",
+            'stats = project.context.query_cohort_stats("support")',
+            "read_only_get",
+        ),
+        (
+            ContextNamespace.query_execution_stats,
+            "query_execution_stats",
+            "runtime_context_query_execution_stats",
+            "Return collection-scoped query execution statistics.",
+            'stats = project.context.query_execution_stats("support")',
+            "read_only_get",
+        ),
+    ):
+        bind_sdk_method(
+            function,
+            description=description,
+            example=example,
+            public_name=f"project.context.{name}",
+            operation_ids=(operation_id,),
+            since="0.4.0",
+            retry_policy=retry,
         )
 
 

@@ -86,7 +86,7 @@
       "additionalProperties": false,
       "properties": {
         "binding_kind": {
-          "enum": ["operation", "composite"]
+          "enum": ["operation", "composite", "local"]
         },
         "deprecated": {
           "oneOf": [
@@ -124,7 +124,7 @@
             "minLength": 1,
             "type": "string"
           },
-          "minItems": 1,
+          "minItems": 0,
           "type": "array",
           "uniqueItems": true
         },
@@ -132,7 +132,7 @@
           "items": {
             "$ref": "#/$defs/operation"
           },
-          "minItems": 1,
+          "minItems": 0,
           "type": "array",
           "uniqueItems": true
         },
@@ -163,6 +163,23 @@
           "enum": ["stable", "experimental"]
         }
       },
+      "allOf": [
+        {
+          "if": {"properties": {"binding_kind": {"const": "local"}}},
+          "then": {
+            "properties": {
+              "operation_ids": {"maxItems": 0},
+              "operations": {"maxItems": 0}
+            }
+          },
+          "else": {
+            "properties": {
+              "operation_ids": {"minItems": 1},
+              "operations": {"minItems": 1}
+            }
+          }
+        }
+      ],
       "required": [
         "public_name",
         "python_qualname",

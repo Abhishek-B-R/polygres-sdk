@@ -6,7 +6,7 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from typing import Any, Literal, TypeVar
 
-BindingKind = Literal["operation", "composite"]
+BindingKind = Literal["operation", "composite", "local"]
 Stability = Literal["stable", "experimental"]
 RetryPolicy = Literal[
     "none",
@@ -20,7 +20,7 @@ Pagination = Literal["none", "cursor", "auto_cursor"]
 
 @dataclass(frozen=True, slots=True)
 class SdkMethodBinding:
-    """Descriptive binding metadata for one public SDK network method."""
+    """Descriptive binding metadata for one public SDK method."""
 
     public_name: str
     operation_ids: tuple[str, ...]

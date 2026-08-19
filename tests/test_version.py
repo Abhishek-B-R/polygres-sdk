@@ -26,12 +26,12 @@ def test_release_metadata_and_documentation_name_current_sdk_version() -> None:
         )
     )
 
-    assert __version__ == "0.3.0"
-    assert methods["sdk_version"] == "0.3.0"
-    assert "Package version: [`0.3.0`]" in readme
-    assert "polygres-sdk-v0.3.0" in readme
-    assert "SDK 0.3.0 release notes" in readme
-    assert "## 0.3.0 - 2026-08-14" in changelog
+    assert __version__ == "0.4.0"
+    assert methods["sdk_version"] == "0.4.0"
+    assert "Package version: [`0.4.0`]" in readme
+    assert "polygres-sdk-v0.4.0" in readme
+    assert "SDK 0.4.0 release notes" in readme
+    assert "## 0.4.0 - 2026-08-16" in changelog
 
 
 def test_uninstalled_source_uses_non_release_fallback(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -196,6 +196,22 @@
     },
     {
       "method": "GET",
+      "operation_id": "runtime_get_table_rows",
+      "owner": "SDK Platform",
+      "path": "/v1/tables/{schema_name}/{table_name}/rows",
+      "reason": "Runtime row reads are available to direct clients, but the typed SDK row-read pagination surface is scheduled for the next client-convergence increment.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_list_tables",
+      "owner": "SDK Platform",
+      "path": "/v1/tables",
+      "reason": "Runtime table discovery is available to direct clients, but the typed SDK table model is scheduled for the next client-convergence increment.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
       "operation_id": "runtime_vector_compatibility",
       "owner": "Runtime Platform",
       "path": "/v1/vector/compatibility",
@@ -578,6 +594,223 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Backfill point mappings from the source table.",
+      "example": "result = project.context.backfill_points(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_backfill_points"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_backfill_points",
+          "path": "/v1/context/points/backfill",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "batch_size",
+                "collection"
+              ],
+              "required_fields": [
+                "collection"
+              ],
+              "schema": "BackfillPointsRequest"
+            }
+          ],
+          "request_schema": "BackfillPointsRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "batches",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "batches",
+                  "request_id"
+                ],
+                "schema": "PointBatchResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PointBatchResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.backfill_points",
+      "python_qualname": "polygres.context.ContextNamespace.backfill_points",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Delete point mappings in bounded pgContext batches.",
+      "example": "result = project.context.bulk_delete_points(\"support\", [\"row-1\"])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_bulk_delete_points"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_bulk_delete_points",
+          "path": "/v1/context/points/bulk-delete",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "batch_size",
+                "collection",
+                "source_keys"
+              ],
+              "required_fields": [
+                "collection",
+                "source_keys"
+              ],
+              "schema": "BulkPointKeysRequest"
+            }
+          ],
+          "request_schema": "BulkPointKeysRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "batches",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "batches",
+                  "request_id"
+                ],
+                "schema": "PointBatchResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PointBatchResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.bulk_delete_points",
+      "python_qualname": "polygres.context.ContextNamespace.bulk_delete_points",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Upsert point mappings in bounded pgContext batches.",
+      "example": "result = project.context.bulk_upsert_points(\"support\", [\"row-1\"])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_bulk_upsert_points"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_bulk_upsert_points",
+          "path": "/v1/context/points/bulk-upsert",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "batch_size",
+                "collection",
+                "source_keys"
+              ],
+              "required_fields": [
+                "collection",
+                "source_keys"
+              ],
+              "schema": "BulkPointKeysRequest"
+            }
+          ],
+          "request_schema": "BulkPointKeysRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "batches",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "batches",
+                  "request_id"
+                ],
+                "schema": "PointBatchResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PointBatchResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.bulk_upsert_points",
+      "python_qualname": "polygres.context.ContextNamespace.bulk_upsert_points",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Request cancellation of a durable Context operation.",
       "example": "operation = project.context.cancel_operation(operation_id)",
       "exception_categories": [
@@ -639,6 +872,549 @@
       "python_qualname": "polygres.context.ContextNamespace.cancel_operation",
       "retry_policy": "idempotent_mutation",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Search within explicit candidate point IDs.",
+      "example": "result = project.context.candidate_search(\"support\", embedding, [1, 2])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_candidate_search"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_candidate_search",
+          "path": "/v1/context/search/candidates",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "candidate_point_ids",
+                "collection",
+                "embedding",
+                "filter",
+                "limit",
+                "vector_name"
+              ],
+              "required_fields": [
+                "candidate_point_ids",
+                "collection",
+                "embedding"
+              ],
+              "schema": "CandidateSearchRequest"
+            }
+          ],
+          "request_schema": "CandidateSearchRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "PgContextScoredResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PgContextScoredResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.candidate_search",
+      "python_qualname": "polygres.context.ContextNamespace.candidate_search",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Clear all registered payload fields.",
+      "example": "result = project.context.clear_payload(\"support\", [\"row-1\"])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_clear_payload"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_clear_payload",
+          "path": "/v1/context/points/payload/clear",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "source_keys"
+              ],
+              "required_fields": [
+                "collection",
+                "source_keys"
+              ],
+              "schema": "ClearPayloadRequest"
+            }
+          ],
+          "request_schema": "ClearPayloadRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "PayloadMutationResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PayloadMutationResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.clear_payload",
+      "python_qualname": "polygres.context.ContextNamespace.clear_payload",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "List visible pgContext collection aliases.",
+      "example": "aliases = project.context.collection_aliases()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_list_collection_aliases"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_list_collection_aliases",
+          "path": "/v1/context/aliases",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "aliases",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "aliases",
+                  "request_id"
+                ],
+                "schema": "CollectionAliasListResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "CollectionAliasListResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.collection_aliases",
+      "python_qualname": "polygres.context.ContextNamespace.collection_aliases",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return exact pgContext collection metadata by name.",
+      "example": "info = project.context.collection_info(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_collection_info"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_collection_info",
+          "path": "/v1/context/collections/by-name/{collection_name}/info",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "collection",
+                  "request_id"
+                ],
+                "schema": "PgContextCollectionInfoResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PgContextCollectionInfoResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.collection_info",
+      "python_qualname": "polygres.context.ContextNamespace.collection_info",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return strict-mode limits for a pgContext collection.",
+      "example": "limits = project.context.collection_limits(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_collection_limits"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_collection_limits",
+          "path": "/v1/context/collections/by-name/{collection_name}/limits",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection_name",
+                  "limits",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "collection_name",
+                  "limits",
+                  "request_id"
+                ],
+                "schema": "CollectionLimitsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "CollectionLimitsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.collection_limits",
+      "python_qualname": "polygres.context.ContextNamespace.collection_limits",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "List registered dense vectors for a pgContext collection.",
+      "example": "vectors = project.context.collection_vectors(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_collection_vectors"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_collection_vectors",
+          "path": "/v1/context/collections/by-name/{collection_name}/vectors",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection_name",
+                  "request_id",
+                  "vectors"
+                ],
+                "required_fields": [
+                  "collection_name",
+                  "request_id",
+                  "vectors"
+                ],
+                "schema": "CollectionVectorsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "CollectionVectorsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.collection_vectors",
+      "python_qualname": "polygres.context.ContextNamespace.collection_vectors",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Configure strict-mode limits for a pgContext collection.",
+      "example": "limits = project.context.configure_collection_limits(\"support\", strict_mode=True)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_configure_collection_limits"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "PATCH",
+          "operation_id": "runtime_context_configure_collection_limits",
+          "path": "/v1/context/collections/by-name/{collection_name}/limits",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "max_candidate_budget",
+                "max_dimensions",
+                "max_filter_nodes",
+                "max_index_memory_bytes",
+                "max_points",
+                "max_search_limit",
+                "max_vectors",
+                "query_timeout_ms",
+                "strict_mode"
+              ],
+              "required_fields": [
+                "strict_mode"
+              ],
+              "schema": "CollectionLimitsRequest"
+            }
+          ],
+          "request_schema": "CollectionLimitsRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection_name",
+                  "limits",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "collection_name",
+                  "limits",
+                  "request_id"
+                ],
+                "schema": "CollectionLimitsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "CollectionLimitsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.configure_collection_limits",
+      "python_qualname": "polygres.context.ContextNamespace.configure_collection_limits",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Configure dense-vector metadata for a pgContext collection.",
+      "example": "vector = project.context.configure_vector(\"support\", \"embedding\", hnsw_options={}, quantization_options={}, status=\"ready\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_configure_vector"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "PATCH",
+          "operation_id": "runtime_context_configure_vector",
+          "path": "/v1/context/collections/by-name/{collection_name}/vectors/{vector_name}",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "hnsw_options",
+                "quantization_options",
+                "status"
+              ],
+              "required_fields": [
+                "hnsw_options",
+                "quantization_options",
+                "status"
+              ],
+              "schema": "VectorConfigureRequest"
+            }
+          ],
+          "request_schema": "VectorConfigureRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "vector"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "vector"
+                ],
+                "schema": "VectorConfigureResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "VectorConfigureResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.configure_vector",
+      "python_qualname": "polygres.context.ContextNamespace.configure_vector",
+      "retry_policy": "none",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -799,6 +1575,158 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Create or retarget a pgContext collection alias.",
+      "example": "alias = project.context.create_collection_alias(\"support\", \"support_v2\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_create_collection_alias"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_create_collection_alias",
+          "path": "/v1/context/aliases",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "alias_name",
+                "target_collection_name"
+              ],
+              "required_fields": [
+                "alias_name",
+                "target_collection_name"
+              ],
+              "schema": "CollectionAliasRequest"
+            }
+          ],
+          "request_schema": "CollectionAliasRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "alias",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "alias",
+                  "request_id"
+                ],
+                "schema": "CollectionAliasResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "CollectionAliasResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.create_collection_alias",
+      "python_qualname": "polygres.context.ContextNamespace.create_collection_alias",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Create a collection embedding migration.",
+      "example": "migration = project.context.create_embedding_migration(\"support\", \"embed\", \"1\", \"embed\", \"2\", 100)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_create_embedding_migration"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_create_embedding_migration",
+          "path": "/v1/context/collections/by-name/{collection_name}/embedding-migrations",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "source_model_name",
+                "source_model_version",
+                "target_model_name",
+                "target_model_version",
+                "total_points"
+              ],
+              "required_fields": [
+                "collection",
+                "source_model_name",
+                "source_model_version",
+                "target_model_name",
+                "target_model_version",
+                "total_points"
+              ],
+              "schema": "CreateEmbeddingMigrationRequest"
+            }
+          ],
+          "request_schema": "CreateEmbeddingMigrationRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "EmbeddingMigrationsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "EmbeddingMigrationsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.create_embedding_migration",
+      "python_qualname": "polygres.context.ContextNamespace.create_embedding_migration",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Start deletion of a confirmed Context collection.",
       "example": "operation = project.context.delete_collection(collection_id, confirm_collection_id=collection_id)",
       "exception_categories": [
@@ -864,6 +1792,80 @@
       "python_qualname": "polygres.context.ContextNamespace.delete_collection",
       "retry_policy": "idempotent_mutation",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Delete selected registered payload fields.",
+      "example": "result = project.context.delete_payload(\"support\", [\"row-1\"], [\"locale\"])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_delete_payload"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_delete_payload",
+          "path": "/v1/context/points/payload/delete",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "payload_keys",
+                "source_keys"
+              ],
+              "required_fields": [
+                "collection",
+                "payload_keys",
+                "source_keys"
+              ],
+              "schema": "DeletePayloadRequest"
+            }
+          ],
+          "request_schema": "DeletePayloadRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "PayloadMutationResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PayloadMutationResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.delete_payload",
+      "python_qualname": "polygres.context.ContextNamespace.delete_payload",
+      "retry_policy": "none",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -961,6 +1963,79 @@
       "python_qualname": "polygres.context.ContextNamespace.delete_points",
       "retry_policy": "idempotent_mutation",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Discover points from context point IDs.",
+      "example": "result = project.context.discover(\"support\", [1, 2])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_discover_points"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_discover_points",
+          "path": "/v1/context/search/discover",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "context_point_ids",
+                "limit"
+              ],
+              "required_fields": [
+                "collection",
+                "context_point_ids"
+              ],
+              "schema": "ContextPointDiscoveryRequest"
+            }
+          ],
+          "request_schema": "ContextPointDiscoveryRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "PgContextScoredResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PgContextScoredResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.discover",
+      "python_qualname": "polygres.context.ContextNamespace.discover",
+      "retry_policy": "none",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -1114,6 +2189,255 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Drop a confirmed pgContext collection.",
+      "example": "operation = project.context.drop_collection(collection_id, confirm_collection_id=collection_id)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_delete_collection"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "DELETE",
+          "operation_id": "runtime_context_delete_collection",
+          "path": "/v1/context/collections/{collection_id}",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "confirm_collection_id"
+              ],
+              "required_fields": [
+                "confirm_collection_id"
+              ],
+              "schema": "CollectionDeleteRequest"
+            }
+          ],
+          "request_schema": "CollectionDeleteRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "202": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "schema": "OperationEnvelope"
+              }
+            ]
+          },
+          "success_responses": {
+            "202": "OperationEnvelope"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.drop_collection",
+      "python_qualname": "polygres.context.ContextNamespace.drop_collection",
+      "retry_policy": "idempotent_mutation",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Drop a pgContext collection alias.",
+      "example": "result = project.context.drop_collection_alias(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_drop_collection_alias"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "DELETE",
+          "operation_id": "runtime_context_drop_collection_alias",
+          "path": "/v1/context/aliases/{alias_name}",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "alias_name",
+                  "dropped",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "alias_name",
+                  "dropped",
+                  "request_id"
+                ],
+                "schema": "CollectionAliasDropResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "CollectionAliasDropResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.drop_collection_alias",
+      "python_qualname": "polygres.context.ContextNamespace.drop_collection_alias",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "List embedding migrations for a collection.",
+      "example": "migrations = project.context.embedding_migrations(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_embedding_migrations"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_embedding_migrations",
+          "path": "/v1/context/collections/by-name/{collection_name}/embedding-migrations",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "EmbeddingMigrationsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "EmbeddingMigrationsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.embedding_migrations",
+      "python_qualname": "polygres.context.ContextNamespace.embedding_migrations",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Estimate collection index memory.",
+      "example": "estimate = project.context.estimate_index_memory(\"support\", \"support_embedding_idx\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_estimate_index_memory"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_estimate_index_memory",
+          "path": "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/memory-estimate",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "IndexMemoryEstimateResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "IndexMemoryEstimateResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.estimate_index_memory",
+      "python_qualname": "polygres.context.ContextNamespace.estimate_index_memory",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Evaluate and cache pgvector bridge eligibility.",
       "example": "onboarding = project.context.evaluate_onboarding()",
       "exception_categories": [
@@ -1189,6 +2513,307 @@
       "python_qualname": "polygres.context.ContextNamespace.evaluate_onboarding",
       "retry_policy": "read_only_post",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Execute a validated pgContext query plan.",
+      "example": "results = project.context.execute_query(\"support\", plan)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_execute_query"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_execute_query",
+          "path": "/v1/context/query/execute",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "plan"
+              ],
+              "required_fields": [
+                "collection",
+                "plan"
+              ],
+              "schema": "QueryExecuteRequest"
+            }
+          ],
+          "request_schema": "QueryExecuteRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection",
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "collection",
+                  "request_id",
+                  "results"
+                ],
+                "schema": "QueryExecutionResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "QueryExecutionResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.execute_query",
+      "python_qualname": "polygres.context.ContextNamespace.execute_query",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Explain the stable dense plus full-text pgContext query.",
+      "example": "explanation = project.context.explain(\"support\", \"content\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_explain_query"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_explain_query",
+          "path": "/v1/context/query/explain",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "text_column"
+              ],
+              "required_fields": [
+                "collection",
+                "text_column"
+              ],
+              "schema": "QueryExplainRequest"
+            }
+          ],
+          "request_schema": "QueryExplainRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection",
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "collection",
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "QueryExplainResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "QueryExplainResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.explain",
+      "python_qualname": "polygres.context.ContextNamespace.explain",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Explore points from context point IDs.",
+      "example": "result = project.context.explore(\"support\", [1, 2])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_explore"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_explore",
+          "path": "/v1/context/explore",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "context_point_ids",
+                "limit"
+              ],
+              "required_fields": [
+                "collection",
+                "context_point_ids"
+              ],
+              "schema": "ContextPointDiscoveryRequest"
+            }
+          ],
+          "request_schema": "ContextPointDiscoveryRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "PgContextScoredResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PgContextScoredResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.explore",
+      "python_qualname": "polygres.context.ContextNamespace.explore",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return facet counts for one registered pgContext field.",
+      "example": "facets = project.context.facet(\"support\", \"tenant_id\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_facets"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_facets",
+          "path": "/v1/context/facets",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "field",
+                "filter",
+                "limit"
+              ],
+              "required_fields": [
+                "collection",
+                "field"
+              ],
+              "schema": "FacetsRequest"
+            }
+          ],
+          "request_schema": "FacetsRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection_id",
+                  "collection_name",
+                  "facets",
+                  "field",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "collection_id",
+                  "collection_name",
+                  "facets",
+                  "field",
+                  "request_id"
+                ],
+                "schema": "FacetsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "FacetsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.facet",
+      "python_qualname": "polygres.context.ContextNamespace.facet",
+      "retry_policy": "read_only_post",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -1342,6 +2967,7 @@
                   "max_result_columns",
                   "max_search_limit",
                   "max_values_per_match",
+                  "pgcontext_compatibility",
                   "point_scroll",
                   "point_scroll_blocker",
                   "point_scroll_blocker_message",
@@ -1395,6 +3021,7 @@
                   "max_result_columns",
                   "max_search_limit",
                   "max_values_per_match",
+                  "pgcontext_compatibility",
                   "point_scroll",
                   "point_scroll_blocker",
                   "product_status",
@@ -2015,6 +3642,183 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Return collection filter-index recommendations.",
+      "example": "advice = project.context.index_advisor(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_index_advisor"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_index_advisor",
+          "path": "/v1/context/collections/by-name/{collection_name}/index-advisor",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "IndexAdvisorResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "IndexAdvisorResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.index_advisor",
+      "python_qualname": "polygres.context.ContextNamespace.index_advisor",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return collection-scoped index diagnostics.",
+      "example": "status = project.context.index_diagnostics(\"support\", \"support_embedding_idx\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_index_diagnostics"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_index_diagnostics",
+          "path": "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/diagnostics",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "IndexDiagnosticsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "IndexDiagnosticsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.index_diagnostics",
+      "python_qualname": "polygres.context.ContextNamespace.index_diagnostics",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return collection-scoped index lifecycle status.",
+      "example": "status = project.context.index_status(\"support\", \"support_embedding_idx\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_index_status"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_index_status",
+          "path": "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/status",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "IndexStatusResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "IndexStatusResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.index_status",
+      "python_qualname": "polygres.context.ContextNamespace.index_status",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Run coupled Context and graph joint retrieval.",
       "example": "results = project.context.joint(\"support\", embedding)",
       "exception_categories": [
@@ -2297,6 +4101,124 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "List embedding model versions for a collection.",
+      "example": "models = project.context.model_versions(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_model_versions"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_model_versions",
+          "path": "/v1/context/collections/by-name/{collection_name}/model-versions",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "ModelVersionsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "ModelVersionsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.model_versions",
+      "python_qualname": "polygres.context.ContextNamespace.model_versions",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return collection optimization readiness.",
+      "example": "status = project.context.optimization_status(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_optimization_status"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_optimization_status",
+          "path": "/v1/context/collections/by-name/{collection_name}/optimization-status",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "OptimizationStatusResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "OptimizationStatusResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.optimization_status",
+      "python_qualname": "polygres.context.ContextNamespace.optimization_status",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Validate a proposed Context collection without creating it.",
       "example": "report = project.context.preflight(\"support\", source=source, vector=vector)",
       "exception_categories": [
@@ -2393,6 +4315,494 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Run the stable pgContext dense plus full-text query.",
+      "example": "results = project.context.query(\"support\", embedding, query=\"refund\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_text_hybrid"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_text_hybrid",
+          "path": "/v1/context/hybrid/text",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "embedding",
+                "limit",
+                "query",
+                "vector_name"
+              ],
+              "required_fields": [
+                "collection",
+                "embedding",
+                "query"
+              ],
+              "schema": "TextHybridSearchRequest"
+            }
+          ],
+          "request_schema": "TextHybridSearchRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection",
+                  "mode",
+                  "request_id",
+                  "results",
+                  "warnings"
+                ],
+                "required_fields": [
+                  "collection",
+                  "mode",
+                  "request_id",
+                  "results",
+                  "warnings"
+                ],
+                "schema": "RankedResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "RankedResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.query",
+      "python_qualname": "polygres.context.ContextNamespace.query",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return collection-scoped query cohort statistics.",
+      "example": "stats = project.context.query_cohort_stats(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_query_cohort_stats"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_query_cohort_stats",
+          "path": "/v1/context/collections/by-name/{collection_name}/query-cohort-stats",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "QueryCohortStatsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "QueryCohortStatsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.query_cohort_stats",
+      "python_qualname": "polygres.context.ContextNamespace.query_cohort_stats",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a contextual discovery query plan.",
+      "example": "plan = project.context.query_discover([1, 2], limit=20)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_discover",
+      "python_qualname": "polygres.context.ContextNamespace.query_discover",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return collection-scoped query execution statistics.",
+      "example": "stats = project.context.query_execution_stats(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_query_execution_stats"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_query_execution_stats",
+          "path": "/v1/context/collections/by-name/{collection_name}/query-execution-stats",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "QueryExecutionStatsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "QueryExecutionStatsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.query_execution_stats",
+      "python_qualname": "polygres.context.ContextNamespace.query_execution_stats",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Apply a pgContext score formula to one query-plan branch.",
+      "example": "scored = project.context.query_formula(dense, \"score\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_formula",
+      "python_qualname": "polygres.context.ContextNamespace.query_formula",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a PostgreSQL full-text query plan.",
+      "example": "plan = project.context.query_full_text(\"refund\", \"content\", limit=20)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_full_text",
+      "python_qualname": "polygres.context.ContextNamespace.query_full_text",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a late-interaction query plan.",
+      "example": "plan = project.context.query_late_interaction(query_vectors, 50, limit=20)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_late_interaction",
+      "python_qualname": "polygres.context.ContextNamespace.query_late_interaction",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a point lookup query plan.",
+      "example": "plan = project.context.query_lookup([1, 2])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_lookup",
+      "python_qualname": "polygres.context.ContextNamespace.query_lookup",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a dense nearest query plan.",
+      "example": "plan = project.context.query_nearest(embedding, limit=20)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_nearest",
+      "python_qualname": "polygres.context.ContextNamespace.query_nearest",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a query plan that prefetches multiple branches.",
+      "example": "plan = project.context.query_prefetch([dense, lexical])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_prefetch",
+      "python_qualname": "polygres.context.ContextNamespace.query_prefetch",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a point recommendation query plan.",
+      "example": "plan = project.context.query_recommend([1], [], limit=20)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_recommend",
+      "python_qualname": "polygres.context.ContextNamespace.query_recommend",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Rerank one query-plan branch.",
+      "example": "plan = project.context.query_rerank(prefetched, 20)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_rerank",
+      "python_qualname": "polygres.context.ContextNamespace.query_rerank",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Apply score bounds to one query-plan branch.",
+      "example": "bounded = project.context.query_score_threshold(dense, None, 0.4)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_score_threshold",
+      "python_qualname": "polygres.context.ContextNamespace.query_score_threshold",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Build a named sparse nearest query plan.",
+      "example": "plan = project.context.query_sparse_nearest(\"terms\", sparse_vector, limit=20)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_sparse_nearest",
+      "python_qualname": "polygres.context.ContextNamespace.query_sparse_nearest",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "local",
+      "deprecated": null,
+      "description": "Weight one query-plan branch.",
+      "example": "weighted = project.context.query_weight(dense, 0.7)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [],
+      "operations": [],
+      "pagination": "none",
+      "public_name": "project.context.query_weight",
+      "python_qualname": "polygres.context.ContextNamespace.query_weight",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Fuse Context and graph rankings.",
       "example": "results = project.context.rank_fusion(\"support\", embedding, start=start)",
       "exception_categories": [
@@ -2477,6 +4887,83 @@
       "python_qualname": "polygres.context.ContextNamespace.rank_fusion",
       "retry_policy": "none",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Search an explicit array of dense vectors.",
+      "example": "results = project.context.raw_vector_search(query, [1], [vector], \"cosine\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_raw_vector_search"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_raw_vector_search",
+          "path": "/v1/context/search/raw",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "limit",
+                "metric",
+                "point_ids",
+                "query",
+                "vectors"
+              ],
+              "required_fields": [
+                "metric",
+                "point_ids",
+                "query",
+                "vectors"
+              ],
+              "schema": "RawVectorSearchRequest"
+            }
+          ],
+          "request_schema": "RawVectorSearchRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "RawVectorSearchResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "RawVectorSearchResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.raw_vector_search",
+      "python_qualname": "polygres.context.ContextNamespace.raw_vector_search",
+      "retry_policy": "none",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -2567,6 +5054,81 @@
       "python_qualname": "polygres.context.ContextNamespace.recall_check",
       "retry_policy": "none",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Recommend points from positive and negative examples.",
+      "example": "result = project.context.recommend(\"support\", positive_point_ids=[1])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_recommend"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_recommend",
+          "path": "/v1/context/recommend",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "limit",
+                "negative_point_ids",
+                "negative_vectors",
+                "positive_point_ids",
+                "positive_vectors"
+              ],
+              "required_fields": [
+                "collection"
+              ],
+              "schema": "RecommendRequest"
+            }
+          ],
+          "request_schema": "RecommendRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "PgContextScoredResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PgContextScoredResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.recommend",
+      "python_qualname": "polygres.context.ContextNamespace.recommend",
+      "retry_policy": "none",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -2718,6 +5280,306 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Register a scalar filter column on a pgContext collection.",
+      "example": "operation = project.context.register_filter_column(collection_id, \"tenant\", \"tenant_id\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_add_filter_column"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_add_filter_column",
+          "path": "/v1/context/collections/{collection_id}/filters/columns",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "column",
+                "key"
+              ],
+              "required_fields": [
+                "column",
+                "key"
+              ],
+              "schema": "FilterColumnRequest"
+            }
+          ],
+          "request_schema": "FilterColumnRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "202": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "schema": "OperationEnvelope"
+              }
+            ]
+          },
+          "success_responses": {
+            "202": "OperationEnvelope"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.register_filter_column",
+      "python_qualname": "polygres.context.ContextNamespace.register_filter_column",
+      "retry_policy": "idempotent_mutation",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Register a JSONB filter path on a pgContext collection.",
+      "example": "operation = project.context.register_jsonb_path(collection_id, \"topic\", \"metadata\", [\"topic\"])",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_add_filter_jsonb_path"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_add_filter_jsonb_path",
+          "path": "/v1/context/collections/{collection_id}/filters/jsonb-paths",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "column",
+                "key",
+                "path"
+              ],
+              "required_fields": [
+                "column",
+                "key",
+                "path"
+              ],
+              "schema": "FilterJsonbPathRequest"
+            }
+          ],
+          "request_schema": "FilterJsonbPathRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "202": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "schema": "OperationEnvelope"
+              }
+            ]
+          },
+          "success_responses": {
+            "202": "OperationEnvelope"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.register_jsonb_path",
+      "python_qualname": "polygres.context.ContextNamespace.register_jsonb_path",
+      "retry_policy": "idempotent_mutation",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Register an embedding model version.",
+      "example": "model = project.context.register_model_version(\"support\", \"embed\", \"2\", 1536, \"cosine\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_register_model_version"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_register_model_version",
+          "path": "/v1/context/collections/by-name/{collection_name}/model-versions",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "dimensions",
+                "metric",
+                "model_name",
+                "model_version"
+              ],
+              "required_fields": [
+                "collection",
+                "dimensions",
+                "metric",
+                "model_name",
+                "model_version"
+              ],
+              "schema": "RegisterModelVersionRequest"
+            }
+          ],
+          "request_schema": "RegisterModelVersionRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "ModelVersionsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "ModelVersionsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.register_model_version",
+      "python_qualname": "polygres.context.ContextNamespace.register_model_version",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Register a named vector on a pgContext collection.",
+      "example": "operation = project.context.register_vector(collection_id, \"embedding_v2\", 768)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_add_vector"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_context_add_vector",
+          "path": "/v1/context/collections/{collection_id}/vectors",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "column_name",
+                "dimensions",
+                "index_kind",
+                "metric",
+                "mode",
+                "name",
+                "set_default"
+              ],
+              "required_fields": [
+                "dimensions"
+              ],
+              "schema": "ContextVectorCreateRequest"
+            }
+          ],
+          "request_schema": "ContextVectorCreateRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "202": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "operation",
+                  "request_id"
+                ],
+                "schema": "OperationEnvelope"
+              }
+            ]
+          },
+          "success_responses": {
+            "202": "OperationEnvelope"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.register_vector",
+      "python_qualname": "polygres.context.ContextNamespace.register_vector",
+      "retry_policy": "idempotent_mutation",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Start a durable reindex operation for a collection.",
       "example": "operation = project.context.reindex_collection(collection_id)",
       "exception_categories": [
@@ -2845,6 +5707,71 @@
       "python_qualname": "polygres.context.ContextNamespace.retry_operation",
       "retry_policy": "idempotent_mutation",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Scroll pgContext point mappings with cursor pagination.",
+      "example": "page = project.context.scroll(collection_id)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_scroll_points"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_scroll_points",
+          "path": "/v1/context/collections/{collection_id}/points",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "collection_id",
+                  "has_more",
+                  "next_cursor",
+                  "points",
+                  "request_id"
+                ],
+                "required_fields": [
+                  "collection_id",
+                  "has_more",
+                  "next_cursor",
+                  "points",
+                  "request_id"
+                ],
+                "schema": "PointScrollResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PointScrollResponse"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.context.scroll",
+      "python_qualname": "polygres.context.ContextNamespace.scroll",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -3080,6 +6007,139 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Set registered payload fields for source rows.",
+      "example": "result = project.context.set_payload(\"support\", [\"row-1\"], {\"locale\": \"en\"})",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_set_payload"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "PUT",
+          "operation_id": "runtime_context_set_payload",
+          "path": "/v1/context/points/payload",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "collection",
+                "payload",
+                "source_keys"
+              ],
+              "required_fields": [
+                "collection",
+                "payload",
+                "source_keys"
+              ],
+              "schema": "SetPayloadRequest"
+            }
+          ],
+          "request_schema": "SetPayloadRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "results"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "results"
+                ],
+                "schema": "PayloadMutationResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "PayloadMutationResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.set_payload",
+      "python_qualname": "polygres.context.ContextNamespace.set_payload",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return collection-scoped telemetry rollups.",
+      "example": "telemetry = project.context.telemetry(\"support\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_telemetry"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_telemetry",
+          "path": "/v1/context/collections/by-name/{collection_name}/telemetry",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "TelemetryResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "TelemetryResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.telemetry",
+      "python_qualname": "polygres.context.ContextNamespace.telemetry",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Run dense and lexical Context retrieval.",
       "example": "results = project.context.text_hybrid(\"support\", embedding, query=\"refund\")",
       "exception_categories": [
@@ -3246,6 +6306,78 @@
     {
       "binding_kind": "operation",
       "deprecated": null,
+      "description": "Update collection embedding migration progress.",
+      "example": "migration = project.context.update_embedding_migration(\"support\", 1, 50, \"running\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_update_embedding_migration"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "PATCH",
+          "operation_id": "runtime_context_update_embedding_migration",
+          "path": "/v1/context/collections/by-name/{collection_name}/embedding-migrations/{migration_id}",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "processed_points",
+                "status"
+              ],
+              "required_fields": [
+                "processed_points",
+                "status"
+              ],
+              "schema": "UpdateEmbeddingMigrationRequest"
+            }
+          ],
+          "request_schema": "UpdateEmbeddingMigrationRequest",
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "EmbeddingMigrationsResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "EmbeddingMigrationsResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.update_embedding_migration",
+      "python_qualname": "polygres.context.ContextNamespace.update_embedding_migration",
+      "retry_policy": "none",
+      "since": "0.4.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
       "description": "Upsert selected source rows into Context points.",
       "example": "result = project.context.upsert_points(collection_id, [\"row-1\"])",
       "exception_categories": [
@@ -3338,6 +6470,65 @@
       "python_qualname": "polygres.context.ContextNamespace.upsert_points",
       "retry_policy": "idempotent_mutation",
       "since": "0.2.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return collection index vacuum advice.",
+      "example": "advice = project.context.vacuum_advice(\"support\", \"support_embedding_idx\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_context_vacuum_advice"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_context_vacuum_advice",
+          "path": "/v1/context/collections/by-name/{collection_name}/indexes/{index_name}/vacuum-advice",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [
+            {
+              "ContextBearerAuth": []
+            }
+          ],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "required_fields": [
+                  "request_id",
+                  "rows"
+                ],
+                "schema": "VacuumAdviceResponse"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "VacuumAdviceResponse"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.context.vacuum_advice",
+      "python_qualname": "polygres.context.ContextNamespace.vacuum_advice",
+      "retry_policy": "read_only_get",
+      "since": "0.4.0",
       "stability": "stable"
     },
     {
@@ -4885,8 +8076,8 @@
       "stability": "stable"
     }
   ],
-  "openapi_sha256": "9f9aa7ebf2f269b95b2d90757bc7385f324fa3ab4bc5e5e288ef1682cab5a4be",
+  "openapi_sha256": "db23d7178d295d7bac0b5168061c59fcbcf6eb96e1e12bc2e21670452b8cb506",
   "schema_version": 1,
   "sdk": "polygres-sdk",
-  "sdk_version": "0.3.0"
+  "sdk_version": "0.4.0"
 }

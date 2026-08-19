@@ -10,12 +10,14 @@ from pathlib import Path
 
 WHEEL_RESOURCES = {
     "polygres/migrations/README.md",
+    "polygres/spec/pgcontext-0.2.0-compatibility.json",
     "polygres/spec/python-sdk-v1.methods.json",
     "polygres/spec/python-sdk-v1.methods.schema.json",
     "polygres/spec/runtime-v1.openapi.json",
 }
 SDIST_RESOURCES = {
     "migrations/README.md",
+    "src/polygres/spec/pgcontext-0.2.0-compatibility.json",
     "src/polygres/spec/python-sdk-v1.methods.json",
     "src/polygres/spec/python-sdk-v1.methods.schema.json",
     "src/polygres/spec/runtime-v1.openapi.json",

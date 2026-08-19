@@ -39,6 +39,23 @@ print(readiness.graph, readiness.vector, readiness.hybrid)
 
 Use the Runtime API URL with the SDK. Do not use a direct or pooled PostgreSQL connection string.
 
+## Synchronized PostgreSQL projects
+
+For a synchronized project, the Runtime does not expose connection information.
+That surface raises `PolygresPermissionError` with code
+`SYNCED_PROJECT_SURFACE_UNAVAILABLE`. Readiness, `project.vector`,
+`project.hybrid`, graph, text-search, and pgContext remain available after
+synchronization is ready.
+
+If your application already has the authoritative control-plane project payload,
+pass its mode to the SDK to reject a connection-information call before building
+a Runtime request. The Runtime enforces the same boundary when no mode hint is
+supplied.
+
+```python
+project = client.project(project_mode="synced")
+```
+
 ## Choose a retrieval method
 
 | Need | Method |
@@ -54,6 +71,41 @@ The corresponding graph, vector, or text configuration must be ready before the 
 New vector setup uses `project.context.create_collection()` with a native
 `pgcontext.vector` column. Existing `project.vector` retrieval methods remain available
 for applications using previously registered vector configurations.
+
+## pgContext-aligned names
+
+SDK 0.4.0 adds pgContext 0.2.0 terminology while keeping every SDK 0.3.0
+Context method available. Existing applications can upgrade without changing
+their calls.
+
+The stable pgContext 0.2.0 inventory is fully classified and has no missing SDK
+entries. Database-native vector operators remain SQL-only, and five
+backend-wide or privileged instrumentation functions remain available through
+direct SQL rather than the project-scoped Runtime API. See the
+[migration and coverage notes](migrations/pgcontext-0.2.0-names.md).
+
+```python
+operation = project.context.register_vector(
+    collection_id,
+    "title_embedding",
+    768,
+)
+project.context.register_filter_column(
+    collection_id,
+    "tenant_id",
+    "tenant_id",
+)
+results = project.context.query(
+    "support_docs",
+    query_embedding,
+    query="refund policy",
+)
+```
+
+The earlier `add_vector()`, `add_filter_column()`, and `text_hybrid()` names
+remain silent compatibility aliases with unchanged behavior. See the
+[pgContext naming migration](migrations/pgcontext-0.2.0-names.md) for the full
+mapping.
 
 ## Vector retrieval
 
@@ -232,7 +284,9 @@ Keep the request ID when reporting a problem. Never log or send the Project API 
 
 ## Connection information
 
-`connection_info()` returns project hosts and passwordless connection strings. It never returns the database password.
+For a standard project, `connection_info()` returns project hosts and passwordless
+connection strings. It never returns the database password. It raises
+`PolygresPermissionError` for a synchronized project.
 
 ```python
 connection = project.connection_info()
@@ -269,11 +323,11 @@ payload and idempotency key.
 
 ## Version and support
 
-Package version: [`0.3.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.3.0).
+Package version: [`0.4.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.0).
 
 When contacting support, include the installed SDK version and the request ID.
 
-See the [SDK 0.3.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.3.0) for release changes.
+See the [SDK 0.4.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.0) for release changes.
 
 ## Optional Agent Skill
 

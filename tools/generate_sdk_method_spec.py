@@ -165,6 +165,8 @@ def validate_method_spec(
             )
         if method["binding_kind"] == "composite" and not method["operation_ids"]:
             raise ValueError(f"Composite method has no operations: {method['public_name']}")
+        if method["binding_kind"] == "local" and method["operation_ids"]:
+            raise ValueError(f"Local method must not bind operations: {method['public_name']}")
         if method["stability"] == "stable" and (not method["description"] or not method["example"]):
             raise ValueError(f"Stable method lacks documentation: {method['public_name']}")
         if "POLYGRES_API_KEY" in method["example"] or "http" in method["example"]:

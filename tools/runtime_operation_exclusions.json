@@ -1,5 +1,17 @@
 [
   {
+    "operation_id": "runtime_get_table_rows",
+    "reason": "Runtime row reads are available to direct clients, but the typed SDK row-read pagination surface is scheduled for the next client-convergence increment.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_list_tables",
+    "reason": "Runtime table discovery is available to direct clients, but the typed SDK table model is scheduled for the next client-convergence increment.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
     "operation_id": "build_graph_v1_graph_build_post",
     "reason": "Graph setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
     "owner": "Runtime Platform",

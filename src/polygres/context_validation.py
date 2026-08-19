@@ -82,6 +82,18 @@ def context_collection(value: str | UUID) -> str:
     return value
 
 
+def context_identifier(value: str, *, field: str) -> str:
+    violations = validate_identifier(value, field=field)
+    if violations:
+        violation = violations[0]
+        raise PolygresValidationError(
+            f"{field.replace('_', ' ').capitalize()} must be a valid identifier.",
+            code="CONTEXT_REQUEST_INVALID",
+            details={"field": violation.field, "rule": violation.rule},
+        )
+    return value
+
+
 def context_idempotency_key(value: str | None) -> str:
     key = value if value is not None else str(uuid4())
     violations = validate_idempotency_key(key)

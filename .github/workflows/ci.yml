@@ -52,11 +52,14 @@ jobs:
       - name: Verify source and generated package versions
         run: python tools/verify_release_version.py
 
-      - name: Check compatibility against released 0.2.1 baseline
+      - name: Check compatibility against released 0.3.0 baseline
         run: >-
           python tools/check_sdk_compatibility.py
-          --baseline compatibility/0.2.1/python-sdk-v1.methods.json
-          --expect-current-version 0.3.0
+          --baseline compatibility/0.3.0/python-sdk-v1.methods.json
+          --expect-current-version 0.4.0
+
+      - name: Check pgContext 0.2.0 compatibility inventory
+        run: python tools/check_pgcontext_compatibility.py
 
       - name: Build package
         run: python -m build
@@ -77,8 +80,9 @@ jobs:
           import httpx
           from polygres import Polygres, __version__
 
-          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.3.0"
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.0"
           for name in (
+              "pgcontext-0.2.0-compatibility.json",
               "runtime-v1.openapi.json",
               "python-sdk-v1.methods.json",
               "python-sdk-v1.methods.schema.json",
@@ -125,8 +129,9 @@ jobs:
 
           from polygres import __version__
 
-          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.3.0"
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.0"
           for name in (
+              "pgcontext-0.2.0-compatibility.json",
               "runtime-v1.openapi.json",
               "python-sdk-v1.methods.json",
               "python-sdk-v1.methods.schema.json",

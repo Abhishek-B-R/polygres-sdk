@@ -13,3 +13,7 @@ distributions and can be read with `importlib.resources` from
 Version 0.2.0 adds package and Runtime API contract metadata without changing
 the behavior of existing public SDK methods, so it requires no topic migration
 note.
+
+SDK 0.4.0 adds preferred pgContext-aligned names without removing or warning on
+the SDK 0.3.0 names. See
+[`pgcontext-0.2.0-names.md`](pgcontext-0.2.0-names.md).

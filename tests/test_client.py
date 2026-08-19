@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import platform
 import sys
+from pathlib import Path
 
 import httpx
 import pytest
@@ -14,6 +16,7 @@ from polygres import (
     PolygresAuthError,
     PolygresMaintenanceError,
     PolygresPermissionError,
+    PolygresRuntimeError,
     PolygresValidationError,
     VectorResult,
     __version__,
@@ -26,6 +29,9 @@ PROJECT_ID = "p0123456789abcdef0123456"
 BASE_URL = "https://api.example.test/v1"
 RUNTIME_URL = "https://p0123456789abcdef0123456.api.db.polygres.com/v1"
 ROUTE_CTX = getattr(respx, "mo" + "ck")
+CONTEXT_FIXTURES = json.loads(
+    (Path(__file__).parent / "fixtures" / "context" / "contract-fixtures.json").read_text()
+)
 
 
 def test_sdk_upgrade_required_response_is_not_retryable() -> None:
@@ -193,6 +199,169 @@ def test_project_id_validation() -> None:
     client.project()
     with pytest.raises(PolygresValidationError):
         client.project("bad")
+    with pytest.raises(PolygresValidationError, match="project_mode"):
+        client.project(project_mode="other")  # type: ignore[arg-type]
+
+
+def test_synced_project_mode_blocks_connection_info_before_requests(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project = _client().project(project_mode="synced")
+
+    def unexpected_runtime_request(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("the synced-mode gate must run before a Runtime request")
+
+    monkeypatch.setattr(project._client, "_get", unexpected_runtime_request)
+    monkeypatch.setattr(project._client, "_post", unexpected_runtime_request)
+
+    with pytest.raises(PolygresPermissionError) as exc_info:
+        project.connection_info()
+
+    error = exc_info.value
+    assert error.code == "SYNCED_PROJECT_SURFACE_UNAVAILABLE"
+    assert error.status_code == 403
+    assert str(error) == catalog_message("SYNCED_PROJECT_SURFACE_UNAVAILABLE")
+    assert error.details == {}
+
+
+@ROUTE_CTX
+def test_synced_connection_catalog_error_maps_to_permission_error() -> None:
+    route = _stub(
+        respx.get(f"{RUNTIME_URL}/connection-info"),
+        return_value=httpx.Response(
+            403,
+            json={
+                "request_id": "req_synced_surface",
+                "error": {
+                    "code": "SYNCED_PROJECT_SURFACE_UNAVAILABLE",
+                    "message": "untrusted service message",
+                    "details": {"legacy_configuration": "must-not-leak"},
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PolygresPermissionError) as exc_info:
+        _client().project().connection_info()
+
+    error = exc_info.value
+    assert route.called
+    assert error.code == "SYNCED_PROJECT_SURFACE_UNAVAILABLE"
+    assert error.status_code == 403
+    assert error.request_id == "req_synced_surface"
+    assert str(error) == catalog_message("SYNCED_PROJECT_SURFACE_UNAVAILABLE")
+    assert error.details == {}
+
+
+@ROUTE_CTX
+def test_connection_info_rejects_a_malformed_synced_success_payload() -> None:
+    _stub(
+        respx.get(f"{RUNTIME_URL}/connection-info"),
+        return_value=httpx.Response(
+            200,
+            json={
+                "request_id": "req_malformed_synced_connection",
+                "project_id": PROJECT_ID,
+                "project_mode": "synced",
+                "database": "must-not-leak",
+                "username": "must-not-leak",
+                "port": 5432,
+                "direct": {
+                    "host": "must-not-leak",
+                    "connection_string_without_password": "postgresql://must-not-leak",
+                },
+                "pooled": {
+                    "host": "must-not-leak",
+                    "connection_string_without_password": "postgresql://must-not-leak",
+                },
+            },
+        ),
+    )
+
+    with pytest.raises(PolygresPermissionError) as exc_info:
+        _client().project().connection_info()
+
+    error = exc_info.value
+    assert error.code == "SYNCED_PROJECT_SURFACE_UNAVAILABLE"
+    assert error.status_code == 403
+    assert str(error) == catalog_message("SYNCED_PROJECT_SURFACE_UNAVAILABLE")
+
+
+@ROUTE_CTX
+def test_synced_project_mode_keeps_retrieval_namespaces_available() -> None:
+    graph_route = _stub(
+        respx.post(f"{RUNTIME_URL}/graph/expand"),
+        return_value=httpx.Response(200, json=_graph_page_payload()),
+    )
+    text_route = _stub(
+        respx.post(f"{RUNTIME_URL}/text/tsvector"),
+        return_value=httpx.Response(
+            200,
+            json={
+                "request_id": "req_text",
+                "results": [
+                    {
+                        "schema": "public",
+                        "table": "documents",
+                        "id": "doc_1",
+                        "properties": {"title": "A"},
+                        "score": 0.9,
+                    }
+                ],
+                "next_cursor": None,
+                "has_more": False,
+            },
+        ),
+    )
+    context_route = _stub(
+        respx.get(f"{RUNTIME_URL}/context/capabilities"),
+        return_value=httpx.Response(
+            200,
+            json=CONTEXT_FIXTURES["responses"]["CapabilitiesResponse"],
+        ),
+    )
+    readiness_route = _stub(
+        respx.get(f"{RUNTIME_URL}/retrieval/readiness"),
+        return_value=httpx.Response(
+            200,
+            json={
+                "request_id": "req_ready",
+                "project_id": PROJECT_ID,
+                "graph": {"ready": True},
+                "vector": {"ready": True, "default_config": "documents"},
+                "hybrid": {"ready": True},
+            },
+        ),
+    )
+    vector_route = _stub(
+        respx.post(f"{RUNTIME_URL}/vector/search"),
+        return_value=httpx.Response(200, json=_page_payload()),
+    )
+    hybrid_route = _stub(
+        respx.post(f"{RUNTIME_URL}/hybrid/joint"),
+        return_value=httpx.Response(200, json=_hybrid_payload()),
+    )
+    project = _client().project(project_mode="synced")
+
+    readiness = project.readiness()
+    vector = project.vector.search([0.1], config="documents")
+    hybrid = project.hybrid.joint([0.1], {"schema": "public", "table": "documents", "id": "1"})
+    graph = project.graph.expand({"schema": "public", "table": "documents", "id": "doc_1"})
+    text = project.text.tsvector("hello", config="documents")
+    capabilities = project.context.get_capabilities()
+
+    assert readiness_route.called
+    assert vector_route.called
+    assert hybrid_route.called
+    assert graph_route.called
+    assert text_route.called
+    assert context_route.called
+    assert readiness.vector["ready"] is True
+    assert vector.results[0].id == "doc_1"
+    assert hybrid.results[0].id == "doc_1"
+    assert graph.results[0].node.id == "cus_2"
+    assert text.results[0].id == "doc_1"
+    assert capabilities.contract_version == "context.v1"
 
 
 def test_connection_info_model_has_no_password_or_expires_at() -> None:
@@ -744,6 +913,28 @@ def test_error_mapping_retries_and_redacts_api_key() -> None:
     assert exc.value.status_code == 403
     assert exc.value.request_id == "req_forbidden"
     assert API_KEY not in str(exc.value)
+
+
+@ROUTE_CTX
+def test_protocol_disconnect_retries_and_maps_to_runtime_error() -> None:
+    route = respx.get(f"{RUNTIME_URL}/retrieval/readiness")
+    _stub(
+        route,
+        side_effect=[
+            httpx.RemoteProtocolError("server disconnected"),
+            httpx.RemoteProtocolError("server disconnected"),
+        ],
+    )
+
+    client = Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=1)
+    with pytest.raises(PolygresRuntimeError) as exc:
+        client.project().readiness()
+
+    assert route.call_count == 2
+    assert exc.value.status_code is None
+    assert "could not reach" in str(exc.value)
+    assert API_KEY not in str(exc.value)
+    assert isinstance(exc.value.__cause__, httpx.RemoteProtocolError)
 
 
 @ROUTE_CTX

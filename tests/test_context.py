@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import json
+import warnings
 from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
@@ -23,6 +25,8 @@ from polygres import (
     __version__,
 )
 from polygres._api_version import API_VERSION_HEADER, CLIENT_INFO_HEADER, DEFAULT_API_VERSION
+from polygres._method_metadata import get_sdk_method_binding
+from polygres.context import ContextNamespace
 from polygres.context_wait import context_poll_interval, wait_for_context_operation
 
 API_KEY = "poly_live_0123456789abcdef0123456789abcdef"
@@ -82,6 +86,20 @@ def _response_payload(request: httpx.Request) -> dict[str, Any]:
     responses = FIXTURES["responses"]
     if path == "/context/capabilities":
         return _available_capabilities()
+    if path == "/context/aliases" and request.method == "POST":
+        return deepcopy(responses["CollectionAliasResponse"])
+    if path == "/context/aliases" and request.method == "GET":
+        return deepcopy(responses["CollectionAliasListResponse"])
+    if path.startswith("/context/aliases/") and request.method == "DELETE":
+        return deepcopy(responses["CollectionAliasDropResponse"])
+    if path.endswith("/info") and "/collections/by-name/" in path:
+        return deepcopy(responses["PgContextCollectionInfoResponse"])
+    if path.endswith("/limits") and "/collections/by-name/" in path:
+        return deepcopy(responses["CollectionLimitsResponse"])
+    if path.endswith("/vectors") and "/collections/by-name/" in path:
+        return deepcopy(responses["CollectionVectorsResponse"])
+    if "/collections/by-name/" in path and "/vectors/" in path:
+        return deepcopy(responses["VectorConfigureResponse"])
     if path.startswith("/context/onboarding"):
         return deepcopy(responses["ContextOnboardingResponse"])
     if path == "/context/discover":
@@ -92,11 +110,11 @@ def _response_payload(request: httpx.Request) -> dict[str, Any]:
         return deepcopy(responses["CollectionListResponse"])
     if path == f"/context/collections/{COLLECTION_ID}" and request.method == "GET":
         return deepcopy(responses["CollectionGetResponse"])
-    if path.endswith("/status") and "/points/" not in path:
+    if path.endswith("/status") and "/points/" not in path and "/indexes/" not in path:
         return deepcopy(responses["CollectionStatusResponse"])
     if path.endswith("/verify"):
         return deepcopy(responses["VerificationResponse"])
-    if path.endswith("/diagnostics"):
+    if path.endswith("/diagnostics") and "/indexes/" not in path:
         return deepcopy(responses["DiagnosticsResponse"])
     if path.endswith("/filters"):
         return deepcopy(responses["FilterListResponse"])
@@ -118,6 +136,42 @@ def _response_payload(request: httpx.Request) -> dict[str, Any]:
         return deepcopy(responses["FacetsResponse"])
     if path == "/context/recall-check":
         return deepcopy(responses["RecallCheckResponse"])
+    if path == "/context/query/execute":
+        return deepcopy(responses["QueryExecutionResponse"])
+    if path == "/context/query/explain":
+        return deepcopy(responses["QueryExplainResponse"])
+    if path.startswith("/context/points/bulk-") or path == "/context/points/backfill":
+        return deepcopy(responses["PointBatchResponse"])
+    if path.startswith("/context/points/payload"):
+        return deepcopy(responses["PayloadMutationResponse"])
+    if path in {
+        "/context/search/candidates",
+        "/context/recommend",
+        "/context/search/discover",
+        "/context/explore",
+    }:
+        return deepcopy(responses["PgContextScoredResponse"])
+    if path == "/context/search/raw":
+        return deepcopy(responses["RawVectorSearchResponse"])
+    for suffix, model in {
+        "/memory-estimate": "IndexMemoryEstimateResponse",
+        "/vacuum-advice": "VacuumAdviceResponse",
+        "/index-advisor": "IndexAdvisorResponse",
+        "/optimization-status": "OptimizationStatusResponse",
+        "/telemetry": "TelemetryResponse",
+        "/query-cohort-stats": "QueryCohortStatsResponse",
+        "/query-execution-stats": "QueryExecutionStatsResponse",
+    }.items():
+        if path.endswith(suffix):
+            return deepcopy(responses[model])
+    if "/indexes/" in path and path.endswith("/status"):
+        return deepcopy(responses["IndexStatusResponse"])
+    if "/indexes/" in path and path.endswith("/diagnostics"):
+        return deepcopy(responses["IndexDiagnosticsResponse"])
+    if path.endswith("/model-versions"):
+        return deepcopy(responses["ModelVersionsResponse"])
+    if "/embedding-migrations" in path:
+        return deepcopy(responses["EmbeddingMigrationsResponse"])
     if path == "/context/hybrid/joint":
         return deepcopy(responses["ContextJointResponse"])
     if path in {
@@ -143,6 +197,310 @@ def _response_payload(request: httpx.Request) -> dict[str, Any]:
 
 def _json_body(request: httpx.Request) -> dict[str, Any] | None:
     return json.loads(request.content) if request.content else None
+
+
+def _captured_context_call(
+    invocation: Callable[[Any], Any],
+) -> tuple[type[Any], list[tuple[str, str, bytes, dict[str, str]]], list[warnings.WarningMessage]]:
+    requests: list[httpx.Request] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=_response_payload(request))
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        result = invocation(_client(respond).project().context)
+    request_contract = [
+        (
+            request.method,
+            request.url.path,
+            request.content,
+            {
+                name: request.headers[name]
+                for name in (
+                    "authorization",
+                    "content-type",
+                    "idempotency-key",
+                    API_VERSION_HEADER.lower(),
+                )
+                if name in request.headers
+            },
+        )
+        for request in requests
+    ]
+    return type(result), request_contract, caught
+
+
+def test_pgcontext_aligned_names_preserve_sdk_0_3_call_contracts() -> None:
+    cases = (
+        (
+            "register_vector",
+            "add_vector",
+            lambda context: context.register_vector(
+                COLLECTION_ID,
+                "embedding_v2",
+                2,
+                name="semantic_v2",
+                mode="add_column",
+                metric="cosine",
+                index_kind="hnsw",
+                set_default=True,
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+            lambda context: context.add_vector(
+                COLLECTION_ID,
+                "embedding_v2",
+                2,
+                name="semantic_v2",
+                mode="add_column",
+                metric="cosine",
+                index_kind="hnsw",
+                set_default=True,
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+        ),
+        (
+            "drop_collection",
+            "delete_collection",
+            lambda context: context.drop_collection(
+                COLLECTION_ID,
+                confirm_collection_id=COLLECTION_ID,
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+            lambda context: context.delete_collection(
+                COLLECTION_ID,
+                confirm_collection_id=COLLECTION_ID,
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+        ),
+        (
+            "register_filter_column",
+            "add_filter_column",
+            lambda context: context.register_filter_column(
+                COLLECTION_ID,
+                "tenant_id",
+                "tenant_id",
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+            lambda context: context.add_filter_column(
+                COLLECTION_ID,
+                "tenant_id",
+                "tenant_id",
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+        ),
+        (
+            "register_jsonb_path",
+            "add_jsonb_filter_path",
+            lambda context: context.register_jsonb_path(
+                COLLECTION_ID,
+                "topic",
+                "metadata",
+                ["topic"],
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+            lambda context: context.add_jsonb_filter_path(
+                COLLECTION_ID,
+                "topic",
+                "metadata",
+                ["topic"],
+                idempotency_key=IDEMPOTENCY_KEY,
+            ),
+        ),
+        (
+            "scroll",
+            "scroll_points",
+            lambda context: context.scroll(COLLECTION_ID, limit=25, cursor="points-cursor"),
+            lambda context: context.scroll_points(COLLECTION_ID, limit=25, cursor="points-cursor"),
+        ),
+        (
+            "facet",
+            "facets",
+            lambda context: context.facet(
+                "support_docs",
+                "tenant_id",
+                filter={"must": [{"key": "tenant_id", "match": "acme"}]},
+                limit=5,
+            ),
+            lambda context: context.facets(
+                "support_docs",
+                "tenant_id",
+                filter={"must": [{"key": "tenant_id", "match": "acme"}]},
+                limit=5,
+            ),
+        ),
+        (
+            "query",
+            "text_hybrid",
+            lambda context: context.query(
+                "support_docs",
+                [0.1, 0.2],
+                vector_name="embedding_v2",
+                query="refund",
+                limit=5,
+            ),
+            lambda context: context.text_hybrid(
+                "support_docs",
+                [0.1, 0.2],
+                vector_name="embedding_v2",
+                query="refund",
+                limit=5,
+            ),
+        ),
+    )
+
+    for aligned_name, legacy_name, aligned_call, legacy_call in cases:
+        aligned_type, aligned_requests, aligned_warnings = _captured_context_call(aligned_call)
+        legacy_type, legacy_requests, legacy_warnings = _captured_context_call(legacy_call)
+
+        assert aligned_type is legacy_type, aligned_name
+        assert aligned_requests == legacy_requests, aligned_name
+        assert aligned_warnings == [], aligned_name
+        assert legacy_warnings == [], legacy_name
+        assert inspect.signature(getattr(ContextNamespace, aligned_name)) == inspect.signature(
+            getattr(ContextNamespace, legacy_name)
+        )
+        binding = get_sdk_method_binding(getattr(ContextNamespace, aligned_name))
+        assert binding is not None
+        assert binding.public_name == f"project.context.{aligned_name}"
+        assert binding.since == "0.4.0"
+
+
+def test_pgcontext_query_builders_are_typed_composable_and_executable() -> None:
+    requests: list[httpx.Request] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=_response_payload(request))
+
+    context = _client(respond).project().context
+    dense = context.query_nearest(
+        [0.1, 0.2],
+        20,
+        vector_name="embedding_v2",
+        filter={"must": [{"key": "tenant_id", "match": "acme"}]},
+    )
+    lexical = context.query_full_text("refund", "content", 20)
+    prefetched = context.query_prefetch(
+        [context.query_weight(dense, 0.7), context.query_weight(lexical, 0.3)]
+    )
+    plan = context.query_rerank(prefetched, 10)
+
+    assert plan.to_dict() == {
+        "kind": "rerank",
+        "branch": {
+            "kind": "prefetch",
+            "branches": [
+                {
+                    "kind": "weight",
+                    "branch": {
+                        "kind": "nearest",
+                        "vector": [0.1, 0.2],
+                        "vector_name": "embedding_v2",
+                        "filter": {"must": [{"key": "tenant_id", "match": "acme"}]},
+                        "limit": 20,
+                    },
+                    "weight": 0.7,
+                },
+                {
+                    "kind": "weight",
+                    "branch": {
+                        "kind": "full_text",
+                        "text_query": "refund",
+                        "text_column": "content",
+                        "limit": 20,
+                    },
+                    "weight": 0.3,
+                },
+            ],
+        },
+        "limit": 10,
+    }
+
+    execution = context.execute_query("support_docs", plan)
+    explanation = context.explain("support_docs", "content")
+    assert execution.collection.name == "synthetic"
+    assert explanation.collection.name == "synthetic"
+    assert [(request.method, request.url.path) for request in requests] == [
+        ("POST", "/v1/context/query/execute"),
+        ("POST", "/v1/context/query/explain"),
+    ]
+    assert _json_body(requests[0]) == {"collection": "support_docs", "plan": plan.to_dict()}
+
+
+@pytest.mark.parametrize(
+    ("builder", "code"),
+    [
+        (lambda context: context.query_lookup([]), "CONTEXT_REQUEST_INVALID"),
+        (lambda context: context.query_recommend([], [], 10), "CONTEXT_REQUEST_INVALID"),
+        (
+            lambda context: context.query_score_threshold(
+                context.query_nearest([0.1], 10), 0.8, 0.2
+            ),
+            "CONTEXT_REQUEST_INVALID",
+        ),
+    ],
+)
+def test_pgcontext_query_builders_reject_invalid_plans(builder, code: str) -> None:
+    with pytest.raises(PolygresValidationError) as caught:
+        builder(_client(lambda _request: httpx.Response(500)).project().context)
+    assert caught.value.code == code
+
+
+def test_pgcontext_catalog_methods_bind_exact_typed_routes() -> None:
+    requests: list[httpx.Request] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=_response_payload(request))
+
+    context = _client(respond).project().context
+    context.create_collection_alias("support", "support_v2")
+    context.collection_aliases()
+    context.drop_collection_alias("support")
+    context.collection_info("support_v2")
+    context.collection_limits("support_v2")
+    context.configure_collection_limits(
+        "support_v2",
+        strict_mode=True,
+        max_dimensions=1536,
+        max_vectors=4,
+        max_points=100000,
+        max_filter_nodes=64,
+        max_search_limit=100,
+        max_candidate_budget=1000,
+        query_timeout_ms=5000,
+        max_index_memory_bytes=1073741824,
+    )
+    context.collection_vectors("support_v2")
+    context.configure_vector(
+        "support_v2",
+        "embedding",
+        hnsw_options={"m": 16},
+        quantization_options={},
+        status="ready",
+    )
+
+    assert [(request.method, request.url.path) for request in requests] == [
+        ("POST", "/v1/context/aliases"),
+        ("GET", "/v1/context/aliases"),
+        ("DELETE", "/v1/context/aliases/support"),
+        ("GET", "/v1/context/collections/by-name/support_v2/info"),
+        ("GET", "/v1/context/collections/by-name/support_v2/limits"),
+        ("PATCH", "/v1/context/collections/by-name/support_v2/limits"),
+        ("GET", "/v1/context/collections/by-name/support_v2/vectors"),
+        ("PATCH", "/v1/context/collections/by-name/support_v2/vectors/embedding"),
+    ]
+    assert _json_body(requests[0]) == {
+        "alias_name": "support",
+        "target_collection_name": "support_v2",
+    }
+    assert _json_body(requests[-1]) == {
+        "hnsw_options": {"m": 16},
+        "quantization_options": {},
+        "status": "ready",
+    }
 
 
 def test_flat_context_namespace_and_every_method_route_contract() -> None:
@@ -1127,3 +1485,80 @@ def test_namespace_wait_polls_only_operation_route(monkeypatch: pytest.MonkeyPat
     assert [(request.method, request.url.path) for request in requests] == [
         ("GET", f"/v1/context/operations/{OPERATION_ID}")
     ]
+
+
+def test_full_pgcontext_alignment_methods_bind_exact_routes() -> None:
+    requests: list[httpx.Request] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, json=_response_payload(request))
+
+    context = _client(respond).project().context
+    context.bulk_upsert_points("support_docs", ["row-1"], batch_size=50)
+    context.bulk_delete_points("support_docs", ["row-1"], batch_size=50)
+    context.backfill_points("support_docs", batch_size=50)
+    context.set_payload("support_docs", ["row-1"], {"locale": "en"})
+    context.delete_payload("support_docs", ["row-1"], ["locale"])
+    context.clear_payload("support_docs", ["row-1"])
+    context.candidate_search("support_docs", [0.1], [1])
+    context.raw_vector_search([0.1], [1], [[0.1]], "cosine")
+    context.recommend("support_docs", positive_point_ids=[1])
+    context.discover("support_docs", [1])
+    context.explore("support_docs", [1])
+    context.index_status("support_docs", "support_embedding_idx")
+    context.index_diagnostics("support_docs", "support_embedding_idx")
+    context.estimate_index_memory("support_docs", "support_embedding_idx")
+    context.vacuum_advice("support_docs", "support_embedding_idx")
+    context.index_advisor("support_docs")
+    context.optimization_status("support_docs")
+    context.telemetry("support_docs")
+    context.query_cohort_stats("support_docs")
+    context.query_execution_stats("support_docs")
+    context.model_versions("support_docs")
+    context.register_model_version("support_docs", "embed", "2", 1, "cosine")
+    context.embedding_migrations("support_docs")
+    context.create_embedding_migration("support_docs", "embed", "1", "embed", "2", 100)
+    context.update_embedding_migration("support_docs", 1, 50, "running")
+
+    assert [(request.method, request.url.path.removeprefix("/v1")) for request in requests] == [
+        ("POST", "/context/points/bulk-upsert"),
+        ("POST", "/context/points/bulk-delete"),
+        ("POST", "/context/points/backfill"),
+        ("PUT", "/context/points/payload"),
+        ("POST", "/context/points/payload/delete"),
+        ("POST", "/context/points/payload/clear"),
+        ("POST", "/context/search/candidates"),
+        ("POST", "/context/search/raw"),
+        ("POST", "/context/recommend"),
+        ("POST", "/context/search/discover"),
+        ("POST", "/context/explore"),
+        ("GET", "/context/collections/by-name/support_docs/indexes/support_embedding_idx/status"),
+        (
+            "GET",
+            "/context/collections/by-name/support_docs/indexes/support_embedding_idx/diagnostics",
+        ),
+        (
+            "GET",
+            "/context/collections/by-name/support_docs/indexes/support_embedding_idx/memory-estimate",
+        ),
+        (
+            "GET",
+            "/context/collections/by-name/support_docs/indexes/support_embedding_idx/vacuum-advice",
+        ),
+        ("GET", "/context/collections/by-name/support_docs/index-advisor"),
+        ("GET", "/context/collections/by-name/support_docs/optimization-status"),
+        ("GET", "/context/collections/by-name/support_docs/telemetry"),
+        ("GET", "/context/collections/by-name/support_docs/query-cohort-stats"),
+        ("GET", "/context/collections/by-name/support_docs/query-execution-stats"),
+        ("GET", "/context/collections/by-name/support_docs/model-versions"),
+        ("POST", "/context/collections/by-name/support_docs/model-versions"),
+        ("GET", "/context/collections/by-name/support_docs/embedding-migrations"),
+        ("POST", "/context/collections/by-name/support_docs/embedding-migrations"),
+        ("PATCH", "/context/collections/by-name/support_docs/embedding-migrations/1"),
+    ]
+
+    with pytest.raises(PolygresValidationError):
+        context.recommend("support_docs", positive_point_ids=[1], positive_vectors=[[0.1]])
+    with pytest.raises(PolygresValidationError):
+        context.raw_vector_search([0.1], [1, 2], [[0.1]], "cosine")

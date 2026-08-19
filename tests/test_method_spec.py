@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from polygres._method_metadata import get_sdk_method_binding, sdk_method
-from polygres.client import Project
+from polygres.client import HybridNamespace, Project, VectorNamespace
 from polygres.context import ContextNamespace
 
 SDK_ROOT = Path(__file__).resolve().parents[1]
@@ -35,8 +35,8 @@ def test_committed_method_spec_is_deterministic_schema_and_semantically_valid() 
 
     assert actual == expected
     generator.validate_method_spec(actual)
-    assert len(actual["methods"]) == 60
-    assert len(actual["excluded_operations"]) == 27
+    assert len(actual["methods"]) == 114
+    assert len(actual["excluded_operations"]) == 29
 
     baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
     generator.validate_method_spec(baseline, require_current_operation_details=False)
@@ -80,6 +80,8 @@ def test_sdk_method_metadata_does_not_wrap_or_change_signatures() -> None:
     assert decorated("value", limit=2) == ("value", 2)
     assert get_sdk_method_binding(decorated) is not None
     assert get_sdk_method_binding(Project.readiness) is not None
+    assert get_sdk_method_binding(VectorNamespace.search) is not None
+    assert get_sdk_method_binding(HybridNamespace.joint) is not None
     assert get_sdk_method_binding(ContextNamespace.search) is not None
 
 

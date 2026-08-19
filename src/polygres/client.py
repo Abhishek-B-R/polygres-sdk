@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urlparse
 
 import httpx
@@ -31,6 +31,7 @@ from polygres.errors import (
     PolygresRuntimeError,
     PolygresValidationError,
     canonical_error_details,
+    synced_project_surface_unavailable_error,
 )
 from polygres.models import (
     ConnectionInfo,
@@ -47,6 +48,7 @@ from polygres.rows import RowsNamespace
 from polygres.version_notices import check_central_version_notices, emit_version_notice
 
 PROJECT_RE = re.compile(r"^p[a-z0-9]{23}$")
+ProjectMode = Literal["standard", "synced"]
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
 PROTECTED_HEADERS = frozenset(
     {
@@ -107,10 +109,17 @@ class Polygres:
         self._headers = headers or {}
         self._client = httpx.Client(timeout=timeout_config)
 
-    def project(self, project_id: str | None = None) -> Project:
+    def project(
+        self,
+        project_id: str | None = None,
+        *,
+        project_mode: ProjectMode | None = None,
+    ) -> Project:
         if project_id is not None and not PROJECT_RE.match(project_id):
             raise PolygresValidationError("project id must match ^p[a-z0-9]{23}$")
-        return Project(self, project_id)
+        if project_mode not in {None, "standard", "synced"}:
+            raise PolygresValidationError("project_mode must be 'standard' or 'synced'")
+        return Project(self, project_id, project_mode=project_mode)
 
     def close(self) -> None:
         self._client.close()
@@ -328,7 +337,7 @@ class Polygres:
                     f"{retry_budget + 1} attempts. Please wait a while and retry.",
                     status_code=None,
                 ) from exc
-            except httpx.NetworkError as exc:
+            except httpx.TransportError as exc:
                 if attempt < retry_budget and _sleep_before_retry(attempt, None, deadline=deadline):
                     continue
                 raise PolygresRuntimeError(
@@ -369,6 +378,7 @@ class Polygres:
 class Project:
     _client: Polygres
     project_id: str | None
+    project_mode: ProjectMode | None = None
     graph: GraphNamespace = field(init=False)
     vector: VectorNamespace = field(init=False)
     text: TextNamespace = field(init=False)
@@ -384,13 +394,35 @@ class Project:
         self.context = ContextNamespace(self)
         self.rows = RowsNamespace(self)
 
+    def connection_info(self) -> ConnectionInfo:
+        self._require_legacy_surface_available()
+        payload = self._client._get("/connection-info")
+        self._observe_project_mode(payload)
+        self._require_legacy_surface_available()
+        return ConnectionInfo.from_api(payload)
+
     def readiness(self) -> RetrievalReadiness:
         payload = self._client._get("/retrieval/readiness")
         return RetrievalReadiness.from_api(payload)
 
-    def connection_info(self) -> ConnectionInfo:
-        payload = self._client._get("/connection-info")
-        return ConnectionInfo.from_api(payload)
+    def _require_legacy_surface_available(self) -> None:
+        if self.project_mode == "synced":
+            raise synced_project_surface_unavailable_error()
+
+    def _observe_project_mode(self, payload: dict[str, Any]) -> None:
+        """Fail closed if a malformed Runtime success payload identifies sync mode.
+
+        A conforming synced Runtime returns the catalog 403 before this method
+        runs. This defensive check prevents a future response-shape regression
+        from materializing a ``ConnectionInfo`` object with redacted database
+        metadata missing or, worse, present.
+        """
+        project = payload.get("project")
+        mode = payload.get("project_mode")
+        if mode is None and isinstance(project, dict):
+            mode = project.get("project_mode")
+        if mode == "synced":
+            self.project_mode = "synced"
 
     def _post_page(
         self,

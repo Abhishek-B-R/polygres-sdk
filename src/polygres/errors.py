@@ -74,6 +74,23 @@ class PolygresAmbiguousWriteError(PolygresRuntimeError):
     """Raised when a row mutation may have committed but acknowledgement was lost."""
 
 
+def synced_project_surface_unavailable_error() -> PolygresPermissionError:
+    """Return the catalog-owned error used by local synced-mode guards.
+
+    Runtime remains the authorization authority. This helper lets a caller that
+    already has the authoritative ``project_mode`` fail before constructing a
+    legacy request, with the exact exception and message it would receive from
+    the Runtime boundary.
+    """
+    descriptor = ERROR_CATALOG["SYNCED_PROJECT_SURFACE_UNAVAILABLE"]
+    return PolygresPermissionError(
+        descriptor.message,
+        status_code=descriptor.http_status,
+        code=descriptor.code,
+        details={},
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class _CanonicalErrorDetails:
     code: str

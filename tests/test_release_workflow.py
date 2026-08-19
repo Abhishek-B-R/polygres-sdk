@@ -93,3 +93,13 @@ def test_publish_workflow_creates_release_after_pypi() -> None:
     assert "gh release upload" in workflow
     assert "--clobber" in workflow
     assert "releases/latest" in workflow
+
+
+def test_publish_workflow_checks_the_0_4_0_release_against_0_3_0() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "publish-python-sdk.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "--baseline compatibility/0.3.0/python-sdk-v1.methods.json" in workflow
+    assert "--expect-current-version 0.4.0" in workflow
+    assert "--baseline compatibility/0.2.1/python-sdk-v1.methods.json" not in workflow
