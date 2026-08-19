@@ -1,0 +1,1366 @@
+{
+  "api_family": "v1",
+  "default_api_version": "2026-08-04",
+  "excluded_operations": [
+    {
+      "method": "POST",
+      "operation_id": "build_graph_v1_graph_build_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/build",
+      "reason": "Graph setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_text_configuration_v1_text_configurations_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/text/configurations",
+      "reason": "Text setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "create_vector_configuration_v1_vector_configurations_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/configurations",
+      "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "DELETE",
+      "operation_id": "delete_text_configuration_v1_text_configurations__config_id__delete",
+      "owner": "Runtime Platform",
+      "path": "/v1/text/configurations/{config_id}",
+      "reason": "Text setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "DELETE",
+      "operation_id": "delete_vector_configuration_v1_vector_configurations__config_id__delete",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/configurations/{config_id}",
+      "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "discover_graph_v1_graph_discover_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/discover",
+      "reason": "Graph discovery is a setup operation managed outside the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "discover_vectors_v1_vector_discover_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/discover",
+      "reason": "Vector discovery is a setup operation managed outside the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_graph_configuration_v1_graph_configuration_get",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/configuration",
+      "reason": "Graph configuration is managed through the dashboard and control-plane workflow.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_graph_system_v1_graph_system_get",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/system",
+      "reason": "Graph system configuration is an administrative Runtime concern.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_text_configuration_v1_text_configurations__config_id__get",
+      "owner": "Runtime Platform",
+      "path": "/v1/text/configurations/{config_id}",
+      "reason": "Text configuration is managed through the dashboard and control-plane workflow.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_vector_configuration_v1_vector_configurations__config_id__get",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/configurations/{config_id}",
+      "reason": "Vector configuration is managed through the dashboard and control-plane workflow.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "graph_maintenance_v1_graph_maintenance_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/maintenance",
+      "reason": "Graph maintenance is an administrative Runtime operation.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "graph_status_v1_graph_status_get",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/status",
+      "reason": "Graph build status is part of setup management; retrieval readiness is the SDK-facing status.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "healthz_v1_healthz_get",
+      "owner": "Runtime Operations",
+      "path": "/v1/healthz",
+      "reason": "Health checks are operational endpoints and are not application retrieval methods.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_text_configurations_v1_text_configurations_get",
+      "owner": "Runtime Platform",
+      "path": "/v1/text/configurations",
+      "reason": "Text configuration is managed through the dashboard and control-plane workflow.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "list_vector_configurations_v1_vector_configurations_get",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/configurations",
+      "reason": "Vector configuration is managed through the dashboard and control-plane workflow.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "metrics_v1_metrics_get",
+      "owner": "Runtime Operations",
+      "path": "/v1/metrics",
+      "reason": "Metrics are operational endpoints and are not application retrieval methods.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "patch_graph_system_v1_graph_system_patch",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/system",
+      "reason": "Graph system configuration is an administrative Runtime concern.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "patch_text_configuration_v1_text_configurations__config_id__patch",
+      "owner": "Runtime Platform",
+      "path": "/v1/text/configurations/{config_id}",
+      "reason": "Text setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "patch_vector_configuration_v1_vector_configurations__config_id__patch",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/configurations/{config_id}",
+      "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "PUT",
+      "operation_id": "put_graph_configuration_v1_graph_configuration_put",
+      "owner": "Runtime Platform",
+      "path": "/v1/graph/configuration",
+      "reason": "Graph setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "readyz_v1_readyz_get",
+      "owner": "Runtime Operations",
+      "path": "/v1/readyz",
+      "reason": "Readiness checks are operational endpoints; the SDK uses retrieval readiness instead.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "reindex_vector_configuration_v1_vector_configurations__config_id__reindex_post",
+      "owner": "Runtime Platform",
+      "path": "/v1/vector/configurations/{config_id}/reindex",
+      "reason": "Vector reindexing is a setup operation managed outside the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_add_filter_column",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/filters/columns",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_add_filter_jsonb_path",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/filters/jsonb-paths",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_cancel_operation",
+      "owner": "Python SDK",
+      "path": "/v1/context/operations/{operation_id}/cancel",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_capabilities",
+      "owner": "Python SDK",
+      "path": "/v1/context/capabilities",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_count",
+      "owner": "Python SDK",
+      "path": "/v1/context/count",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_create_collection",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "DELETE",
+      "operation_id": "runtime_context_delete_collection",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_delete_points",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/points/delete",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_discover",
+      "owner": "Python SDK",
+      "path": "/v1/context/discover",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_facets",
+      "owner": "Python SDK",
+      "path": "/v1/context/facets",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_get_collection",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_get_diagnostics",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/diagnostics",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_get_operation",
+      "owner": "Python SDK",
+      "path": "/v1/context/operations/{operation_id}",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_get_point_status",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/points/status",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_get_status",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/status",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_graph_first",
+      "owner": "Python SDK",
+      "path": "/v1/context/hybrid/graph-first",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_grouped_search",
+      "owner": "Python SDK",
+      "path": "/v1/context/grouped-search",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_joint",
+      "owner": "Python SDK",
+      "path": "/v1/context/hybrid/joint",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_list_collections",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_list_filters",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/filters",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_list_operations",
+      "owner": "Python SDK",
+      "path": "/v1/context/operations",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_preflight",
+      "owner": "Python SDK",
+      "path": "/v1/context/preflight",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_rank_fusion",
+      "owner": "Python SDK",
+      "path": "/v1/context/hybrid/rank-fusion",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_recall_check",
+      "owner": "Python SDK",
+      "path": "/v1/context/recall-check",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_reconcile_points",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/points/reconcile",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_reindex_collection",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/reindex",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_retry_operation",
+      "owner": "Python SDK",
+      "path": "/v1/context/operations/{operation_id}/retry",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_context_scroll_points",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/points",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_search",
+      "owner": "Python SDK",
+      "path": "/v1/context/search",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_text_hybrid",
+      "owner": "Python SDK",
+      "path": "/v1/context/hybrid/text",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "runtime_context_update_collection",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_upsert_points",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/points/upsert",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_vector_first",
+      "owner": "Python SDK",
+      "path": "/v1/context/hybrid/vector-first",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_context_verify_collection",
+      "owner": "Python SDK",
+      "path": "/v1/context/collections/{collection_id}/verify",
+      "reason": "This Runtime operation was not exposed by polygres-sdk 0.1.0.",
+      "review_date": "2027-02-04"
+    }
+  ],
+  "methods": [
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return passwordless direct and pooled connection information.",
+      "example": "connection = project.connection_info()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_connection_info_get"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_connection_info_get",
+          "path": "/v1/connection-info",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Connection Info Get"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Connection Info Get"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.connection_info",
+      "python_qualname": "polygres.client.Project.connection_info",
+      "retry_policy": "read_only_get",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Find graph connections among a set of rows.",
+      "example": "connections = project.graph.connection(entities)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_graph_connection"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_graph_connection",
+          "path": "/v1/graph/connection",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "direction",
+                "entities",
+                "max_depth",
+                "relationship_types"
+              ],
+              "required_fields": [
+                "entities"
+              ],
+              "schema": "GraphConnectionRequest"
+            }
+          ],
+          "request_schema": "GraphConnectionRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Graph Connection"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Graph Connection"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.graph.connection",
+      "python_qualname": "polygres.client.GraphNamespace.connection",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Expand graph relationships from one or more starting rows.",
+      "example": "page = project.graph.expand(start)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_graph_expand"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_graph_expand",
+          "path": "/v1/graph/expand",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "cursor",
+                "direction",
+                "filters",
+                "limit",
+                "max_depth",
+                "relationship_types",
+                "start"
+              ],
+              "required_fields": [
+                "start"
+              ],
+              "schema": "GraphExpandRequest"
+            }
+          ],
+          "request_schema": "GraphExpandRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Graph Expand"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Graph Expand"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.graph.expand",
+      "python_qualname": "polygres.client.GraphNamespace.expand",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return a bounded graph neighborhood around a starting row.",
+      "example": "page = project.graph.neighborhood(start)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_graph_neighborhood"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_graph_neighborhood",
+          "path": "/v1/graph/neighborhood",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "cursor",
+                "direction",
+                "filters",
+                "limit",
+                "max_depth",
+                "relationship_types",
+                "start"
+              ],
+              "required_fields": [
+                "start"
+              ],
+              "schema": "GraphExpandRequest"
+            }
+          ],
+          "request_schema": "GraphExpandRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Graph Neighborhood"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Graph Neighborhood"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.graph.neighborhood",
+      "python_qualname": "polygres.client.GraphNamespace.neighborhood",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Find graph paths between a source and target row.",
+      "example": "paths = project.graph.path(source, target)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_graph_path"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_graph_path",
+          "path": "/v1/graph/path",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "direction",
+                "max_depth",
+                "relationship_types",
+                "source",
+                "target"
+              ],
+              "required_fields": [
+                "source",
+                "target"
+              ],
+              "schema": "GraphPathRequest"
+            }
+          ],
+          "request_schema": "GraphPathRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Graph Path"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Graph Path"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.graph.path",
+      "python_qualname": "polygres.client.GraphNamespace.path",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return rows related by one graph hop.",
+      "example": "page = project.graph.related(start)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_graph_related"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_graph_related",
+          "path": "/v1/graph/related",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "cursor",
+                "direction",
+                "filters",
+                "limit",
+                "max_depth",
+                "relationship_types",
+                "start"
+              ],
+              "required_fields": [
+                "start"
+              ],
+              "schema": "GraphExpandRequest"
+            }
+          ],
+          "request_schema": "GraphExpandRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Graph Related"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Graph Related"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.graph.related",
+      "python_qualname": "polygres.client.GraphNamespace.related",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Run graph-first hybrid retrieval.",
+      "example": "page = project.hybrid.graph_first(start, embedding)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_hybrid_graph_first"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_hybrid_graph_first",
+          "path": "/v1/hybrid/graph-first",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "config",
+                "cursor",
+                "direction",
+                "embedding",
+                "filters",
+                "limit",
+                "max_depth",
+                "relationship_types",
+                "start",
+                "vector_limit",
+                "weights"
+              ],
+              "required_fields": [
+                "embedding"
+              ],
+              "schema": "HybridRequest"
+            }
+          ],
+          "request_schema": "HybridRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "inline"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "inline"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.hybrid.graph_first",
+      "python_qualname": "polygres.client.HybridNamespace.graph_first",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Run joint vector and graph retrieval.",
+      "example": "page = project.hybrid.joint(embedding, start)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_hybrid_joint"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_hybrid_joint",
+          "path": "/v1/hybrid/joint",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "config",
+                "cursor",
+                "direction",
+                "embedding",
+                "filters",
+                "limit",
+                "max_depth",
+                "relationship_types",
+                "start",
+                "vector_limit",
+                "weights"
+              ],
+              "required_fields": [
+                "embedding"
+              ],
+              "schema": "HybridRequest"
+            }
+          ],
+          "request_schema": "HybridRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "inline"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "inline"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.hybrid.joint",
+      "python_qualname": "polygres.client.HybridNamespace.joint",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Run vector-first hybrid retrieval.",
+      "example": "page = project.hybrid.vector_first(embedding)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_hybrid_vector_first"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_hybrid_vector_first",
+          "path": "/v1/hybrid/vector-first",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "config",
+                "cursor",
+                "direction",
+                "embedding",
+                "filters",
+                "limit",
+                "max_depth",
+                "relationship_types",
+                "start",
+                "vector_limit",
+                "weights"
+              ],
+              "required_fields": [
+                "embedding"
+              ],
+              "schema": "HybridRequest"
+            }
+          ],
+          "request_schema": "HybridRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "inline"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "inline"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.hybrid.vector_first",
+      "python_qualname": "polygres.client.HybridNamespace.vector_first",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Return retrieval readiness for the Runtime project.",
+      "example": "readiness = project.readiness()",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_retrieval_readiness"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "GET",
+          "operation_id": "runtime_retrieval_readiness",
+          "path": "/v1/retrieval/readiness",
+          "request_contract": [],
+          "request_schema": null,
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Retrieval Readiness"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Retrieval Readiness"
+          }
+        }
+      ],
+      "pagination": "none",
+      "public_name": "project.readiness",
+      "python_qualname": "polygres.client.Project.readiness",
+      "retry_policy": "read_only_get",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Run fuzzy text search with a named configuration.",
+      "example": "page = project.text.fuzzy(\"query\", config=\"documents\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_text_fuzzy"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_text_fuzzy",
+          "path": "/v1/text/fuzzy",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "config",
+                "cursor",
+                "filters",
+                "limit",
+                "query"
+              ],
+              "required_fields": [
+                "config",
+                "query"
+              ],
+              "schema": "TextSearchRequest"
+            }
+          ],
+          "request_schema": "TextSearchRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "inline"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "inline"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.text.fuzzy",
+      "python_qualname": "polygres.client.TextNamespace.fuzzy",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Run PostgreSQL full-text search with a named configuration.",
+      "example": "page = project.text.tsvector(\"query\", config=\"documents\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_text_tsvector"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_text_tsvector",
+          "path": "/v1/text/tsvector",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "config",
+                "cursor",
+                "filters",
+                "limit",
+                "query"
+              ],
+              "required_fields": [
+                "config",
+                "query"
+              ],
+              "schema": "TextSearchRequest"
+            }
+          ],
+          "request_schema": "TextSearchRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "inline"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "inline"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.text.tsvector",
+      "python_qualname": "polygres.client.TextNamespace.tsvector",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Search a configured vector index with an embedding.",
+      "example": "page = project.vector.search(embedding)",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_vector_search"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_vector_search",
+          "path": "/v1/vector/search",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "config",
+                "cursor",
+                "embedding",
+                "filters",
+                "include_values",
+                "limit",
+                "max_distance",
+                "min_similarity"
+              ],
+              "required_fields": [
+                "embedding"
+              ],
+              "schema": "VectorSearchRequest"
+            }
+          ],
+          "request_schema": "VectorSearchRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Vector Search"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Vector Search"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.vector.search",
+      "python_qualname": "polygres.client.VectorNamespace.search",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    },
+    {
+      "binding_kind": "operation",
+      "deprecated": null,
+      "description": "Find rows similar to an existing indexed row.",
+      "example": "page = project.vector.similar_to(\"row-id\")",
+      "exception_categories": [
+        "api",
+        "authentication",
+        "maintenance",
+        "not_found",
+        "permission",
+        "rate_limit",
+        "runtime",
+        "validation"
+      ],
+      "operation_ids": [
+        "runtime_vector_similar_to"
+      ],
+      "operations": [
+        {
+          "deprecated": false,
+          "method": "POST",
+          "operation_id": "runtime_vector_similar_to",
+          "path": "/v1/vector/similar-to",
+          "request_contract": [
+            {
+              "allows_additional_fields": false,
+              "fields": [
+                "config",
+                "cursor",
+                "filters",
+                "include_values",
+                "limit",
+                "max_distance",
+                "min_similarity",
+                "row_id"
+              ],
+              "required_fields": [
+                "row_id"
+              ],
+              "schema": "VectorSimilarToRequest"
+            }
+          ],
+          "request_schema": "VectorSimilarToRequest",
+          "security": [],
+          "success_contracts": {
+            "200": [
+              {
+                "allows_additional_fields": true,
+                "fields": [],
+                "required_fields": [],
+                "schema": "Response Runtime Vector Similar To"
+              }
+            ]
+          },
+          "success_responses": {
+            "200": "Response Runtime Vector Similar To"
+          }
+        }
+      ],
+      "pagination": "auto_cursor",
+      "public_name": "project.vector.similar_to",
+      "python_qualname": "polygres.client.VectorNamespace.similar_to",
+      "retry_policy": "read_only_post",
+      "since": "0.1.0",
+      "stability": "stable"
+    }
+  ],
+  "openapi_sha256": "3caa12957c6947686d9ac166e70b14fb477357b380070670fe93432b6b3859af",
+  "schema_version": 1,
+  "sdk": "polygres-sdk",
+  "sdk_version": "0.1.0"
+}

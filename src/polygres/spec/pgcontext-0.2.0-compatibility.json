@@ -1,0 +1,1960 @@
+{
+  "schema_version": 1,
+  "pgcontext_version": "0.2.0",
+  "source": {
+    "url": "https://github.com/Evokoa/pgContext/blob/v0.2.0/docs/user_guide/api_reference.md",
+    "commit": "7d0818ed222e16ef5c74932981d759caf2818d82",
+    "sha256": "3e74fc6f73fde30dc4a1f6cf0a9fc217be8550813d837b09718a72ed6366bc67"
+  },
+  "scope": "Every stable function overload, stable enum, documented GUC, and experimental function signature written in the v0.2.0 API reference, plus grouped entries for its stable and experimental SQL type-system contract families.",
+  "status_counts": {
+    "aligned": 38,
+    "deferred": 5,
+    "experimental_not_exposed": 91,
+    "managed_equivalent": 20,
+    "partial": 15,
+    "sql_only": 25
+  },
+  "items": [
+    {
+      "key": "stable.function.001",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.create_collection(collection_name text)",
+      "status": "managed_equivalent",
+      "sdk_method": "create_collection",
+      "runtime_operation_id": "runtime_context_create_collection",
+      "difference": "Managed creation requires typed source and vector configuration."
+    },
+    {
+      "key": "stable.function.002",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.create_collection(collection_name text, table_name text)",
+      "status": "managed_equivalent",
+      "sdk_method": "create_collection",
+      "runtime_operation_id": "runtime_context_create_collection",
+      "difference": "Managed creation requires typed source and vector configuration."
+    },
+    {
+      "key": "stable.function.003",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.create_collection_alias(alias_name text, target_collection_name text)",
+      "status": "aligned",
+      "sdk_method": "create_collection_alias",
+      "runtime_operation_id": "runtime_context_create_collection_alias",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.004",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.collection_aliases()",
+      "status": "aligned",
+      "sdk_method": "collection_aliases",
+      "runtime_operation_id": "runtime_context_list_collection_aliases",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.005",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.collection_info(collection_name text)",
+      "status": "aligned",
+      "sdk_method": "collection_info",
+      "runtime_operation_id": "runtime_context_collection_info",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.006",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.collection_limits(collection_name text)",
+      "status": "aligned",
+      "sdk_method": "collection_limits",
+      "runtime_operation_id": "runtime_context_collection_limits",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.007",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.configure_collection_limits(collection_name text, strict_mode boolean, max_dimensions integer, max_vectors integer, max_points bigint, max_filter_nodes integer, max_search_limit integer, max_candidate_budget integer, query_timeout_ms integer, max_index_memory_bytes bigint)",
+      "status": "aligned",
+      "sdk_method": "configure_collection_limits",
+      "runtime_operation_id": "runtime_context_configure_collection_limits",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.008",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.drop_collection(collection_name text)",
+      "status": "managed_equivalent",
+      "sdk_method": "drop_collection",
+      "runtime_operation_id": "runtime_context_delete_collection",
+      "difference": "Managed deletion addresses a collection UUID and requires explicit confirmation."
+    },
+    {
+      "key": "stable.function.009",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.drop_collection_alias(alias_name text)",
+      "status": "aligned",
+      "sdk_method": "drop_collection_alias",
+      "runtime_operation_id": "runtime_context_drop_collection_alias",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.010",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.register_vector(collection_name text, vector_name text, vector_column text, dimensions integer, metric text)",
+      "status": "managed_equivalent",
+      "sdk_method": "register_vector",
+      "runtime_operation_id": "runtime_context_add_vector",
+      "difference": "Managed registration addresses a collection UUID and can return a durable operation."
+    },
+    {
+      "key": "stable.function.011",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.collection_vectors(collection_name text)",
+      "status": "aligned",
+      "sdk_method": "collection_vectors",
+      "runtime_operation_id": "runtime_context_collection_vectors",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.012",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.configure_vector(collection_name text, vector_name text, hnsw_options jsonb, quantization_options jsonb, status text)",
+      "status": "aligned",
+      "sdk_method": "configure_vector",
+      "runtime_operation_id": "runtime_context_configure_vector",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.013",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.register_filter_column(collection_name text, filter_key text, column_name text)",
+      "status": "managed_equivalent",
+      "sdk_method": "register_filter_column",
+      "runtime_operation_id": "runtime_context_add_filter_column",
+      "difference": "Managed registration addresses a collection UUID and can return a durable operation."
+    },
+    {
+      "key": "stable.function.014",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.register_jsonb_path(collection_name text, filter_key text, column_name text, path text[])",
+      "status": "managed_equivalent",
+      "sdk_method": "register_jsonb_path",
+      "runtime_operation_id": "runtime_context_add_filter_jsonb_path",
+      "difference": "Managed registration addresses a collection UUID and can return a durable operation."
+    },
+    {
+      "key": "stable.function.015",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.upsert_points(collection_name text, source_keys text[])",
+      "status": "managed_equivalent",
+      "sdk_method": "upsert_points",
+      "runtime_operation_id": "runtime_context_upsert_points",
+      "difference": "Managed mutation addresses a collection UUID and can return a durable operation."
+    },
+    {
+      "key": "stable.function.016",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.delete_points(collection_name text, source_keys text[])",
+      "status": "managed_equivalent",
+      "sdk_method": "delete_points",
+      "runtime_operation_id": "runtime_context_delete_points",
+      "difference": "Managed mutation addresses a collection UUID and can return a durable operation."
+    },
+    {
+      "key": "stable.function.017",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.bulk_upsert_points(collection_name text, source_keys text[], batch_size integer)",
+      "status": "aligned",
+      "sdk_method": "bulk_upsert_points",
+      "runtime_operation_id": "runtime_context_bulk_upsert_points",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.018",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.bulk_delete_points(collection_name text, source_keys text[], batch_size integer)",
+      "status": "aligned",
+      "sdk_method": "bulk_delete_points",
+      "runtime_operation_id": "runtime_context_bulk_delete_points",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.019",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.backfill_points(collection_name text, batch_size integer)",
+      "status": "aligned",
+      "sdk_method": "backfill_points",
+      "runtime_operation_id": "runtime_context_backfill_points",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.020",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.set_payload(collection_name text, source_keys text[], payload jsonb)",
+      "status": "aligned",
+      "sdk_method": "set_payload",
+      "runtime_operation_id": "runtime_context_set_payload",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.021",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.delete_payload(collection_name text, source_keys text[], payload_keys text[])",
+      "status": "aligned",
+      "sdk_method": "delete_payload",
+      "runtime_operation_id": "runtime_context_delete_payload",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.022",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.clear_payload(collection_name text, source_keys text[])",
+      "status": "aligned",
+      "sdk_method": "clear_payload",
+      "runtime_operation_id": "runtime_context_clear_payload",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.023",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector vector, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "search",
+      "runtime_operation_id": "runtime_context_search",
+      "difference": "Managed Runtime search covers collection dense search; JSON filters replace the SQL text filter."
+    },
+    {
+      "key": "stable.function.024",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector_name text, vector vector, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "search",
+      "runtime_operation_id": "runtime_context_search",
+      "difference": "Managed Runtime search covers collection dense search; JSON filters replace the SQL text filter."
+    },
+    {
+      "key": "stable.function.025",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector vector, filter text, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "search",
+      "runtime_operation_id": "runtime_context_search",
+      "difference": "Managed Runtime search covers collection dense search; JSON filters replace the SQL text filter."
+    },
+    {
+      "key": "stable.function.026",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector_name text, vector vector, filter text, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "search",
+      "runtime_operation_id": "runtime_context_search",
+      "difference": "Managed Runtime search covers collection dense search; JSON filters replace the SQL text filter."
+    },
+    {
+      "key": "stable.function.027",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector vector, candidate_point_ids bigint[], limit integer)",
+      "status": "partial",
+      "sdk_method": "candidate_search",
+      "runtime_operation_id": "runtime_context_candidate_search",
+      "difference": "Python disambiguates this overload to preserve the SDK 0.3.0 search signature."
+    },
+    {
+      "key": "stable.function.028",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector_name text, vector vector, candidate_point_ids bigint[], limit integer)",
+      "status": "partial",
+      "sdk_method": "candidate_search",
+      "runtime_operation_id": "runtime_context_candidate_search",
+      "difference": "Python disambiguates this overload to preserve the SDK 0.3.0 search signature."
+    },
+    {
+      "key": "stable.function.029",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector vector, filter text, candidate_point_ids bigint[], limit integer)",
+      "status": "partial",
+      "sdk_method": "candidate_search",
+      "runtime_operation_id": "runtime_context_candidate_search",
+      "difference": "Python disambiguates this overload to preserve the SDK 0.3.0 search signature."
+    },
+    {
+      "key": "stable.function.030",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(collection text, vector_name text, vector vector, filter text, candidate_point_ids bigint[], limit integer)",
+      "status": "partial",
+      "sdk_method": "candidate_search",
+      "runtime_operation_id": "runtime_context_candidate_search",
+      "difference": "Python disambiguates this overload to preserve the SDK 0.3.0 search signature."
+    },
+    {
+      "key": "stable.function.031",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.search(query vector, point_ids bigint[], vectors vector[], metric text, limit integer)",
+      "status": "partial",
+      "sdk_method": "raw_vector_search",
+      "runtime_operation_id": "runtime_context_raw_vector_search",
+      "difference": "Python disambiguates the explicit-array overload to preserve the SDK 0.3.0 search signature."
+    },
+    {
+      "key": "stable.function.032",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.recommend(collection text, positive_point_ids bigint[], negative_point_ids bigint[], limit integer)",
+      "status": "aligned",
+      "sdk_method": "recommend",
+      "runtime_operation_id": "runtime_context_recommend",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.033",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.recommend(collection text, positive_vectors vector[], negative_vectors vector[], limit integer)",
+      "status": "aligned",
+      "sdk_method": "recommend",
+      "runtime_operation_id": "runtime_context_recommend",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.034",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.discover(collection text, context_point_ids bigint[], limit integer)",
+      "status": "aligned",
+      "sdk_method": "discover",
+      "runtime_operation_id": "runtime_context_discover_points",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.035",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.explore(collection text, context_point_ids bigint[], limit integer)",
+      "status": "aligned",
+      "sdk_method": "explore",
+      "runtime_operation_id": "runtime_context_explore",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.036",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query(collection text, vector vector, text_query text, text_column text, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "query",
+      "runtime_operation_id": "runtime_context_text_hybrid",
+      "difference": "Managed query fixes the configured text column and accepts the text query as query=."
+    },
+    {
+      "key": "stable.function.037",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_nearest(vector vector, limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_nearest",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.038",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_nearest(vector_name text, vector vector, filter jsonb, limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_nearest",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.039",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_sparse_nearest(vector_name text, vector sparsevec, filter jsonb, limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_sparse_nearest",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.040",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_sparse_nearest(vector_name text, vector sparsevec, limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_sparse_nearest",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.041",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_full_text(text_query text, text_column text, limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_full_text",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.042",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_late_interaction(query_vectors vector[], candidates_per_query integer, limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_late_interaction",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.043",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_recommend(positive_point_ids bigint[], negative_point_ids bigint[], limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_recommend",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.044",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_discover(context_point_ids bigint[], limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_discover",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.045",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_lookup(point_ids bigint[])",
+      "status": "aligned",
+      "sdk_method": "query_lookup",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.046",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_prefetch(branches jsonb[])",
+      "status": "aligned",
+      "sdk_method": "query_prefetch",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.047",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_weight(branch jsonb, weight double precision)",
+      "status": "aligned",
+      "sdk_method": "query_weight",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.048",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_score_threshold(branch jsonb, min_score double precision, max_score double precision)",
+      "status": "aligned",
+      "sdk_method": "query_score_threshold",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.049",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_formula(branch jsonb, formula text)",
+      "status": "aligned",
+      "sdk_method": "query_formula",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.050",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_rerank(branch jsonb, limit integer)",
+      "status": "aligned",
+      "sdk_method": "query_rerank",
+      "runtime_operation_id": null,
+      "difference": ""
+    },
+    {
+      "key": "stable.function.051",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.execute_query(collection text, plan jsonb)",
+      "status": "aligned",
+      "sdk_method": "execute_query",
+      "runtime_operation_id": "runtime_context_execute_query",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.052",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.explain(collection text, text_column text)",
+      "status": "aligned",
+      "sdk_method": "explain",
+      "runtime_operation_id": "runtime_context_explain_query",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.053",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.scroll(collection text, cursor text, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "scroll",
+      "runtime_operation_id": "runtime_context_scroll_points",
+      "difference": "Managed scroll addresses a collection UUID or managed name and uses cursor pagination."
+    },
+    {
+      "key": "stable.function.054",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.count(collection text)",
+      "status": "managed_equivalent",
+      "sdk_method": "count",
+      "runtime_operation_id": "runtime_context_count",
+      "difference": "Managed count accepts the equivalent filter as typed JSON."
+    },
+    {
+      "key": "stable.function.055",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.count(collection text, filter text)",
+      "status": "managed_equivalent",
+      "sdk_method": "count",
+      "runtime_operation_id": "runtime_context_count",
+      "difference": "Managed count accepts the equivalent filter as typed JSON."
+    },
+    {
+      "key": "stable.function.056",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.facet(collection text, field text, filter text, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "facet",
+      "runtime_operation_id": "runtime_context_facets",
+      "difference": "Managed facet accepts the equivalent filter as typed JSON."
+    },
+    {
+      "key": "stable.function.057",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.grouped_search(collection text, vector vector, group_by text, group_limit integer, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "grouped_search",
+      "runtime_operation_id": "runtime_context_grouped_search",
+      "difference": "Managed grouped search covers both default and named vector forms."
+    },
+    {
+      "key": "stable.function.058",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.grouped_search(collection text, vector_name text, vector vector, group_by text, group_limit integer, limit integer)",
+      "status": "managed_equivalent",
+      "sdk_method": "grouped_search",
+      "runtime_operation_id": "runtime_context_grouped_search",
+      "difference": "Managed grouped search covers both default and named vector forms."
+    },
+    {
+      "key": "stable.function.059",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.l2_distance(left vector, right vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.060",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.inner_product(left vector, right vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.061",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.negative_inner_product(left vector, right vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.062",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.cosine_distance(left vector, right vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.063",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.l1_distance(left vector, right vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.064",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.vector_dims(vector vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.065",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.sum(vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.066",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.avg(vector)",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This SQL primitive remains available through PostgreSQL and is not an HTTP SDK method."
+    },
+    {
+      "key": "stable.function.067",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.index_status(index_name text)",
+      "status": "partial",
+      "sdk_method": "index_status",
+      "runtime_operation_id": "runtime_context_index_status",
+      "difference": "Requires the owning collection name to prevent cross-collection index inspection."
+    },
+    {
+      "key": "stable.function.068",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.index_diagnostics(index_name text)",
+      "status": "partial",
+      "sdk_method": "index_diagnostics",
+      "runtime_operation_id": "runtime_context_index_diagnostics",
+      "difference": "Requires the owning collection name to prevent cross-collection index inspection."
+    },
+    {
+      "key": "stable.function.069",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.estimate_index_memory(index_name text)",
+      "status": "partial",
+      "sdk_method": "estimate_index_memory",
+      "runtime_operation_id": "runtime_context_estimate_index_memory",
+      "difference": "Requires the owning collection name to prevent cross-collection index inspection."
+    },
+    {
+      "key": "stable.function.070",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.index_advisor(collection text)",
+      "status": "aligned",
+      "sdk_method": "index_advisor",
+      "runtime_operation_id": "runtime_context_index_advisor",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.071",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.optimization_status(collection text)",
+      "status": "aligned",
+      "sdk_method": "optimization_status",
+      "runtime_operation_id": "runtime_context_optimization_status",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.072",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.vacuum_advice(index_name text)",
+      "status": "partial",
+      "sdk_method": "vacuum_advice",
+      "runtime_operation_id": "runtime_context_vacuum_advice",
+      "difference": "Requires the owning collection name to prevent cross-collection index inspection."
+    },
+    {
+      "key": "stable.function.073",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.hnsw_serving_stats()",
+      "status": "deferred",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Public API support is deferred pending privileged monitoring authorization; direct SQL remains available."
+    },
+    {
+      "key": "stable.function.074",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.hnsw_build_stats()",
+      "status": "deferred",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Public API support is deferred pending privileged monitoring authorization; direct SQL remains available."
+    },
+    {
+      "key": "stable.function.075",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.recall_check(exact_point_ids bigint[], candidate_point_ids bigint[], min_recall double precision)",
+      "status": "managed_equivalent",
+      "sdk_method": "recall_check",
+      "runtime_operation_id": "runtime_context_recall_check",
+      "difference": "Managed recall check computes exact and candidate sets from a collection query."
+    },
+    {
+      "key": "stable.function.076",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.telemetry()",
+      "status": "partial",
+      "sdk_method": "telemetry",
+      "runtime_operation_id": "runtime_context_telemetry",
+      "difference": "Requires a collection name and returns only that collection's telemetry row."
+    },
+    {
+      "key": "stable.function.077",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.record_query_stat(collection text, cohort text, query_kind text, result_count bigint, candidate_count bigint, latency_ms double precision)",
+      "status": "deferred",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Public API support is deferred pending privileged instrumentation authorization; direct SQL remains available."
+    },
+    {
+      "key": "stable.function.078",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.record_query_stat(collection text, cohort text, query_kind text, result_count bigint, candidates_considered bigint, rows_rechecked bigint, rows_pruned bigint, recall_threshold double precision, recall_achieved double precision, latency_ms double precision, lifecycle_state pgcontext.\"QueryLifecycleState\")",
+      "status": "deferred",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Public API support is deferred pending privileged instrumentation authorization; direct SQL remains available."
+    },
+    {
+      "key": "stable.function.079",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_cohort_stats()",
+      "status": "partial",
+      "sdk_method": "query_cohort_stats",
+      "runtime_operation_id": "runtime_context_query_cohort_stats",
+      "difference": "Requires a collection name and returns only that collection's cohorts."
+    },
+    {
+      "key": "stable.function.080",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_execution_stats()",
+      "status": "partial",
+      "sdk_method": "query_execution_stats",
+      "runtime_operation_id": "runtime_context_query_execution_stats",
+      "difference": "Requires a collection name and returns only that collection's rollups."
+    },
+    {
+      "key": "stable.function.081",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.query_telemetry_queue_stats()",
+      "status": "deferred",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Public API support is deferred pending privileged pg_monitor authorization; direct SQL remains available."
+    },
+    {
+      "key": "stable.function.082",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.register_model_version(collection text, model_name text, model_version text, dimensions integer, metric text)",
+      "status": "aligned",
+      "sdk_method": "register_model_version",
+      "runtime_operation_id": "runtime_context_register_model_version",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.083",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.model_versions()",
+      "status": "partial",
+      "sdk_method": "model_versions",
+      "runtime_operation_id": "runtime_context_model_versions",
+      "difference": "Requires a collection name and returns only that collection's versions."
+    },
+    {
+      "key": "stable.function.084",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.create_embedding_migration(collection text, source_model_name text, source_model_version text, target_model_name text, target_model_version text, total_points bigint)",
+      "status": "aligned",
+      "sdk_method": "create_embedding_migration",
+      "runtime_operation_id": "runtime_context_create_embedding_migration",
+      "difference": ""
+    },
+    {
+      "key": "stable.function.085",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.update_embedding_migration(migration_id bigint, processed_points bigint, status text)",
+      "status": "partial",
+      "sdk_method": "update_embedding_migration",
+      "runtime_operation_id": "runtime_context_update_embedding_migration",
+      "difference": "Requires the owning collection name and verifies migration ownership before mutation."
+    },
+    {
+      "key": "stable.function.086",
+      "kind": "function",
+      "stability": "stable",
+      "signature": "pgcontext.embedding_migrations()",
+      "status": "partial",
+      "sdk_method": "embedding_migrations",
+      "runtime_operation_id": "runtime_context_embedding_migrations",
+      "difference": "Requires a collection name and returns only that collection's migrations."
+    },
+    {
+      "key": "stable.enum.001",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"EmbeddingMigrationStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.002",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"IndexAdvisorRecommendation\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.003",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"IndexDiagnosticStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.004",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"IndexLifecycleStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.005",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"IndexMemoryEstimateStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.006",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"OptimizationStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.007",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"QueryCohortStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.008",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"QueryExplainStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.009",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"QueryLatencyBucket\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.010",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"QueryLifecycleState\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.011",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"RecallCheckStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.012",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"TelemetryStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "stable.enum.013",
+      "kind": "enum",
+      "stability": "stable",
+      "signature": "pgcontext.\"VacuumAdviceStatus\"",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The SQL enum is not duplicated as an HTTP method; managed responses use their own typed contract."
+    },
+    {
+      "key": "experimental.guc.001",
+      "kind": "guc",
+      "stability": "experimental",
+      "signature": "pgcontext.hnsw_m",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this GUC from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.guc.002",
+      "kind": "guc",
+      "stability": "experimental",
+      "signature": "pgcontext.hnsw_ef_construction",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this GUC from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.guc.003",
+      "kind": "guc",
+      "stability": "experimental",
+      "signature": "pgcontext.hnsw_ef_search",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this GUC from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.guc.004",
+      "kind": "guc",
+      "stability": "experimental",
+      "signature": "pgcontext.hnsw_candidate_budget",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this GUC from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.guc.005",
+      "kind": "guc",
+      "stability": "experimental",
+      "signature": "pgcontext.hnsw_iterative_expansion_limit",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this GUC from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.guc.006",
+      "kind": "guc",
+      "stability": "experimental",
+      "signature": "pgcontext.hnsw_recall_threshold",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this GUC from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.guc.007",
+      "kind": "guc",
+      "stability": "experimental",
+      "signature": "pgcontext.pgvector_compat_warnings",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this GUC from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.function.001",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.migration_report()",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.002",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.adopt_pgvector(target regclass DEFAULT NULL, dry_run bool DEFAULT true, drop_old bool DEFAULT false)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.003",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.compare_indexes(table_name text, column_name text, queries int DEFAULT 20)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.004",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.enable_pgvector_binding()",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.005",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.start_pgvector_ownership_conversion(target regclass, column_name text, mode text DEFAULT 'fast', metric text DEFAULT 'cosine', application_uses_column_lists bool DEFAULT false, application_dependencies_reviewed bool DEFAULT false)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.006",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.run_pgvector_ownership_conversion(conversion_id bigint, batch_size int DEFAULT 1000, sessions_drained bool DEFAULT false)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.007",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.cutover_pgvector_ownership_conversion(conversion_id bigint, sessions_drained bool DEFAULT false)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.008",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.pgvector_ownership_conversions()",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.009",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.compact(index regclass)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.010",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.binary_quantize(vector)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.011",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.scalar_quantize(vector, min real, max real, levels integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.012",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.start_build_job(collection text, artifact_kind text, artifact_name text, target_name text, total_units bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.013",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.build_jobs(collection text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.014",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.update_build_job(build_job_id bigint, processed_units bigint, status text, error_message text default null)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.015",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.request_build_cancel(build_job_id bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.016",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.retry_build_job(build_job_id bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.017",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.run_build_job(build_job_id bigint, units_per_step bigint default 1)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.018",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.encode_artifact_segment(kind text, payload bytea)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.019",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.validate_artifact_segment(segment bytea)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.020",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.validate_hnsw_graph_artifact(segment bytea)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.021",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.publish_artifact_segment(build_job_id bigint, segment bytea)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.022",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.publish_artifact_segment_file(build_job_id bigint, segment bytea)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.023",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.artifact_segments(collection text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.024",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.artifact_segment_memory(collection text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.025",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.artifact_segment_serving_readiness(collection text, max_mapped_bytes bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.026",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.artifact_segment_mmap_payload(collection text, artifact_name text, max_mapped_bytes bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.027",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.search_mmap_hnsw_artifact(collection text, artifact_name text, vector vector, max_mapped_bytes bigint, candidate_limit integer, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.028",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.artifact_segment_diagnostics(collection text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.029",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.retire_artifact_segment(artifact_id bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.030",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.cleanup_artifact_segments(collection text, dry_run boolean)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.031",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.scalar_reconstruct(codes bytea, min real, max real, levels integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.032",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.product_quantize(vector, subvector_dimensions integer, codebooks jsonb)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.033",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.product_reconstruct(codes bytea, subvector_dimensions integer, codebooks jsonb)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.034",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.rerank_quantized_candidates(query vector, point_ids bigint[], original_vectors vector[], metric text, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.035",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.halfvec(text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.036",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.sparsevec(text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.037",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.bitvec(text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.038",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.halfvec_dims(halfvec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.039",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.sparsevec_dims(sparsevec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.040",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.bitvec_dims(bitvec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.041",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.sum(halfvec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.042",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.avg(halfvec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.043",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.sparsevec_from_arrays(integer[], real[], integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.044",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.sparsevec_indices(sparsevec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.045",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.sparsevec_values(sparsevec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.046",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.sum(sparsevec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.047",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.avg(sparsevec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.048",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.bit_or(bitvec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.049",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.bit_and(bitvec)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.050",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.register_sparse_vector(collection_name text, vector_name text, vector_column text, dimensions integer, metric text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.051",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.collection_sparse_vectors(collection_name text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.052",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.configure_sparse_vector(collection_name text, vector_name text, storage_options jsonb, index_options jsonb, status text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.053",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.attach_sparse_hnsw_index(collection_name text, vector_name text, index_name text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.054",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.search_sparse(query sparsevec, point_ids bigint[], vectors sparsevec[], metric text, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.055",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.search_sparse(collection text, vector_name text, query sparsevec, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.056",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.search_sparse(collection text, vector_name text, query sparsevec, filter text, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.057",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.explain_sparse(collection text, vector_name text, query sparsevec, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.058",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.query(collection text, vector vector, sparse_vector_name text, sparse_query sparsevec, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.059",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.rerank_late_interaction(query_vectors vector[], point_ids bigint[], candidate_vectors vector[], candidate_offsets integer[], limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.060",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.register_late_interaction(collection text, source_table text, token_source text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.061",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.repair_late_interaction(collection text, batch_size integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.062",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.search_late_interaction(collection text, query_vectors vector[], vector_column text, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.063",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.explain_late_interaction(collection text, query_vectors vector[], vector_column text)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.064",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.search_late_interaction_ann(collection text, query_vectors vector[], candidates_per_query integer, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.065",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.explain_late_interaction_ann(collection text, query_vectors vector[], candidates_per_query integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.066",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.search_late_interaction_ann(collection text, query_vectors vector[], vector_column text, token_table text, token_source_key_column text, token_vector_column text, candidates_per_query integer, limit integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.067",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.explain_late_interaction_ann(collection text, query_vectors vector[], vector_column text, token_table text, token_source_key_column text, token_vector_column text, candidates_per_query integer)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.068",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.finalize_pgvector_ownership_conversion(conversion_id bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "experimental.function.069",
+      "kind": "function",
+      "stability": "experimental",
+      "signature": "pgcontext.rollback_pgvector_ownership_conversion(conversion_id bigint)",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "Experimental pgContext SQL is intentionally not exposed as a stable SDK 0.4.0 method."
+    },
+    {
+      "key": "stable.sql_contract.001",
+      "kind": "sql_contract",
+      "stability": "stable",
+      "signature": "vector and vector(n) type/typmod",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This is a PostgreSQL type-system contract rather than an HTTP endpoint."
+    },
+    {
+      "key": "stable.sql_contract.002",
+      "kind": "sql_contract",
+      "stability": "stable",
+      "signature": "dense vector comparison and distance operators",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This is a PostgreSQL type-system contract rather than an HTTP endpoint."
+    },
+    {
+      "key": "stable.sql_contract.003",
+      "kind": "sql_contract",
+      "stability": "stable",
+      "signature": "pgcontext.vector_ops B-tree operator class",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This is a PostgreSQL type-system contract rather than an HTTP endpoint."
+    },
+    {
+      "key": "stable.sql_contract.004",
+      "kind": "sql_contract",
+      "stability": "stable",
+      "signature": "real[]/integer[]/double precision[] casts",
+      "status": "sql_only",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "This is a PostgreSQL type-system contract rather than an HTTP endpoint."
+    },
+    {
+      "key": "experimental.sql_contract.001",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "pgcontext_hnsw access method and handler",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.002",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "dense vector HNSW operator classes",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.003",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "pgcontext.\"BuildJobStatus\" enum",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.004",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "halfvec, sparsevec, and bitvec types and typmods",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.005",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "halfvec text constructor, dimensions, casts, aggregates, and distance functions",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.006",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "sparsevec constructors, dimensions, casts, aggregates, accessors, and distance functions",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.007",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "bitvec constructors, dimensions, casts, aggregates, Hamming, and Jaccard functions",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.008",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "halfvec, sparsevec, and bitvec distance operators",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.009",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "halfvec, sparsevec, and bitvec B-tree operator classes",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.010",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "halfvec HNSW operator classes",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.011",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "sparsevec HNSW operator classes",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.012",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "bitvec HNSW operator classes",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.013",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "quantization helper contracts",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.014",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "artifact build and mmap serving contracts",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    },
+    {
+      "key": "experimental.sql_contract.015",
+      "kind": "sql_contract",
+      "stability": "experimental",
+      "signature": "late-interaction and sparse retrieval contracts",
+      "status": "experimental_not_exposed",
+      "sdk_method": null,
+      "runtime_operation_id": null,
+      "difference": "The pgContext 0.2.0 reference excludes this SQL contract family from its stable compatibility promise."
+    }
+  ]
+}
