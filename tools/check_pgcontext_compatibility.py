@@ -40,14 +40,16 @@ def _load_json(path: Path) -> dict[str, Any]:
 def _arguments() -> argparse.Namespace:
     package_root = Path(__file__).resolve().parents[1]
     repository_root = package_root.parents[1]
+    packaged_manifest = package_root / "src/polygres/spec/pgcontext-0.2.0-compatibility.json"
+    repository_manifest = (
+        repository_root
+        / "packages/polygres-lib/contracts/context/pgcontext-0.2.0-compatibility.json"
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--manifest",
         type=Path,
-        default=(
-            repository_root
-            / "packages/polygres-lib/contracts/context/pgcontext-0.2.0-compatibility.json"
-        ),
+        default=(repository_manifest if repository_manifest.exists() else packaged_manifest),
     )
     parser.add_argument(
         "--method-spec",
@@ -57,7 +59,7 @@ def _arguments() -> argparse.Namespace:
     parser.add_argument(
         "--packaged-manifest",
         type=Path,
-        default=package_root / "src/polygres/spec/pgcontext-0.2.0-compatibility.json",
+        default=packaged_manifest,
     )
     return parser.parse_args()
 
