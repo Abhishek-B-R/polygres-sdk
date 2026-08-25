@@ -60,7 +60,7 @@ Release rehearsal happens first on TestPyPI:
    /tmp/polygres-sdk-testpypi/bin/python -m pip install \
      --index-url https://test.pypi.org/simple/ \
      --extra-index-url https://pypi.org/simple/ \
-     polygres-sdk==0.4.0
+     polygres-sdk==0.4.1
    /tmp/polygres-sdk-testpypi/bin/python - <<'PY'
    import importlib.metadata
    from polygres import Polygres
@@ -74,8 +74,8 @@ Publish to PyPI only after the same commit has passed TestPyPI validation. Push
 a release tag from the public repository:
 
 ```bash
-git tag polygres-sdk-v0.4.0
-git push origin polygres-sdk-v0.4.0
+git tag polygres-sdk-v0.4.1
+git push origin polygres-sdk-v0.4.1
 ```
 
 The `pypi` GitHub environment must be approved before the upload proceeds.

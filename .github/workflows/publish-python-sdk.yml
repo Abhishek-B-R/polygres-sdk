@@ -61,7 +61,7 @@ jobs:
           fi
           python tools/check_sdk_compatibility.py \
             --baseline compatibility/0.3.0/python-sdk-v1.methods.json \
-            --expect-current-version 0.4.0
+            --expect-current-version 0.4.1
 
       - name: Build SDK distribution
         run: |

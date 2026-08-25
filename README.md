@@ -323,11 +323,11 @@ payload and idempotency key.
 
 ## Version and support
 
-Package version: [`0.4.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.0).
+Package version: [`0.4.1`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.1).
 
 When contacting support, include the installed SDK version and the request ID.
 
-See the [SDK 0.4.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.0) for release changes.
+See the [SDK 0.4.1 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.1) for release changes.
 
 ## Optional Agent Skill
 

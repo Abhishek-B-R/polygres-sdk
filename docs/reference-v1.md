@@ -2,7 +2,7 @@
 
 This file is generated. Edit Python method metadata, docstrings, or the Runtime OpenAPI contract instead.
 
-- SDK package version: `0.4.0`
+- SDK package version: `0.4.1`
 - HTTP API family: `v1`
 - Default API behavior version: `2026-08-04`
 - Method specification schema: `1`

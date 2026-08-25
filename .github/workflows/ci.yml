@@ -56,7 +56,7 @@ jobs:
         run: >-
           python tools/check_sdk_compatibility.py
           --baseline compatibility/0.3.0/python-sdk-v1.methods.json
-          --expect-current-version 0.4.0
+          --expect-current-version 0.4.1
 
       - name: Check pgContext 0.2.0 compatibility inventory
         run: python tools/check_pgcontext_compatibility.py
@@ -80,7 +80,7 @@ jobs:
           import httpx
           from polygres import Polygres, __version__
 
-          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.0"
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.1"
           for name in (
               "pgcontext-0.2.0-compatibility.json",
               "runtime-v1.openapi.json",
@@ -129,7 +129,7 @@ jobs:
 
           from polygres import __version__
 
-          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.0"
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.1"
           for name in (
               "pgcontext-0.2.0-compatibility.json",
               "runtime-v1.openapi.json",

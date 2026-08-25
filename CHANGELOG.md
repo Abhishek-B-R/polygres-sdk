@@ -4,6 +4,19 @@ All notable changes to `polygres-sdk` are documented in this file.
 
 ## Unreleased
 
+## 0.4.1 - 2026-08-25
+
+### Changed
+
+- Updated the bundled public error catalog so durable Context collection sync,
+  timeout, connection, memory, storage, and index failures use their canonical
+  messages, statuses, retry guidance, and safe recovery details.
+
+### Compatibility
+
+- Existing SDK methods, signatures, request behavior, and exception classes are
+  unchanged from SDK 0.4.0.
+
 ## 0.4.0 - 2026-08-16
 
 ### Added

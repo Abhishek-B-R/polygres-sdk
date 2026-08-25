@@ -207,4 +207,4 @@ def test_sdk_does_not_emit_notice_from_an_intermediate_retry(
 
 
 def test_public_sdk_version_matches_current_release() -> None:
-    assert __version__ == "0.4.0"
+    assert __version__ == "0.4.1"

@@ -8079,5 +8079,5 @@
   "openapi_sha256": "db23d7178d295d7bac0b5168061c59fcbcf6eb96e1e12bc2e21670452b8cb506",
   "schema_version": 1,
   "sdk": "polygres-sdk",
-  "sdk_version": "0.4.0"
+  "sdk_version": "0.4.1"
 }
