@@ -1485,6 +1485,24 @@ def test_namespace_wait_polls_only_operation_route(monkeypatch: pytest.MonkeyPat
     assert [(request.method, request.url.path) for request in requests] == [
         ("GET", f"/v1/context/operations/{OPERATION_ID}")
     ]
+    assert "X-Polygres-SDK-Method" not in requests[0].headers
+
+
+def test_get_operation_identifies_non_polling_sdk_method() -> None:
+    requests: list[httpx.Request] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        payload = deepcopy(FIXTURES["responses"]["OperationEnvelope"])
+        payload["operation"]["id"] = OPERATION_ID
+        return httpx.Response(200, json=payload)
+
+    operation = _client(respond).project().context.get_operation(OPERATION_ID)
+
+    assert str(operation.id) == OPERATION_ID
+    assert requests[0].headers["X-Polygres-SDK-Method"] == (
+        "project.context.get_operation"
+    )
 
 
 def test_full_pgcontext_alignment_methods_bind_exact_routes() -> None:

@@ -172,5 +172,77 @@
     "reason": "Per-configuration compatibility engine selection is an operator rollback control, not an application retrieval method.",
     "owner": "Runtime Platform",
     "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_action",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_context_handoff",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_create",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_get",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_list",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_models",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_preview",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_remove",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_search",
+    "reason": "The standalone embedding search endpoint serves CLI and MCP clients. SDK text input belongs in existing retrieval methods.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_sources",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_update",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "runtime_embedding_usage",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
   }
 ]

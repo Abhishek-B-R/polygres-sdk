@@ -72,6 +72,56 @@ New vector setup uses `project.context.create_collection()` with a native
 `pgcontext.vector` column. Existing `project.vector` retrieval methods remain available
 for applications using previously registered vector configurations.
 
+## Query with text
+
+Pass `text` to an existing search method to have Polygres generate the query
+embedding using the model configured for the selected vector:
+
+```python
+results = project.context.search(
+    "articles",
+    text="How does replication work?",
+    vector_name="content",
+    idempotency_key="replication-question-001",
+)
+
+for result in results.results:
+    print(result.properties)
+```
+
+Omit `vector_name` to use the collection's default vector. Set up generation
+and the linked collection through the dashboard, CLI, or MCP first. The
+selected vector must have an unambiguous association with its embedding model.
+
+Existing calls that pass `embedding` continue to work. Supply either text or a
+vector. For `context.query()` and `context.text_hybrid()`, omit the embedding
+to generate it from the existing `query` argument:
+
+```python
+results = project.context.query("articles", query="replication failures")
+```
+
+Text input is also available on Context grouped, candidate, graph-first,
+vector-first, rank-fusion, and joint searches, plus `vector.search()` and the
+`hybrid` query methods. On `context.joint()`, `text` supplies the semantic input
+and `query` remains the separate lexical input. Responses retain their existing
+types, filters, ranking options, and pagination behavior.
+
+For query plans, build `context.query_nearest(text="replication")` and pass the
+plan to `context.execute_query()`. The builder makes no network requests;
+generation happens during execution.
+
+Text queries use the project's query embedding allowance. Organization credits
+are used only with `use_credits=True` and project spending permission. Passing
+an explicit vector does not consume embedding allowance. Reuse an idempotency
+key when retrying the same query across separate calls. Automatic retries and
+pagination reuse the original embedding attempt. Set `timeout` to control the
+request budget, including embedding generation. Query plans accept credit,
+idempotency, and timeout options on `execute_query()`.
+
+This requires a Runtime that supports query embedding generation. SDK 0.5.0
+checks that support before sending text queries.
+
 ## pgContext-aligned names
 
 SDK 0.4.0 adds pgContext 0.2.0 terminology while keeping every SDK 0.3.0
@@ -323,11 +373,11 @@ payload and idempotency key.
 
 ## Version and support
 
-Package version: [`0.4.1`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.1).
+Package version: [`0.5.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.5.0).
 
 When contacting support, include the installed SDK version and the request ID.
 
-See the [SDK 0.4.1 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.4.1) for release changes.
+See the [SDK 0.5.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.5.0) for release changes.
 
 ## Optional Agent Skill
 
@@ -338,3 +388,11 @@ npx skills add Evokoa/polygres-skills --skill polygres-sdk
 ```
 
 See the [Agent Skills repository](https://github.com/Evokoa/polygres-skills) for Codex and Claude Code installation options.
+
+
+## Managed automatic embeddings
+
+Configure watched text, optionally reuse compatible existing vectors, and generate
+query embeddings with the pinned model. See the [automatic embeddings guide](https://docs.polygres.com/platform/automatic-embeddings) for preview, creation,
+processing, Context handoff, quotas, and recovery. Availability requires an enabled
+model catalog and quota policy in the connected environment.

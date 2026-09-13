@@ -2,7 +2,7 @@
 
 This file is generated. Edit Python method metadata, docstrings, or the Runtime OpenAPI contract instead.
 
-- SDK package version: `0.4.1`
+- SDK package version: `0.5.0`
 - HTTP API family: `v1`
 - Default API behavior version: `2026-08-04`
 - Method specification schema: `1`
@@ -204,6 +204,12 @@ Search within explicit candidate point IDs.
 result = project.context.candidate_search("support", embedding, [1, 2])
 ```
 
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
+
 ### `project.context.clear_payload()`
 
 Clear all registered payload fields.
@@ -388,6 +394,12 @@ Execute a validated pgContext query plan.
 results = project.context.execute_query("support", plan)
 ```
 
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
+
 ### `project.context.explain()`
 
 Explain the stable dense plus full-text pgContext query.
@@ -491,6 +503,12 @@ Run graph-first Context hybrid retrieval.
 results = project.context.graph_first("support", embedding, start=start)
 ```
 
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
+
 ### `project.context.grouped_search()`
 
 Run grouped dense Context retrieval.
@@ -498,6 +516,12 @@ Run grouped dense Context retrieval.
 ```python
 results = project.context.grouped_search("support", embedding, group_by="tenant_id")
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ### `project.context.index_advisor()`
 
@@ -530,6 +554,12 @@ Run coupled Context and graph joint retrieval.
 ```python
 results = project.context.joint("support", embedding)
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ### `project.context.list_collections()`
 
@@ -586,6 +616,12 @@ Run the stable pgContext dense plus full-text query.
 ```python
 results = project.context.query("support", embedding, query="refund")
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ### `project.context.query_cohort_stats()`
 
@@ -651,6 +687,12 @@ Build a dense nearest query plan.
 plan = project.context.query_nearest(embedding, limit=20)
 ```
 
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
+
 ### `project.context.query_prefetch()`
 
 Build a query plan that prefetches multiple branches.
@@ -706,6 +748,12 @@ Fuse Context and graph rankings.
 ```python
 results = project.context.rank_fusion("support", embedding, start=start)
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ### `project.context.raw_vector_search()`
 
@@ -819,6 +867,12 @@ Run dense Context retrieval.
 results = project.context.search("support", embedding)
 ```
 
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
+
 ### `project.context.set_default_collection()`
 
 Make a Context collection the project default.
@@ -850,6 +904,12 @@ Run dense and lexical Context retrieval.
 ```python
 results = project.context.text_hybrid("support", embedding, query="refund")
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ### `project.context.update_collection()`
 
@@ -890,6 +950,12 @@ Run vector-first Context hybrid retrieval.
 ```python
 results = project.context.vector_first("support", embedding)
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ### `project.context.verify_collection()`
 
@@ -973,6 +1039,12 @@ Run graph-first hybrid retrieval.
 page = project.hybrid.graph_first(start, embedding)
 ```
 
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
+
 ### `project.hybrid.joint()`
 
 Run joint vector and graph retrieval.
@@ -981,6 +1053,12 @@ Run joint vector and graph retrieval.
 page = project.hybrid.joint(embedding, start)
 ```
 
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
+
 ### `project.hybrid.vector_first()`
 
 Run vector-first hybrid retrieval.
@@ -988,6 +1066,12 @@ Run vector-first hybrid retrieval.
 ```python
 page = project.hybrid.vector_first(embedding)
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ## `project.rows`
 
@@ -1067,6 +1151,12 @@ Search a configured vector index with an embedding.
 ```python
 page = project.vector.search(embedding)
 ```
+
+SDK 0.5.0 supports configured query embedding generation through text input.
+Existing vector inputs retain their behavior. Text execution accepts optional
+credit usage and idempotency keys; automatic retries reuse the same attempt.
+Query-plan builders remain local; generation happens in execute_query().
+See the README's Query with text section for method-specific input rules.
 
 ### `project.vector.similar_to()`
 

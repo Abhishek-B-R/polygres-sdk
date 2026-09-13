@@ -4,6 +4,27 @@ All notable changes to `polygres-sdk` are documented in this file.
 
 ## Unreleased
 
+## 0.5.0 - 2026-09-12
+
+### Added
+
+- Pass text to existing Context, vector, and hybrid searches to generate query
+  embeddings with the configured model. Existing vector calls retain their
+  arguments and response types.
+- Build nearest query-plan branches with text and embed them during execution.
+- Control query credit usage and reuse embedding attempts across retries and
+  paginated results with idempotency keys.
+
+
+### Changed
+
+- Refresh the packaged Runtime API reference and validate compatibility against
+  the published SDK 0.4.1 contract.
+- Include the changelog in source distributions.
+
+Existing SDK methods and query-vector workflows remain available. Configure
+embedding generation through the dashboard, CLI, or MCP.
+
 ## 0.4.1 - 2026-08-25
 
 ### Changed

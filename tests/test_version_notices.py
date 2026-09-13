@@ -30,13 +30,13 @@ def _clear_seen_notice_ids() -> None:
 
 
 def _headers(
-    *, notice_id: str = "sdk-0.5.0-available", recommended: str = "0.5.0"
+    *, notice_id: str = "sdk-0.6.0-available", recommended: str = "0.6.0"
 ) -> dict[str, str]:
     return {
         SDK_NOTICE_ID_HEADER: notice_id,
         SDK_NOTICE_RECOMMENDED_VERSION_HEADER: recommended,
         SDK_NOTICE_SEVERITY_HEADER: "warning",
-        SDK_NOTICE_URL_HEADER: "https://docs.polygres.com/releases/sdk-0.5.0",
+        SDK_NOTICE_URL_HEADER: "https://docs.polygres.com/releases/sdk-0.6.0",
     }
 
 
@@ -61,8 +61,8 @@ def test_parse_version_notice_validates_optional_lifecycle_headers() -> None:
     )
 
     assert notice is not None
-    assert notice.id == "sdk-0.5.0-available"
-    assert notice.recommended_version == "0.5.0"
+    assert notice.id == "sdk-0.6.0-available"
+    assert notice.recommended_version == "0.6.0"
     assert notice.deprecation_at is not None
     assert notice.sunset_at is not None
 
@@ -98,7 +98,7 @@ def test_sdk_emits_the_same_notice_only_once_per_process() -> None:
     first = Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=0)
     second = Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=0)
 
-    with pytest.warns(PolygresVersionWarning, match=r"SDK 0\.5\.0 is available") as caught:
+    with pytest.warns(PolygresVersionWarning, match=r"SDK 0\.6\.0 is available") as caught:
         first.project().readiness()
         second.project().readiness()
 
@@ -138,8 +138,8 @@ def test_sdk_fetches_and_emits_central_notice() -> None:
             json={
                 "notices": [
                     {
-                        "id": "sdk-0.5.0-central",
-                        "recommended_version": "0.5.0",
+                        "id": "sdk-0.6.0-central",
+                        "recommended_version": "0.6.0",
                         "severity": "info",
                         "url": "https://docs.polygres.com/reference/changelog",
                     }
@@ -151,7 +151,7 @@ def test_sdk_fetches_and_emits_central_notice() -> None:
         return_value=httpx.Response(200, json=_readiness_payload("req_central_notice"))
     )
 
-    with pytest.warns(PolygresVersionWarning, match=r"SDK 0\.5\.0 is available"):
+    with pytest.warns(PolygresVersionWarning, match=r"SDK 0\.6\.0 is available"):
         Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=0).project().readiness()
 
     assert central.call_count == 1
@@ -207,4 +207,4 @@ def test_sdk_does_not_emit_notice_from_an_intermediate_retry(
 
 
 def test_public_sdk_version_matches_current_release() -> None:
-    assert __version__ == "0.4.1"
+    assert __version__ == "0.5.0"

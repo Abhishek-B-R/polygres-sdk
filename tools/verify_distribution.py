@@ -9,6 +9,7 @@ import zipfile
 from pathlib import Path
 
 WHEEL_RESOURCES = {
+    "polygres/_query_input.py",
     "polygres/migrations/README.md",
     "polygres/spec/pgcontext-0.2.0-compatibility.json",
     "polygres/spec/python-sdk-v1.methods.json",
@@ -16,6 +17,8 @@ WHEEL_RESOURCES = {
     "polygres/spec/runtime-v1.openapi.json",
 }
 SDIST_RESOURCES = {
+    "src/polygres/_query_input.py",
+    "CHANGELOG.md",
     "migrations/README.md",
     "src/polygres/spec/pgcontext-0.2.0-compatibility.json",
     "src/polygres/spec/python-sdk-v1.methods.json",

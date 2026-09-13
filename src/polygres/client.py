@@ -16,6 +16,7 @@ import httpx
 
 from polygres._api_version import API_VERSION_HEADER, CLIENT_INFO_HEADER, DEFAULT_API_VERSION
 from polygres._method_metadata import bind_sdk_method
+from polygres._query_input import query_deadline, query_transport, validate_query_input
 from polygres._vendor.polygres_lib.auth import ProjectApiKeyService
 from polygres._version import __version__
 from polygres.context import ContextNamespace
@@ -50,12 +51,14 @@ from polygres.version_notices import check_central_version_notices, emit_version
 PROJECT_RE = re.compile(r"^p[a-z0-9]{23}$")
 ProjectMode = Literal["standard", "synced"]
 RETRY_STATUSES = {408, 429, 500, 502, 503, 504}
+SDK_METHOD_HEADER = "X-Polygres-SDK-Method"
 PROTECTED_HEADERS = frozenset(
     {
         "authorization",
         "user-agent",
         API_VERSION_HEADER.casefold(),
         CLIENT_INFO_HEADER.casefold(),
+        SDK_METHOD_HEADER.casefold(),
     }
 )
 
@@ -130,7 +133,12 @@ class Polygres:
     def __exit__(self, *exc_info: object) -> None:
         self.close()
 
-    def _headers_for(self, request_headers: dict[str, str] | None = None) -> dict[str, str]:
+    def _headers_for(
+        self,
+        request_headers: dict[str, str] | None = None,
+        *,
+        sdk_method: str | None = None,
+    ) -> dict[str, str]:
         headers = {
             key: value
             for key, value in self._headers.items()
@@ -156,6 +164,8 @@ class Polygres:
                 API_VERSION_HEADER: DEFAULT_API_VERSION,
             }
         )
+        if sdk_method is not None:
+            headers[SDK_METHOD_HEADER] = sdk_method
         return headers
 
     def _get(
@@ -190,6 +200,7 @@ class Polygres:
         max_retries: int | None = None,
         retryable: bool = True,
         deadline: float | None = None,
+        sdk_method: str | None = None,
     ) -> _TransportResponse:
         return self._request_response(
             "GET",
@@ -200,6 +211,7 @@ class Polygres:
             max_retries=max_retries,
             retryable=retryable,
             deadline=deadline,
+            sdk_method=sdk_method,
         )
 
     def _post(
@@ -305,6 +317,7 @@ class Polygres:
         max_retries: int | None = None,
         retryable: bool = True,
         deadline: float | None = None,
+        sdk_method: str | None = None,
     ) -> _TransportResponse:
         configured_retry_budget = self._max_retries if max_retries is None else max_retries
         retry_budget = configured_retry_budget if retryable else 0
@@ -324,7 +337,7 @@ class Polygres:
                 response = self._client.request(
                     method,
                     url,
-                    headers=self._headers_for(headers),
+                    headers=self._headers_for(headers, sdk_method=sdk_method),
                     json=json,
                     params=_compact(params or {}),
                     timeout=request_timeout,
@@ -432,12 +445,21 @@ class Project:
         *,
         timeout: float | httpx.Timeout | None = None,
         max_retries: int | None = None,
+        idempotency_key: str | None = None,
     ) -> Page[Any]:
+        payload, headers = query_transport(payload, idempotency_key)
+        key = headers.get("Idempotency-Key") if headers else None
+        deadline = None
+        if headers:
+            deadline = query_deadline(timeout or self._client._timeout)
+            self.context._require_query_embeddings(timeout=timeout)
         response = self._client._post(
             path,
             _compact(payload),
             timeout=timeout,
             max_retries=max_retries,
+            headers=headers,
+            deadline=deadline,
         )
 
         def fetch_next(cursor: str) -> Page[Any]:
@@ -447,6 +469,7 @@ class Project:
                 parser,
                 timeout=timeout,
                 max_retries=max_retries,
+                idempotency_key=key,
             )
 
         return Page.from_api(response, parser, fetch_next)
@@ -606,8 +629,12 @@ class VectorNamespace:
 
     def search(
         self,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
+        timeout: float | httpx.Timeout | None = None,
         config: str | None = None,
         limit: int | None = None,
         filters: dict[str, Any] | None = None,
@@ -616,12 +643,14 @@ class VectorNamespace:
         include_values: bool = False,
         cursor: str | None = None,
     ) -> Page[VectorResult]:
-        _validate_embedding(embedding)
+        validate_query_input(embedding, text, use_credits)
         _validate_vector_options(limit, max_distance, min_similarity)
         return self._project._post_page(
             "/vector/search",
             {
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "config": config,
                 "limit": limit,
                 "filters": filters or {},
@@ -631,6 +660,8 @@ class VectorNamespace:
                 "cursor": cursor,
             },
             VectorResult.from_api,
+            timeout=timeout,
+            idempotency_key=idempotency_key,
         )
 
     def similar_to(
@@ -727,8 +758,12 @@ class HybridNamespace:
     def graph_first(
         self,
         start: dict[str, Any],
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
+        timeout: float | httpx.Timeout | None = None,
         config: str | None = None,
         max_depth: int = 2,
         relationship_types: list[str] | None = None,
@@ -739,7 +774,7 @@ class HybridNamespace:
         limit: int = 10,
         cursor: str | None = None,
     ) -> Page[HybridResult]:
-        _validate_embedding(embedding)
+        validate_query_input(embedding, text, use_credits)
         _validate_range(max_depth, "max_depth", 1, 20)
         _validate_range(limit, "limit", 1, 1000)
         return self._hybrid_page(
@@ -747,6 +782,8 @@ class HybridNamespace:
             {
                 "start": start,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "config": config,
                 "max_depth": max_depth,
                 "relationship_types": relationship_types,
@@ -756,12 +793,18 @@ class HybridNamespace:
                 "limit": limit,
                 "cursor": cursor,
             },
+            timeout=timeout,
+            idempotency_key=idempotency_key,
         )
 
     def vector_first(
         self,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
+        timeout: float | httpx.Timeout | None = None,
         start: dict[str, Any] | None = None,
         config: str | None = None,
         vector_limit: int = 20,
@@ -774,7 +817,7 @@ class HybridNamespace:
         limit: int = 10,
         cursor: str | None = None,
     ) -> Page[HybridResult]:
-        _validate_embedding(embedding)
+        validate_query_input(embedding, text, use_credits)
         _validate_range(vector_limit, "vector_limit", 1, 1000)
         _validate_range(max_depth, "max_depth", 1, 20)
         _validate_range(limit, "limit", 1, 1000)
@@ -782,6 +825,8 @@ class HybridNamespace:
             "vector-first",
             {
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "start": start,
                 "config": config,
                 "vector_limit": vector_limit,
@@ -793,13 +838,19 @@ class HybridNamespace:
                 "limit": limit,
                 "cursor": cursor,
             },
+            timeout=timeout,
+            idempotency_key=idempotency_key,
         )
 
     def joint(
         self,
-        embedding: list[float],
-        start: dict[str, Any],
+        embedding: list[float] | None = None,
+        start: dict[str, Any] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
+        timeout: float | httpx.Timeout | None = None,
         config: str | None = None,
         vector_weight: float = 0.7,
         graph_weight: float = 0.3,
@@ -811,7 +862,8 @@ class HybridNamespace:
         limit: int = 10,
         cursor: str | None = None,
     ) -> Page[HybridResult]:
-        _validate_embedding(embedding)
+        _validate_required(start, "start")
+        validate_query_input(embedding, text, use_credits)
         _validate_range(max_depth, "max_depth", 1, 20)
         _validate_range(vector_limit, "vector_limit", 1, 1000)
         _validate_range(limit, "limit", 1, 1000)
@@ -819,6 +871,8 @@ class HybridNamespace:
             "joint",
             {
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "start": start,
                 "config": config,
                 "weights": {"vector": vector_weight, "graph": graph_weight},
@@ -830,13 +884,24 @@ class HybridNamespace:
                 "limit": limit,
                 "cursor": cursor,
             },
+            timeout=timeout,
+            idempotency_key=idempotency_key,
         )
 
-    def _hybrid_page(self, mode: str, payload: dict[str, Any]) -> Page[HybridResult]:
+    def _hybrid_page(
+        self,
+        mode: str,
+        payload: dict[str, Any],
+        *,
+        timeout: float | httpx.Timeout | None = None,
+        idempotency_key: str | None = None,
+    ) -> Page[HybridResult]:
         return self._project._post_page(
             f"/hybrid/{mode}",
             payload,
             HybridResult.from_api,
+            timeout=timeout,
+            idempotency_key=idempotency_key,
         )
 
 

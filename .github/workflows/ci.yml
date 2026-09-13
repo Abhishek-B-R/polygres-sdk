@@ -52,11 +52,11 @@ jobs:
       - name: Verify source and generated package versions
         run: python tools/verify_release_version.py
 
-      - name: Check compatibility against released 0.3.0 baseline
+      - name: Check compatibility against released 0.4.1 baseline
         run: >-
           python tools/check_sdk_compatibility.py
-          --baseline compatibility/0.3.0/python-sdk-v1.methods.json
-          --expect-current-version 0.4.1
+          --baseline compatibility/0.4.1/python-sdk-v1.methods.json
+          --expect-current-version 0.5.0
 
       - name: Check pgContext 0.2.0 compatibility inventory
         run: python tools/check_pgcontext_compatibility.py
@@ -76,11 +76,12 @@ jobs:
           import importlib.metadata
           import json
           from importlib.resources import files
+          from pathlib import Path
 
           import httpx
           from polygres import Polygres, __version__
 
-          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.1"
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.5.0"
           for name in (
               "pgcontext-0.2.0-compatibility.json",
               "runtime-v1.openapi.json",
@@ -90,12 +91,28 @@ jobs:
               json.loads(files("polygres.spec").joinpath(name).read_text())
           assert files("polygres").joinpath("migrations", "README.md").is_file()
 
+          capabilities = json.loads(
+              Path("tests/fixtures/context/contract-fixtures.json").read_text()
+          )["responses"]["CapabilitiesResponse"]
+          capabilities.update(
+              dense_search=True, query_embedding_generation=True, max_search_limit=100
+          )
+
           def respond(request):
               assert request.headers["User-Agent"] == f"polygres-python/{__version__}"
               assert request.headers["X-Polygres-Api-Version"] == "2026-08-04"
               assert request.headers["X-Polygres-Client-Info"].startswith(
                   f"polygres-python/{__version__}; python/"
               )
+              if request.url.path == "/v1/context/capabilities":
+                  return httpx.Response(200, json=capabilities)
+              if request.url.path == "/v1/context/search":
+                  assert json.loads(request.content)["text"] == "replication"
+                  assert request.headers["Idempotency-Key"] == "clean-query"
+                  return httpx.Response(200, json={
+                      "request_id": "query", "mode": "dense", "results": [], "warnings": [],
+                      "collection": {"id": "123e4567-e89b-12d3-a456-426614174000", "name": "articles"},
+                  })
               return httpx.Response(
                   200,
                   json={
@@ -115,6 +132,10 @@ jobs:
           client._client.close()
           client._client = httpx.Client(transport=httpx.MockTransport(respond))
           assert client.project().readiness().request_id == "req_clean_install"
+          assert not hasattr(client.project(), "embeddings")
+          assert client.project().context.search(
+              "articles", text="replication", idempotency_key="clean-query"
+          ).results == []
           PY
 
       - name: Smoke test clean source distribution installation
@@ -129,7 +150,7 @@ jobs:
 
           from polygres import __version__
 
-          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.4.1"
+          assert __version__ == importlib.metadata.version("polygres-sdk") == "0.5.0"
           for name in (
               "pgcontext-0.2.0-compatibility.json",
               "runtime-v1.openapi.json",

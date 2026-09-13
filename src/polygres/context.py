@@ -10,6 +10,7 @@ import httpx
 from pydantic import BaseModel, ValidationError
 
 from polygres._method_metadata import bind_sdk_method
+from polygres._query_input import query_deadline, query_transport
 from polygres._vendor.polygres_lib.context import (
     BackfillPointsRequest,
     BulkPointKeysRequest,
@@ -1201,10 +1202,12 @@ class ContextNamespace:
         self, operation_id: str | UUID, *, timeout: RequestTimeout = None
     ) -> ContextOperation:
         operation_uuid = context_uuid(operation_id, field="operation_id")
-        response = self._project._client._get(
-            f"/context/operations/{operation_uuid}", timeout=timeout
+        response = self._project._client._get_response(
+            f"/context/operations/{operation_uuid}",
+            timeout=timeout,
+            sdk_method="project.context.get_operation",
         )
-        return _operation_response(response, expected_id=operation_uuid)
+        return _operation_response(response.payload, expected_id=operation_uuid)
 
     def wait_for_operation(
         self,
@@ -1336,8 +1339,11 @@ class ContextNamespace:
     def search(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         filter: dict[str, Any] | None = None,
         limit: int = 10,
@@ -1351,10 +1357,13 @@ class ContextNamespace:
                 "collection": context_collection(collection),
                 "vector_name": vector_name,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "filter": filter,
                 "limit": limit,
             },
             timeout,
+            idempotency_key=idempotency_key,
         )
 
     def raw_vector_search(
@@ -1384,9 +1393,12 @@ class ContextNamespace:
     def candidate_search(
         self,
         collection: str,
-        embedding: list[float],
-        candidate_point_ids: list[int],
+        embedding: list[float] | None = None,
+        candidate_point_ids: list[int] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         filter: dict[str, Any] | None = None,
         limit: int = 10,
@@ -1397,6 +1409,8 @@ class ContextNamespace:
             {
                 "collection": collection,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "candidate_point_ids": candidate_point_ids,
                 "vector_name": vector_name,
                 "filter": filter,
@@ -1409,6 +1423,7 @@ class ContextNamespace:
             PgContextScoredResponse,
             timeout=timeout,
             retryable=True,
+            idempotency_key=idempotency_key,
         )
 
     def recommend(
@@ -1476,8 +1491,11 @@ class ContextNamespace:
     def grouped_search(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         group_by: str,
         group_limit: int = 1,
@@ -1492,11 +1510,14 @@ class ContextNamespace:
                 "collection": context_collection(collection),
                 "vector_name": vector_name,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "group_by": group_by,
                 "group_limit": group_limit,
                 "limit": limit,
             },
             timeout,
+            idempotency_key=idempotency_key,
         )
 
     def recall_check(
@@ -1533,8 +1554,10 @@ class ContextNamespace:
     def text_hybrid(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         query: str,
         limit: int = 10,
@@ -1547,13 +1570,17 @@ class ContextNamespace:
             query=query,
             limit=limit,
             timeout=timeout,
+            use_credits=use_credits,
+            idempotency_key=idempotency_key,
         )
 
     def query(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         query: str,
         limit: int = 10,
@@ -1569,21 +1596,29 @@ class ContextNamespace:
                 "collection": context_collection(collection),
                 "vector_name": vector_name,
                 "embedding": embedding,
+                "text": query if embedding is None else None,
+                "use_credits": use_credits,
                 "query": context_query(query),
                 "limit": limit,
             },
             timeout,
+            idempotency_key=idempotency_key,
         )
 
     def query_nearest(
         self,
-        vector: list[float],
+        vector: list[float] | None = None,
         limit: int = 10,
         *,
+        text: str | None = None,
         vector_name: str | None = None,
         filter: dict[str, Any] | None = None,
     ) -> ContextQueryPlan:
-        request: dict[str, Any] = {"kind": "nearest", "vector": vector, "limit": limit}
+        request: dict[str, Any] = {"kind": "nearest", "limit": limit}
+        if vector is not None:
+            request["vector"] = vector
+        if text is not None:
+            request["text"] = text
         if vector_name is not None or filter is not None:
             request.update({"vector_name": vector_name, "filter": filter})
         return context_model(ContextQueryPlan, request)[0]
@@ -1715,11 +1750,17 @@ class ContextNamespace:
         collection: str | UUID,
         plan: ContextQueryPlan,
         *,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         timeout: RequestTimeout = None,
     ) -> QueryExecutionResponse:
         _, payload = context_model(
             QueryExecuteRequest,
-            {"collection": context_collection(collection), "plan": plan},
+            {
+                "collection": context_collection(collection),
+                "plan": plan,
+                "use_credits": use_credits,
+            },
             exclude_unset=True,
         )
         return self._post_model(
@@ -1728,6 +1769,7 @@ class ContextNamespace:
             QueryExecutionResponse,
             timeout=timeout,
             retryable=False,
+            idempotency_key=idempotency_key,
         )
 
     def explain(
@@ -1752,8 +1794,11 @@ class ContextNamespace:
     def graph_first(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         start: dict[str, str] | BaseModel,
         max_depth: int = 2,
@@ -1772,6 +1817,8 @@ class ContextNamespace:
                 "collection": context_collection(collection),
                 "vector_name": vector_name,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "start": start,
                 "max_depth": max_depth,
                 "graph_limit": graph_limit,
@@ -1781,13 +1828,17 @@ class ContextNamespace:
                 "limit": limit,
             },
             timeout,
+            idempotency_key=idempotency_key,
         )
 
     def vector_first(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         context_limit: int = 50,
         max_depth: int = 2,
@@ -1806,6 +1857,8 @@ class ContextNamespace:
                 "collection": context_collection(collection),
                 "vector_name": vector_name,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "context_limit": context_limit,
                 "max_depth": max_depth,
                 "graph_limit": graph_limit,
@@ -1815,13 +1868,17 @@ class ContextNamespace:
                 "limit": limit,
             },
             timeout,
+            idempotency_key=idempotency_key,
         )
 
     def rank_fusion(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         start: dict[str, str] | BaseModel,
         context_limit: int = 50,
@@ -1843,6 +1900,8 @@ class ContextNamespace:
                 "collection": context_collection(collection),
                 "vector_name": vector_name,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "start": start,
                 "context_limit": context_limit,
                 "max_depth": max_depth,
@@ -1854,13 +1913,17 @@ class ContextNamespace:
                 "limit": limit,
             },
             timeout,
+            idempotency_key=idempotency_key,
         )
 
     def joint(
         self,
         collection: str | UUID,
-        embedding: list[float],
+        embedding: list[float] | None = None,
         *,
+        text: str | None = None,
+        use_credits: bool = False,
+        idempotency_key: str | None = None,
         vector_name: str | None = None,
         query: str | None = None,
         starts: list[dict[str, str] | BaseModel] | None = None,
@@ -1884,6 +1947,8 @@ class ContextNamespace:
                 "collection": context_collection(collection),
                 "vector_name": vector_name,
                 "embedding": embedding,
+                "text": text,
+                "use_credits": use_credits,
                 "query": query,
                 "starts": [] if starts is None else starts,
                 "filter": filter,
@@ -1909,6 +1974,7 @@ class ContextNamespace:
             ContextJointResponse,
             timeout=timeout,
             retryable=False,
+            idempotency_key=idempotency_key,
         )
 
     def _collection_payload(
@@ -1970,10 +2036,19 @@ class ContextNamespace:
         request_model: type[BaseModel],
         request: dict[str, Any],
         timeout: RequestTimeout,
+        *,
+        idempotency_key: str | None = None,
     ) -> RankedResponse:
         _, payload = context_model(request_model, request)
         self._validate_capability_request(capability, payload, timeout=timeout)
-        return self._post_model(path, payload, RankedResponse, timeout=timeout, retryable=False)
+        return self._post_model(
+            path,
+            payload,
+            RankedResponse,
+            timeout=timeout,
+            retryable=False,
+            idempotency_key=idempotency_key,
+        )
 
     def _validate_capability_request(
         self,
@@ -2014,6 +2089,21 @@ class ContextNamespace:
         response = self._project._client._get(path, params=params, timeout=timeout)
         return _response_model(response_model, response)
 
+    def _require_query_embeddings(self, *, timeout: RequestTimeout = None) -> None:
+        cached = self._capabilities_cache
+        expired = (
+            self._capabilities_cached_at is None
+            or time.monotonic() - self._capabilities_cached_at >= _CAPABILITY_CACHE_TTL_SECONDS
+        )
+        if cached is None or expired or not cached.query_embedding_generation:
+            cached = self.get_capabilities(timeout=timeout)
+        if not cached.query_embedding_generation:
+            raise PolygresValidationError(
+                "This Runtime does not support query embedding generation.",
+                code="CONTEXT_CAPABILITY_UNAVAILABLE",
+                details={"capability": "query_embedding_generation"},
+            )
+
     def _post_model(
         self,
         path: str,
@@ -2022,8 +2112,21 @@ class ContextNamespace:
         *,
         timeout: RequestTimeout,
         retryable: bool,
+        idempotency_key: str | None = None,
     ) -> ResponseT:
-        response = self._project._client._post(path, payload, timeout=timeout, retryable=retryable)
+        payload, headers = query_transport(payload, idempotency_key)
+        deadline = None
+        if headers:
+            deadline = query_deadline(timeout or self._project._client._timeout)
+            self._require_query_embeddings(timeout=timeout)
+        response = self._project._client._post(
+            path,
+            payload,
+            timeout=timeout,
+            retryable=retryable or bool(headers),
+            headers=headers,
+            deadline=deadline,
+        )
         return _response_model(response_model, response)
 
     def _operation_mutation(

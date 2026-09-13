@@ -53,6 +53,33 @@ REFERENCE_NOTES = {
 }
 
 
+for _method_name in (
+    "project.context.search",
+    "project.context.candidate_search",
+    "project.context.grouped_search",
+    "project.context.query",
+    "project.context.text_hybrid",
+    "project.context.graph_first",
+    "project.context.vector_first",
+    "project.context.rank_fusion",
+    "project.context.joint",
+    "project.context.query_nearest",
+    "project.context.execute_query",
+    "project.vector.search",
+    "project.hybrid.graph_first",
+    "project.hybrid.vector_first",
+    "project.hybrid.joint",
+):
+    REFERENCE_NOTES[_method_name] = (
+        "SDK 0.5.0 supports configured query embedding generation through text input.\n"
+        "Existing vector inputs retain their behavior. Text execution accepts optional\n"
+        "credit usage and idempotency keys; automatic retries reuse the same attempt.\n"
+        "Query-plan builders remain local; generation happens in execute_query().\n"
+        "See the README's Query with text section for method-specific input rules."
+    )
+del _method_name
+
+
 def build_method_spec() -> dict[str, Any]:
     """Join Python method metadata to the committed Runtime OpenAPI snapshot."""
 

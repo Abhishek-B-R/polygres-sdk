@@ -195,6 +195,102 @@
       "review_date": "2027-02-04"
     },
     {
+      "method": "POST",
+      "operation_id": "runtime_embedding_action",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations/{configuration_id}/actions",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_embedding_context_handoff",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations/{configuration_id}/context",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_embedding_create",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_embedding_get",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations/{configuration_id}",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_embedding_list",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_embedding_models",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/models",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_embedding_preview",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/preview",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "DELETE",
+      "operation_id": "runtime_embedding_remove",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations/{configuration_id}",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "runtime_embedding_search",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/search",
+      "reason": "The standalone embedding search endpoint serves CLI and MCP clients. SDK text input belongs in existing retrieval methods.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_embedding_sources",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/sources",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "PATCH",
+      "operation_id": "runtime_embedding_update",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations/{configuration_id}",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_embedding_usage",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/usage",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
       "method": "GET",
       "operation_id": "runtime_get_table_rows",
       "owner": "SDK Platform",
@@ -907,12 +1003,13 @@
                 "embedding",
                 "filter",
                 "limit",
+                "text",
+                "use_credits",
                 "vector_name"
               ],
               "required_fields": [
                 "candidate_point_ids",
-                "collection",
-                "embedding"
+                "collection"
               ],
               "schema": "CandidateSearchRequest"
             }
@@ -2544,7 +2641,8 @@
               "allows_additional_fields": false,
               "fields": [
                 "collection",
-                "plan"
+                "plan",
+                "use_credits"
               ],
               "required_fields": [
                 "collection",
@@ -2948,6 +3046,7 @@
                   "grouped_search",
                   "grouped_search_blocker",
                   "grouped_search_blocker_message",
+                  "hnsw_record_limits",
                   "joint",
                   "joint_blocker",
                   "joint_blocker_message",
@@ -2972,6 +3071,7 @@
                   "point_scroll_blocker",
                   "point_scroll_blocker_message",
                   "product_status",
+                  "query_embedding_generation",
                   "rank_fusion",
                   "rank_fusion_blocker",
                   "rank_fusion_blocker_message",
@@ -3506,11 +3606,12 @@
                 "max_depth",
                 "relationship_types",
                 "start",
+                "text",
+                "use_credits",
                 "vector_name"
               ],
               "required_fields": [
                 "collection",
-                "embedding",
                 "start"
               ],
               "schema": "GraphFirstSearchRequest"
@@ -3589,11 +3690,12 @@
                 "group_by",
                 "group_limit",
                 "limit",
+                "text",
+                "use_credits",
                 "vector_name"
               ],
               "required_fields": [
                 "collection",
-                "embedding",
                 "group_by"
               ],
               "schema": "GroupedSearchRequest"
@@ -3856,13 +3958,14 @@
                 "relationship_types",
                 "seed_limit",
                 "starts",
+                "text",
                 "traversal_limit",
+                "use_credits",
                 "vector_name",
                 "weights"
               ],
               "required_fields": [
-                "collection",
-                "embedding"
+                "collection"
               ],
               "schema": "JointSearchRequest"
             }
@@ -4344,11 +4447,12 @@
                 "embedding",
                 "limit",
                 "query",
+                "text",
+                "use_credits",
                 "vector_name"
               ],
               "required_fields": [
                 "collection",
-                "embedding",
                 "query"
               ],
               "schema": "TextHybridSearchRequest"
@@ -4838,12 +4942,13 @@
                 "max_depth",
                 "relationship_types",
                 "start",
+                "text",
+                "use_credits",
                 "vector_name",
                 "weights"
               ],
               "required_fields": [
                 "collection",
-                "embedding",
                 "start"
               ],
               "schema": "RankFusionSearchRequest"
@@ -5871,11 +5976,12 @@
                 "embedding",
                 "filter",
                 "limit",
+                "text",
+                "use_credits",
                 "vector_name"
               ],
               "required_fields": [
-                "collection",
-                "embedding"
+                "collection"
               ],
               "schema": "DenseSearchRequest"
             }
@@ -6169,11 +6275,12 @@
                 "embedding",
                 "limit",
                 "query",
+                "text",
+                "use_credits",
                 "vector_name"
               ],
               "required_fields": [
                 "collection",
-                "embedding",
                 "query"
               ],
               "schema": "TextHybridSearchRequest"
@@ -6568,11 +6675,12 @@
                 "limit",
                 "max_depth",
                 "relationship_types",
+                "text",
+                "use_credits",
                 "vector_name"
               ],
               "required_fields": [
-                "collection",
-                "embedding"
+                "collection"
               ],
               "schema": "VectorFirstSearchRequest"
             }
@@ -7129,12 +7237,12 @@
                 "max_depth",
                 "relationship_types",
                 "start",
+                "text",
+                "use_credits",
                 "vector_limit",
                 "weights"
               ],
-              "required_fields": [
-                "embedding"
-              ],
+              "required_fields": [],
               "schema": "HybridRequest"
             }
           ],
@@ -7203,12 +7311,12 @@
                 "max_depth",
                 "relationship_types",
                 "start",
+                "text",
+                "use_credits",
                 "vector_limit",
                 "weights"
               ],
-              "required_fields": [
-                "embedding"
-              ],
+              "required_fields": [],
               "schema": "HybridRequest"
             }
           ],
@@ -7277,12 +7385,12 @@
                 "max_depth",
                 "relationship_types",
                 "start",
+                "text",
+                "use_credits",
                 "vector_limit",
                 "weights"
               ],
-              "required_fields": [
-                "embedding"
-              ],
+              "required_fields": [],
               "schema": "HybridRequest"
             }
           ],
@@ -7968,11 +8076,11 @@
                 "include_values",
                 "limit",
                 "max_distance",
-                "min_similarity"
+                "min_similarity",
+                "text",
+                "use_credits"
               ],
-              "required_fields": [
-                "embedding"
-              ],
+              "required_fields": [],
               "schema": "VectorSearchRequest"
             }
           ],
@@ -8076,8 +8184,8 @@
       "stability": "stable"
     }
   ],
-  "openapi_sha256": "db23d7178d295d7bac0b5168061c59fcbcf6eb96e1e12bc2e21670452b8cb506",
+  "openapi_sha256": "025cd07b615587ca3f86ff573dbe84601fed140331bfeec100f200cd8b7f6c36",
   "schema_version": 1,
   "sdk": "polygres-sdk",
-  "sdk_version": "0.4.1"
+  "sdk_version": "0.5.0"
 }

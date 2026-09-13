@@ -437,6 +437,7 @@ def test_protected_headers_cannot_be_spoofed_at_client_or_request_scope() -> Non
             "user-agent": "spoofed/1.0.0",
             "x-polygres-client-info": "spoofed",
             "x-polygres-api-version": "1999-01-01",
+            "x-polygres-sdk-method": "spoofed",
             "X-Custom": "preserved",
         },
     )
@@ -448,6 +449,7 @@ def test_protected_headers_cannot_be_spoofed_at_client_or_request_scope() -> Non
             "USER-AGENT": "request-spoofed/1.0.0",
             "X-POLYGRES-CLIENT-INFO": "request-spoofed",
             "X-POLYGRES-API-VERSION": "2000-01-01",
+            "X-POLYGRES-SDK-METHOD": "request-spoofed",
             "X-Request-Custom": "preserved",
         },
     )
@@ -457,6 +459,7 @@ def test_protected_headers_cannot_be_spoofed_at_client_or_request_scope() -> Non
     assert request.headers["User-Agent"] == f"polygres-python/{__version__}"
     assert request.headers[API_VERSION_HEADER] == DEFAULT_API_VERSION
     assert request.headers[CLIENT_INFO_HEADER].startswith(f"polygres-python/{__version__};")
+    assert "X-Polygres-SDK-Method" not in request.headers
     assert request.headers["X-Custom"] == "preserved"
     assert request.headers["X-Request-Custom"] == "preserved"
 

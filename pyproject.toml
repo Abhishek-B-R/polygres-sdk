@@ -1,6 +1,6 @@
 [project]
 name = "polygres-sdk"
-version = "0.4.1"
+version = "0.5.0"
 description = "Python SDK for Polygres"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -69,6 +69,7 @@ packages = ["src/polygres"]
 
 [tool.hatch.build.targets.sdist]
 include = [
+  "/CHANGELOG.md",
   "/CONTRIBUTING.md",
   "/LICENSE",
   "/README.md",
