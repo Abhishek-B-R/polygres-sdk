@@ -4,6 +4,25 @@ All notable changes to `polygres-sdk` are documented in this file.
 
 ## Unreleased
 
+## 0.6.0 - 2026-09-24
+
+### Added
+
+- Add `PolygresProjectArchivedError`, a subclass of `PolygresAPIError`, for
+  `PROJECT_ARCHIVED` responses. It preserves `details["archive_state"]` and
+  state-specific restoration guidance without retrying or restoring projects.
+
+### Changed
+
+- Refresh shared contracts and Runtime API metadata, explicitly classify text
+  setup operations outside the retrieval SDK, and validate against the published
+  SDK 0.5.0 method contract. Existing retrieval methods remain unchanged.
+
+Archive-specific Runtime responses require an updated backend. Older backends
+that return `RUNTIME_PROJECT_NOT_FOUND` still raise `PolygresNotFoundError`.
+See the [archive-error migration note](migrations/archived-project-errors.md)
+for the backend response change and exception-handling updates.
+
 ## 0.5.0 - 2026-09-12
 
 ### Added

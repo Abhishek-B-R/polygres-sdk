@@ -12,6 +12,14 @@
     },
     {
       "method": "POST",
+      "operation_id": "change_text_operation_v1_text_operations__operation_id___action__post",
+      "owner": "SDK Platform",
+      "path": "/v1/text/operations/{operation_id}/{action}",
+      "reason": "Text operation cancellation and retry is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
       "operation_id": "create_text_configuration_v1_text_configurations_post",
       "owner": "Runtime Platform",
       "path": "/v1/text/configurations",
@@ -52,6 +60,14 @@
     },
     {
       "method": "POST",
+      "operation_id": "discover_text_sources_v1_text_discover_post",
+      "owner": "SDK Platform",
+      "path": "/v1/text/discover",
+      "reason": "Text source discovery is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
       "operation_id": "discover_vectors_v1_vector_discover_post",
       "owner": "Runtime Platform",
       "path": "/v1/vector/discover",
@@ -80,6 +96,14 @@
       "owner": "Runtime Platform",
       "path": "/v1/text/configurations/{config_id}",
       "reason": "Text configuration is managed through the dashboard and control-plane workflow.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "get_text_operation_v1_text_operations__operation_id__get",
+      "owner": "SDK Platform",
+      "path": "/v1/text/operations/{operation_id}",
+      "reason": "Text operation inspection is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
       "review_date": "2027-02-04"
     },
     {
@@ -124,6 +148,14 @@
     },
     {
       "method": "GET",
+      "operation_id": "list_text_operations_v1_text_operations_get",
+      "owner": "SDK Platform",
+      "path": "/v1/text/operations",
+      "reason": "Text operation listing is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
       "operation_id": "list_vector_configurations_v1_vector_configurations_get",
       "owner": "Runtime Platform",
       "path": "/v1/vector/configurations",
@@ -160,6 +192,14 @@
       "owner": "Runtime Platform",
       "path": "/v1/vector/configurations/{config_id}",
       "reason": "Vector setup is managed through the dashboard and control-plane workflow, not the retrieval SDK.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "POST",
+      "operation_id": "preflight_text_configuration_v1_text_preflight_post",
+      "owner": "SDK Platform",
+      "path": "/v1/text/preflight",
+      "reason": "Text configuration preflight is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
       "review_date": "2027-02-04"
     },
     {
@@ -223,6 +263,14 @@
       "operation_id": "runtime_embedding_get",
       "owner": "SDK Platform",
       "path": "/v1/embeddings/configurations/{configuration_id}",
+      "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+      "review_date": "2027-02-04"
+    },
+    {
+      "method": "GET",
+      "operation_id": "runtime_embedding_issue_rows",
+      "owner": "SDK Platform",
+      "path": "/v1/embeddings/configurations/{configuration_id}/issues/rows",
       "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
       "review_date": "2027-02-04"
     },
@@ -8184,8 +8232,8 @@
       "stability": "stable"
     }
   ],
-  "openapi_sha256": "025cd07b615587ca3f86ff573dbe84601fed140331bfeec100f200cd8b7f6c36",
+  "openapi_sha256": "790d620c299ff542954b47a14f71bbdd4fff09f85a9427ad14c8433714c27270",
   "schema_version": 1,
   "sdk": "polygres-sdk",
-  "sdk_version": "0.5.0"
+  "sdk_version": "0.6.0"
 }

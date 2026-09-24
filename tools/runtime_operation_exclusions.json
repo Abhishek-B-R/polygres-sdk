@@ -198,6 +198,12 @@
     "review_date": "2027-02-04"
   },
   {
+    "operation_id": "runtime_embedding_issue_rows",
+    "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
     "operation_id": "runtime_embedding_list",
     "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
     "owner": "SDK Platform",
@@ -242,6 +248,36 @@
   {
     "operation_id": "runtime_embedding_usage",
     "reason": "Embedding setup and management are available through the dashboard, CLI, and MCP. The SDK exposes retrieval through its existing query namespaces.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "change_text_operation_v1_text_operations__operation_id___action__post",
+    "reason": "Text operation cancellation and retry is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "discover_text_sources_v1_text_discover_post",
+    "reason": "Text source discovery is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "get_text_operation_v1_text_operations__operation_id__get",
+    "reason": "Text operation inspection is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "list_text_operations_v1_text_operations_get",
+    "reason": "Text operation listing is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
+    "owner": "SDK Platform",
+    "review_date": "2027-02-04"
+  },
+  {
+    "operation_id": "preflight_text_configuration_v1_text_preflight_post",
+    "reason": "Text configuration preflight is a setup-management operation outside the retrieval SDK, consistent with existing text configuration exclusions.",
     "owner": "SDK Platform",
     "review_date": "2027-02-04"
   }

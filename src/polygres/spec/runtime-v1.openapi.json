@@ -664,6 +664,22 @@
             "title": "Enabled",
             "type": "boolean"
           },
+          "mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "automatic",
+                  "custom",
+                  "off"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
           "overlap_tokens": {
             "default": 64,
             "maximum": 2048.0,
@@ -2531,6 +2547,10 @@
       },
       "ContextOperationKind": {
         "enum": [
+          "text_create",
+          "text_update",
+          "text_delete",
+          "text_reindex",
           "collection_create",
           "collection_set_default",
           "collection_update",
@@ -3923,16 +3943,101 @@
               "resume",
               "run",
               "retry",
-              "reconcile"
+              "reconcile",
+              "preview_chunking",
+              "enable_chunking"
             ],
             "title": "Action",
             "type": "string"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
           }
         },
         "required": [
           "action"
         ],
         "title": "EmbeddingActionRequest",
+        "type": "object"
+      },
+      "EmbeddingChunkingRecovery": {
+        "properties": {
+          "blocked_rows": {
+            "title": "Blocked Rows",
+            "type": "integer"
+          },
+          "eligible_rows": {
+            "title": "Eligible Rows",
+            "type": "integer"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "max_input_tokens": {
+            "title": "Max Input Tokens",
+            "type": "integer"
+          },
+          "retried_rows": {
+            "default": 0,
+            "title": "Retried Rows",
+            "type": "integer"
+          },
+          "samples": {
+            "items": {
+              "$ref": "#/components/schemas/EmbeddingChunkingSample"
+            },
+            "title": "Samples",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expected_version",
+          "eligible_rows",
+          "blocked_rows",
+          "max_input_tokens",
+          "samples"
+        ],
+        "title": "EmbeddingChunkingRecovery",
+        "type": "object"
+      },
+      "EmbeddingChunkingSample": {
+        "properties": {
+          "chunks": {
+            "title": "Chunks",
+            "type": "integer"
+          },
+          "input_tokens": {
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "source_key": {
+            "additionalProperties": true,
+            "title": "Source Key",
+            "type": "object"
+          },
+          "work_id": {
+            "format": "uuid",
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_id",
+          "source_key",
+          "input_tokens",
+          "chunks"
+        ],
+        "title": "EmbeddingChunkingSample",
         "type": "object"
       },
       "EmbeddingConfiguration": {
@@ -3951,6 +4056,13 @@
             "default": false,
             "title": "Initial Scan Complete",
             "type": "boolean"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/EmbeddingIssue"
+            },
+            "title": "Issues",
+            "type": "array"
           },
           "last_error_code": {
             "anyOf": [
@@ -4258,6 +4370,117 @@
         "title": "EmbeddingConfigurationUpdate",
         "type": "object"
       },
+      "EmbeddingIssue": {
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "enum": [
+                  "billing",
+                  "spending_settings",
+                  "source_rows"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "reason": {
+            "enum": [
+              "service_delay",
+              "allowance",
+              "credits",
+              "spending_disabled",
+              "spending_limit",
+              "source_text_too_long",
+              "source_changed"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "rows": {
+            "minimum": 0.0,
+            "title": "Rows",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "recovering",
+              "action_required",
+              "investigation"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "reason",
+          "rows"
+        ],
+        "title": "EmbeddingIssue",
+        "type": "object"
+      },
+      "EmbeddingIssueRow": {
+        "properties": {
+          "reason": {
+            "enum": [
+              "source_text_too_long",
+              "source_changed"
+            ],
+            "title": "Reason",
+            "type": "string"
+          },
+          "source_key": {
+            "additionalProperties": true,
+            "title": "Source Key",
+            "type": "object"
+          },
+          "work_id": {
+            "format": "uuid",
+            "title": "Work Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "work_id",
+          "source_key",
+          "reason"
+        ],
+        "title": "EmbeddingIssueRow",
+        "type": "object"
+      },
+      "EmbeddingIssueRows": {
+        "properties": {
+          "next_cursor": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/EmbeddingIssueRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rows"
+        ],
+        "title": "EmbeddingIssueRows",
+        "type": "object"
+      },
       "EmbeddingMigrationRow": {
         "additionalProperties": true,
         "properties": {
@@ -4414,6 +4637,12 @@
           "copied": {
             "default": 0,
             "title": "Copied",
+            "type": "integer"
+          },
+          "delayed": {
+            "default": 0,
+            "description": "Current source rows undergoing service recovery.",
+            "title": "Delayed",
             "type": "integer"
           },
           "deleted": {
@@ -6693,10 +6922,6 @@
             "type": "string"
           },
           "provider": {
-            "enum": [
-              "openai",
-              "qwen"
-            ],
             "title": "Provider",
             "type": "string"
           },
@@ -9748,6 +9973,37 @@
           "config"
         ],
         "title": "TextSearchRequest",
+        "type": "object"
+      },
+      "TextSourceDiscoveryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "default": 50,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "schema_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Name"
+          }
+        },
+        "title": "TextSourceDiscoveryRequest",
         "type": "object"
       },
       "UpdateEmbeddingMigrationRequest": {
@@ -19155,7 +19411,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmbeddingConfiguration"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/EmbeddingConfiguration"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EmbeddingChunkingRecovery"
+                    }
+                  ],
+                  "title": "Response Runtime Embedding Action"
                 }
               }
             },
@@ -19319,6 +19583,132 @@
           }
         ],
         "summary": "Context Handoff",
+        "tags": [
+          "embeddings"
+        ]
+      }
+    },
+    "/v1/embeddings/configurations/{configuration_id}/issues/rows": {
+      "get": {
+        "operationId": "runtime_embedding_issue_rows",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "configuration_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Configuration Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbeddingIssueRows"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Issue Rows",
         "tags": [
           "embeddings"
         ]
@@ -23018,6 +23408,102 @@
         "summary": "Reindex Text Configuration"
       }
     },
+    "/v1/text/discover": {
+      "post": {
+        "operationId": "discover_text_sources_v1_text_discover_post",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextSourceDiscoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Discover Text Sources V1 Text Discover Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Discover Text Sources"
+      }
+    },
     "/v1/text/fuzzy": {
       "post": {
         "operationId": "runtime_text_fuzzy",
@@ -23108,6 +23594,453 @@
           }
         ],
         "summary": "Text Fuzzy"
+      }
+    },
+    "/v1/text/operations": {
+      "get": {
+        "operationId": "list_text_operations_v1_text_operations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response List Text Operations V1 Text Operations Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "List Text Operations"
+      }
+    },
+    "/v1/text/operations/{operation_id}": {
+      "get": {
+        "operationId": "get_text_operation_v1_text_operations__operation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Text Operation V1 Text Operations  Operation Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Get Text Operation"
+      }
+    },
+    "/v1/text/operations/{operation_id}/{action}": {
+      "post": {
+        "operationId": "change_text_operation_v1_text_operations__operation_id___action__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "action",
+            "required": true,
+            "schema": {
+              "enum": [
+                "cancel",
+                "retry"
+              ],
+              "title": "Action",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Change Text Operation V1 Text Operations  Operation Id   Action  Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Change Text Operation"
+      }
+    },
+    "/v1/text/preflight": {
+      "post": {
+        "operationId": "preflight_text_configuration_v1_text_preflight_post",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PolygresApiVersion"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextConfigurationCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Preflight Text Configuration V1 Text Preflight Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Polygres-SDK-Notice-ID": {
+                "$ref": "#/components/headers/PolygresSdkNoticeId"
+              },
+              "Polygres-SDK-Notice-Severity": {
+                "$ref": "#/components/headers/PolygresSdkNoticeSeverity"
+              },
+              "Polygres-SDK-Notice-URL": {
+                "$ref": "#/components/headers/PolygresSdkNoticeUrl"
+              },
+              "Polygres-SDK-Recommended-Version": {
+                "$ref": "#/components/headers/PolygresSdkRecommendedVersion"
+              },
+              "X-Polygres-Api-Version": {
+                "description": "Selected Runtime API behavior version.",
+                "schema": {
+                  "enum": [
+                    "2026-08-04"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "RuntimeBearerAuth": []
+          }
+        ],
+        "summary": "Preflight Text Configuration"
       }
     },
     "/v1/text/tsvector": {

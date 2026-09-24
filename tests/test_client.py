@@ -1080,3 +1080,41 @@ def _text_payload(mode: str) -> dict[str, object]:
         "next_cursor": None,
         "has_more": False,
     }
+
+
+@pytest.mark.parametrize("state", ["archiving", "archived", "restoring"])
+@ROUTE_CTX
+def test_archive_error_is_typed_and_not_retried(state, monkeypatch):
+    from polygres import PolygresAPIError, PolygresProjectArchivedError
+
+    delays = []
+    monkeypatch.setattr(client_module.time, "sleep", delays.append)
+    route = _stub(
+        respx.get(f"{RUNTIME_URL}/retrieval/readiness"),
+        return_value=httpx.Response(
+            409,
+            json={
+                "request_id": "req_archive",
+                "error": {
+                    "code": "PROJECT_ARCHIVED",
+                    "variant": state,
+                    "message": catalog_message("PROJECT_ARCHIVED", variant=state),
+                    "details": {"archive_state": state},
+                },
+            },
+        ),
+    )
+    client = Polygres(api_key=API_KEY, runtime_url=RUNTIME_URL, max_retries=3)
+    with pytest.raises(PolygresProjectArchivedError) as raised:
+        client.project().readiness()
+    error = raised.value
+    assert isinstance(error, PolygresAPIError)
+    assert error.code == "PROJECT_ARCHIVED"
+    assert error.status_code == 409
+    assert error.request_id == "req_archive"
+    assert error.details == {"archive_state": state}
+    assert str(error) == catalog_message("PROJECT_ARCHIVED", variant=state)
+    assert route.call_count == 1
+    assert delays == []
+    _stub(route, return_value=httpx.Response(200, json={"project_id": PROJECT_ID}))
+    assert client.project().readiness().project_id == PROJECT_ID

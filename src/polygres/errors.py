@@ -46,6 +46,14 @@ class PolygresAPIError(PolygresError):
         self.details = details or {}
 
 
+class PolygresProjectArchivedError(PolygresAPIError):
+    """Project access is blocked while archiving, archived, or restoring.
+
+    Inspect ``details["archive_state"]`` for the lifecycle state. Requests are
+    not automatically retried and restoration is always an explicit action.
+    """
+
+
 class PolygresAuthError(PolygresAPIError):
     """Raised for authentication failures."""
 

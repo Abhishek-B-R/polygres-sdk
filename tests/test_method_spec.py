@@ -36,7 +36,7 @@ def test_committed_method_spec_is_deterministic_schema_and_semantically_valid() 
     assert actual == expected
     generator.validate_method_spec(actual)
     assert len(actual["methods"]) == 114
-    assert len(actual["excluded_operations"]) == 41
+    assert len(actual["excluded_operations"]) == 47
 
     baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
     generator.validate_method_spec(baseline, require_current_operation_details=False)

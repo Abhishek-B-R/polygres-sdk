@@ -8,7 +8,15 @@ from enum import Enum
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 Identifier = Annotated[str, Field(pattern=r"^[A-Za-z_][A-Za-z0-9_]*$", max_length=63)]
 
@@ -43,21 +51,82 @@ class ResponseModel(BaseModel):
 
 
 class Chunking(RequestModel):
+    mode: Literal["automatic", "custom", "off"] | None = None
     enabled: bool = False
     size_tokens: int = Field(default=512, ge=32, le=8192)
     overlap_tokens: int = Field(default=64, ge=0, le=2048)
 
+    @model_serializer(mode="wrap")
+    def legacy_serialization(self, handler):
+        result = handler(self)
+        if self.mode is None:
+            result.pop("mode", None)
+        return result
+
     @model_validator(mode="after")
     def valid_overlap(self) -> Chunking:
-        if self.overlap_tokens >= self.size_tokens:
+        if self.mode is not None:
+            self.enabled = self.mode != "off"
+        if self.mode != "automatic" and self.overlap_tokens >= self.size_tokens:
             raise ValueError("overlap_tokens must be smaller than size_tokens")
+        return self
+
+
+class EmbeddingRequestOptions(RequestModel):
+    send_dimensions: bool = True
+    send_encoding_format: bool = True
+
+
+class EmbeddingConnectionPublic(RequestModel):
+    id: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_-]+$")
+    credential_ref: str = Field(pattern=r"^POLYGRES_EMBEDDING_[A-Z0-9_]+$")
+    endpoint: str = Field(min_length=1, max_length=2048)
+    auth_kind: Literal["key_vault", "azure_identity"] = "key_vault"
+    auth_header: Literal["Authorization", "api-key"] = "Authorization"
+    auth_prefix: Annotated[str, StringConstraints(strip_whitespace=False)] = Field(
+        default="Bearer ", pattern=r"^(Bearer |)$"
+    )
+
+    @model_validator(mode="after")
+    def valid_endpoint(self):
+        from urllib.parse import urlsplit
+
+        url = urlsplit(self.endpoint)
+        if (
+            url.scheme != "https"
+            or not url.hostname
+            or url.username
+            or url.password
+            or url.query
+            or url.fragment
+        ):
+            raise ValueError("Use a public HTTPS embeddings endpoint without credentials or query")
+        if self.auth_kind == "azure_identity" and (
+            not url.hostname.endswith((".openai.azure.com", ".cognitiveservices.azure.com"))
+            or self.auth_header != "Authorization"
+            or self.auth_prefix != "Bearer "
+        ):
+            raise ValueError(
+                "Azure identity requires an Azure AI endpoint and Bearer authentication"
+            )
+        return self
+
+
+class EmbeddingConnectionCreate(EmbeddingConnectionPublic):
+    # A name in the gateway's vault, never the provider credential itself.
+    secret_name: str | None = Field(default=None, pattern=r"^[A-Za-z0-9-]{1,127}$")
+
+    @model_validator(mode="after")
+    def valid_secret(self):
+        if (self.auth_kind == "key_vault") != bool(self.secret_name):
+            raise ValueError("Key Vault connections require a secret name; Azure identity does not")
         return self
 
 
 class ModelPublic(ResponseModel):
     id: UUID
     name: str
-    provider: Literal["openai", "qwen"]
+    provider: str
     model: str
     revision: str
     dimensions: list[int]
@@ -73,7 +142,8 @@ class ModelPublic(ResponseModel):
 
 class ModelCreate(RequestModel):
     name: str = Field(min_length=1, max_length=100)
-    provider: Literal["openai", "qwen"]
+    # Display metadata, not an adapter or tokenizer selector.
+    provider: str = Field(min_length=1, max_length=100)
     model: str = Field(min_length=1, max_length=160)
     revision: str = Field(min_length=1, max_length=120)
     dimensions: list[int] = Field(min_length=1, max_length=64)
@@ -86,6 +156,8 @@ class ModelCreate(RequestModel):
     credential_env: str = Field(pattern=r"^POLYGRES_EMBEDDING_[A-Z0-9_]+$")
     tokenizer: str = Field(min_length=1, max_length=300)
     tokenizer_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    tokenizer_kind: Literal["tiktoken", "huggingface"] | None = None
+    request_options: EmbeddingRequestOptions | None = None
     source_settings: dict[str, Any] = Field(default_factory=dict)
     query_settings: dict[str, Any] = Field(default_factory=dict)
     price_version: str = Field(min_length=1, max_length=120)
@@ -102,7 +174,14 @@ class ModelCreate(RequestModel):
     @field_validator("source_settings", "query_settings")
     @classmethod
     def valid_provider_settings(cls, value: dict[str, Any]) -> dict[str, Any]:
-        if set(value) - {"input_type", "task_type", "instruction", "prefix", "normalize"}:
+        if set(value) - {
+            "input_type",
+            "task_type",
+            "instruction",
+            "prefix",
+            "normalize",
+            "template",
+        }:
             raise ValueError("unsupported source or query embedding setting")
         if any(
             not isinstance(v, bool) if k == "normalize" else not isinstance(v, str)
@@ -111,7 +190,29 @@ class ModelCreate(RequestModel):
             raise ValueError("normalize must be boolean; other settings must be strings")
         if any(isinstance(v, str) and len(v) > 2000 for v in value.values()):
             raise ValueError("embedding settings exceed maximum length")
+        if "template" in value:
+            from string import Formatter
+
+            fields = list(Formatter().parse(value["template"]))
+            names = [name for _, name, _, _ in fields if name is not None]
+            if names.count("text") != 1 or any(
+                name not in {"text", "instruction"} or spec or conversion
+                for _, name, spec, conversion in fields
+                if name is not None
+            ):
+                raise ValueError(
+                    "Text template requires exactly one {text} and optional {instruction}"
+                )
         return value
+
+    @model_serializer(mode="wrap")
+    def compatible_serialization(self, handler):
+        result = handler(self)
+        # Old serving JSON and in-flight request fingerprints must remain byte-compatible.
+        for key in ("tokenizer_kind", "request_options"):
+            if result.get(key) is None:
+                result.pop(key, None)
+        return result
 
     @model_validator(mode="after")
     def consistent_model(self) -> ModelCreate:
@@ -131,10 +232,27 @@ class ModelCreate(RequestModel):
             raise ValueError("default_dimensions must be one of the supported dimensions")
         if self.max_batch_tokens < self.max_input_tokens:
             raise ValueError("max_batch_tokens must accommodate at least one maximum-sized input")
-        if self.provider == "openai" and self.tokenizer != "cl100k_base":
-            raise ValueError("OpenAI embeddings require the cl100k_base tokenizer")
-        if self.provider == "qwen" and not self.tokenizer_sha256:
-            raise ValueError("Qwen requires a pinned tokenizer artifact SHA-256")
+        kind = self.tokenizer_kind or (
+            "tiktoken" if self.tokenizer == "cl100k_base" else "huggingface"
+        )
+        if kind == "huggingface":
+            artifact = urlsplit(self.tokenizer)
+            if (
+                not self.tokenizer_sha256
+                or artifact.scheme != "https"
+                or not artifact.hostname
+                or artifact.username
+                or artifact.password
+                or artifact.fragment
+            ):
+                raise ValueError(
+                    "Hugging Face tokenizers require a public HTTPS artifact and SHA-256"
+                )
+        elif self.tokenizer_sha256 or "/" in self.tokenizer:
+            raise ValueError("Tiktoken requires an encoding name, without an artifact checksum")
+        if self.request_options and not self.request_options.send_dimensions:
+            if self.dimensions != [self.default_dimensions]:
+                raise ValueError("Omitting dimensions requires one fixed output dimension")
         return self
 
 
@@ -204,7 +322,18 @@ class EmbeddingConfigurationCreate(RequestModel):
     dimensions: int = Field(ge=1, le=4096)
     mode: ProcessingMode = ProcessingMode.AUTOMATIC
     use_credits: bool = False
-    chunking: Chunking = Field(default_factory=Chunking)
+    chunking: Chunking = Field(default_factory=lambda: Chunking(mode="automatic"))
+
+    @model_validator(mode="before")
+    @classmethod
+    def copy_default(cls, value):
+        if (
+            isinstance(value, dict)
+            and value.get("existing_vector_column")
+            and "chunking" not in value
+        ):
+            return value | {"chunking": {"enabled": False}}
+        return value
 
     @model_validator(mode="after")
     def valid_copy(self) -> EmbeddingConfigurationCreate:
@@ -222,6 +351,7 @@ class EmbeddingConfigurationCreate(RequestModel):
 class EmbeddingConfigurationSettings(EmbeddingConfigurationCreate):
     """Persisted settings, including operator-managed processing limits."""
 
+    chunking: Chunking = Field(default_factory=Chunking)
     batch_size: int = Field(default=100, ge=1, le=1000)
 
 
@@ -233,12 +363,63 @@ class EmbeddingConfigurationUpdate(RequestModel):
 
 
 class EmbeddingActionRequest(RequestModel):
-    action: Literal["pause", "resume", "run", "retry", "reconcile"]
+    action: Literal[
+        "pause", "resume", "run", "retry", "reconcile", "preview_chunking", "enable_chunking"
+    ]
+    expected_version: int | None = Field(default=None, ge=1)
+
+    @model_validator(mode="after")
+    def recovery_version(self):
+        if self.action == "enable_chunking" and self.expected_version is None:
+            raise ValueError("expected_version is required to enable automatic chunking")
+        return self
+
+
+class EmbeddingChunkingSample(ResponseModel):
+    work_id: UUID
+    source_key: dict[str, Any]
+    input_tokens: int
+    chunks: int
+
+
+class EmbeddingChunkingRecovery(ResponseModel):
+    expected_version: int
+    eligible_rows: int
+    blocked_rows: int
+    max_input_tokens: int
+    samples: list[EmbeddingChunkingSample]
+    retried_rows: int = 0
 
 
 class EmbeddingRemoveRequest(RequestModel):
     delete_managed_output: bool
     expected_version: int = Field(ge=1)
+
+
+class EmbeddingIssue(ResponseModel):
+    state: Literal["recovering", "action_required", "investigation"]
+    reason: Literal[
+        "service_delay",
+        "allowance",
+        "credits",
+        "spending_disabled",
+        "spending_limit",
+        "source_text_too_long",
+        "source_changed",
+    ]
+    rows: int = Field(ge=0)
+    action: Literal["billing", "spending_settings", "source_rows"] | None = None
+
+
+class EmbeddingIssueRow(ResponseModel):
+    work_id: UUID
+    source_key: dict[str, Any]
+    reason: Literal["source_text_too_long", "source_changed"]
+
+
+class EmbeddingIssueRows(ResponseModel):
+    rows: list[EmbeddingIssueRow]
+    next_cursor: UUID | None = None
 
 
 class EmbeddingProgress(ResponseModel):
@@ -261,6 +442,7 @@ class EmbeddingProgress(ResponseModel):
     next_retry_at: datetime | None = None
     failed: int = 0
     uncertain: int = 0
+    delayed: int = Field(default=0, description="Current source rows undergoing service recovery.")
     deleted: int = 0
     input_tokens: int = 0
     context_pending: int = 0
@@ -278,6 +460,7 @@ class EmbeddingConfiguration(ResponseModel):
     managed_table: str
     progress: EmbeddingProgress = Field(default_factory=EmbeddingProgress)
     last_error_code: str | None = None
+    issues: list[EmbeddingIssue] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
     initial_scan_complete: bool = False

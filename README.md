@@ -39,6 +39,29 @@ print(readiness.graph, readiness.vector, readiness.hybrid)
 
 Use the Runtime API URL with the SDK. Do not use a direct or pooled PostgreSQL connection string.
 
+## Archived projects
+
+An updated Runtime returns `PROJECT_ARCHIVED` (HTTP 409) while a project is
+archiving, archived, or restoring. SDK 0.6.0 raises
+`PolygresProjectArchivedError`, a subclass of `PolygresAPIError`:
+
+```python
+from polygres import PolygresProjectArchivedError
+
+try:
+    readiness = project.readiness()
+except PolygresProjectArchivedError as exc:
+    print(str(exc))
+    print(exc.details.get("archive_state"))
+```
+
+An archived project's message is: "This project is archived. Restore it in the
+Polygres dashboard to resume database access." A restoring project's message
+asks you to wait until restoration finishes. The SDK does not automatically
+restore a project or retry this response. Existing code catching
+`PolygresAPIError` continues to catch it. Older Runtime deployments may still
+return `RUNTIME_PROJECT_NOT_FOUND`, which remains `PolygresNotFoundError`.
+
 ## Synchronized PostgreSQL projects
 
 For a synchronized project, the Runtime does not expose connection information.
@@ -119,7 +142,7 @@ pagination reuse the original embedding attempt. Set `timeout` to control the
 request budget, including embedding generation. Query plans accept credit,
 idempotency, and timeout options on `execute_query()`.
 
-This requires a Runtime that supports query embedding generation. SDK 0.5.0
+This requires a Runtime that supports query embedding generation. The SDK
 checks that support before sending text queries.
 
 ## pgContext-aligned names
@@ -373,11 +396,11 @@ payload and idempotency key.
 
 ## Version and support
 
-Package version: [`0.5.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.5.0).
+Package version: [`0.6.0`](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.6.0).
 
 When contacting support, include the installed SDK version and the request ID.
 
-See the [SDK 0.5.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.5.0) for release changes.
+See the [SDK 0.6.0 release notes](https://github.com/Evokoa/polygres-sdk/releases/tag/polygres-sdk-v0.6.0) for release changes.
 
 ## Optional Agent Skill
 

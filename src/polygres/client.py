@@ -28,6 +28,7 @@ from polygres.errors import (
     PolygresMaintenanceError,
     PolygresNotFoundError,
     PolygresPermissionError,
+    PolygresProjectArchivedError,
     PolygresRateLimitError,
     PolygresRuntimeError,
     PolygresValidationError,
@@ -1262,6 +1263,8 @@ def _api_error(response: httpx.Response, *, secret: str | None = None) -> Polygr
         "code": code,
         "details": details,
     }
+    if code == "PROJECT_ARCHIVED":
+        return PolygresProjectArchivedError(message, **kwargs)
     if status_code == 401:
         return PolygresAuthError(message, **kwargs)
     if status_code == 403:
